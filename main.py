@@ -21,7 +21,8 @@ _tree_synced = False
 @bot.event
 async def on_ready():
     global _tree_synced
-    print(f"Bot listo: {bot.user} (ID: {bot.user.id})")
+    if bot.user:
+        print(f"Bot listo: {bot.user} (ID: {bot.user.id})")
     await init_db()
     if not _tree_synced:
         try:

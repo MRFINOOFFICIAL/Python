@@ -210,6 +210,19 @@ async def update_item_durability(item_id, new_durability: int):
         await db.execute("UPDATE inventory SET durabilidad = ? WHERE id = ?", (new_durability, item_id))
         await db.commit()
 
+async def remove_item(item_id):
+    """Alias for remove_item_from_inventory for compatibility."""
+    await remove_item_from_inventory(item_id)
+
+async def damage_item(item_id, damage: int):
+    """Reduce durability of an item by damage amount."""
+    item = await get_item_by_id(item_id)
+    if item:
+        new_durability = max(0, item["durabilidad"] - damage)
+        await update_item_durability(item_id, new_durability)
+        if new_durability <= 0:
+            await remove_item_from_inventory(item_id)
+
 # ---------- Shop ----------
 async def get_shop_item(name):
     async with aiosqlite.connect(DB) as db:
