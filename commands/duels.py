@@ -5,11 +5,25 @@ import random
 from db import (create_duel, get_pending_duels, accept_duel, 
                 add_money, get_user)
 
+async def cantidad_sugerida_autocomplete(interaction: discord.Interaction, current: str):
+    """Sugerencias de cantidad para duelos"""
+    try:
+        user = await get_user(interaction.user.id)
+        dinero = user['dinero'] if user else 0
+        suggestions = [100, 500, 1000, 5000]
+        if dinero >= 10000:
+            suggestions.append(10000)
+        filtered = [str(c) for c in suggestions if str(c).startswith(current)] if current else [str(c) for c in suggestions]
+        return [app_commands.Choice(name=f"{c}💰", value=c) for c in filtered[:5]]
+    except Exception:
+        return []
+
 class DuelsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="desafiar", description="Desafiar a un jugador a duelo por dinero")
+    @app_commands.autocomplete(cantidad=cantidad_sugerida_autocomplete)
     async def challenge(self, interaction: discord.Interaction, usuario: discord.User, cantidad: int):
         await interaction.response.defer()
         

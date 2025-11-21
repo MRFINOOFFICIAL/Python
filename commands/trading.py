@@ -4,11 +4,24 @@ from discord import app_commands
 from db import (create_trade, get_pending_trades, accept_trade, 
                 get_inventory, remove_item, add_item_to_user)
 
+async def inventario_items_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para items del inventario"""
+    try:
+        inv = await get_inventory(interaction.user.id)
+        if not inv:
+            return []
+        items = [item["item"] for item in inv]
+        filtered = [name for name in items if current.lower() in name.lower()] if current else items
+        return [app_commands.Choice(name=name[:100], value=name) for name in filtered[:25]]
+    except Exception:
+        return []
+
 class TradingCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="ofrecer-trade", description="Ofrecer intercambio con otro jugador")
+    @app_commands.autocomplete(item_tuyo=inventario_items_autocomplete)
     async def offer_trade(self, interaction: discord.Interaction, usuario: discord.User, item_tuyo: str, item_suyo: str):
         await interaction.response.defer()
         
