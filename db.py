@@ -154,6 +154,26 @@ async def init_db():
             PRIMARY KEY (user_id, nombre)
         )
         """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS clubs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT UNIQUE NOT NULL,
+            lider TEXT NOT NULL,
+            dinero INTEGER DEFAULT 0,
+            miembros_max INTEGER DEFAULT 10,
+            fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS club_members (
+            club_id INTEGER,
+            user_id TEXT,
+            rango TEXT DEFAULT 'miembro',
+            fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (club_id, user_id),
+            FOREIGN KEY (club_id) REFERENCES clubs(id)
+        )
+        """)
 
         await db.commit()
 
