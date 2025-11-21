@@ -111,6 +111,8 @@ class HelpAlmanacView(discord.ui.View):
             discord.SelectOption(label="Combate & Bosses", description="Sistema de peleas contra jefes", emoji="⚔️"),
             discord.SelectOption(label="Tienda & Compras", description="Items de tienda y efectos", emoji="🏪"),
             discord.SelectOption(label="Almanaque — Cofres", description="Tipos de cofres y probabilidades", emoji="🗝️"),
+            discord.SelectOption(label="Social & Economía", description="Misiones, Trading, Mercado, Duelos", emoji="💼"),
+            discord.SelectOption(label="Leaderboards & Upgrades", description="Rankings y mejoras permanentes", emoji="🏆"),
             discord.SelectOption(label="Comandos Admin", description="Comandos solo para administradores", emoji="🔒"),
         ]
         self.select = discord.ui.Select(placeholder="Elige una sección...", options=options, min_values=1, max_values=1)
@@ -136,6 +138,10 @@ class HelpAlmanacView(discord.ui.View):
             embed = self._build_shop()
         elif choice == "Almanaque — Cofres":
             embed = self._build_chests()
+        elif choice == "Social & Economía":
+            embed = self._build_social()
+        elif choice == "Leaderboards & Upgrades":
+            embed = self._build_leaderboards()
         elif choice == "Comandos Admin":
             embed = self._build_admins()
         else:
@@ -195,6 +201,11 @@ class HelpAlmanacView(discord.ui.View):
         embed.add_field(
             name="💰 Robar",
             value="`/rob <@usuario>` — Robar dinero de otro jugador",
+            inline=False
+        )
+        embed.add_field(
+            name="💼 Social & Competencia",
+            value="`/misiones` — Ver misiones diarias\n`/leaderboard [stat]` — Ver rankings\n`/ofrecer-trade` — Intercambiar items\n`/vender-item` — Vender en mercado\n`/desafiar` — Apostar dinero vs otro jugador",
             inline=False
         )
         embed.set_footer(text="Usa el menú para ver detalles de cada sección.")
@@ -342,6 +353,64 @@ class HelpAlmanacView(discord.ui.View):
         embed.add_field(
             name="Consejos",
             value="🔦 Tener **Linterna** aumenta probabilidad de cofres raros.\n🔑 **Llave Maestra** abre cofres sellados (se consume).\n⚡ Cofre Maestro: extremadamente raro; consérvalo o prepárate bien.",
+            inline=False
+        )
+        return embed
+
+    def _build_social(self) -> discord.Embed:
+        """Guía de sistemas sociales y economía"""
+        embed = discord.Embed(
+            title="💼 Social & Economía Avanzada",
+            description="Interacciona con otros jugadores y expande tu imperio.",
+            color=discord.Color.blurple()
+        )
+        embed.add_field(
+            name="📋 Misiones Diarias",
+            value="`/misiones` — Ver tu misión del día (gana 400-600💰)\n`/completar-mision` — Reclama la recompensa si completaste la misión\n\n**Tipos:** Trabajar 5 veces, Explorar 3 veces, Robar 2 veces",
+            inline=False
+        )
+        embed.add_field(
+            name="📦 Trading de Items",
+            value="`/ofrecer-trade @user item_tuyo item_suyo` — Proponer intercambio\n`/mis-trades` — Ver trades pendientes\n\n💡 Intercambia items raros entre jugadores.",
+            inline=False
+        )
+        embed.add_field(
+            name="🏪 Mercado de Items",
+            value="`/vender-item <id> <precio>` — Poner item a la venta\n`/mercado` — Ver items en venta\n\n💡 Vende items a otros jugadores por dinero.",
+            inline=False
+        )
+        embed.add_field(
+            name="⚔️ Duelos por Dinero",
+            value="`/desafiar @user cantidad` — Apuesta dinero en un duelo\n`/mis-duelos` — Ver desafíos pendientes\n\n💡 El ganador se lleva todo. ¡Arriesga sabiamente!",
+            inline=False
+        )
+        return embed
+
+    def _build_leaderboards(self) -> discord.Embed:
+        """Guía de leaderboards y upgrades"""
+        embed = discord.Embed(
+            title="🏆 Leaderboards & Upgrades Permanentes",
+            description="Compite contra otros y mejora permanentemente.",
+            color=discord.Color.gold()
+        )
+        embed.add_field(
+            name="📊 Leaderboards",
+            value="`/leaderboard dinero` — Ver top 10 por 💰 dinero\n`/leaderboard experiencia` — Ver top 10 por ⭐ XP\n\n💡 Demuestra que eres el mejor del servidor.",
+            inline=False
+        )
+        embed.add_field(
+            name="🐕 Mascotas con XP",
+            value="**Chihuahua** y otras mascotas ganan XP:\n• Cada 100 XP = 1 NIVEL\n• Niveles superiores = bonificadores progresivos\n• Usa mascotas en combate para acumular XP",
+            inline=False
+        )
+        embed.add_field(
+            name="🔧 Upgrades Permanentes (Sistema en BD)",
+            value="Compra mejoras que nunca desaparecen:\n• 📈 **Mejor ganancia de dinero** — +25% en trabajos\n• ⭐ **XP Boost** — +50% experiencia\n• 🛡️ **Durabilidad++** — Items duran más\n• 💪 **Poder de Robo** — +20% éxito en robos\n\n💡 Son inversiones a largo plazo que multiplican tus ganancias.",
+            inline=False
+        )
+        embed.add_field(
+            name="🍷 Bebida de la Vida",
+            value="`/buy Bebida de la Vida` — 8000💰\n`/use` — Usar para ganar 1 vida extra\n\n⚠️ **Sistema de Vidas:**\n• Comienzas con 1 vida\n• 20% probabilidad de morir en explore\n• Si mueres, PIERDES TODO (dinero, items, XP)\n• ¡Compra vidas extras para protegerte!",
             inline=False
         )
         return embed
