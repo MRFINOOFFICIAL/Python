@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 from datetime import datetime, timedelta
-from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory, club_has_upgrade
+from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory, club_has_upgrade, add_experiencia
 from cache import set_buff, get_buff
 import time
 
@@ -131,16 +131,19 @@ def choose_difficulty_for_pay(pay: int):
     return random.choices(["easy","normal","hard","expert"], weights=w, k=1)[0]
 
 # ---------------- Minijuegos ----------------
-async def play_dados(ctx, pay, bonus_time=0):
+async def play_dados(ctx, pay, bonus_time=0, book_bonus=False):
     dado = random.randint(1, 6)
-    if dado >= 4:
+    success_threshold = 4
+    if book_bonus:
+        success_threshold = 3  # Biblioteca Antigua: +20% éxito (menor umbral)
+    if dado >= success_threshold:
         bonus = random.randint(0, max(1, pay//6))
         return pay + bonus, f"🎲 Sacaste un {dado}, ganaste {pay + bonus}💰"
     else:
         loss = max(10, pay//6)
         return -loss, f"🎲 Sacaste un {dado}, fallaste y perdiste {loss}💰"
 
-async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str = None, user_id=None, bot=None):
+async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str = None, user_id=None, bot=None, book_bonus=False):
     """
     Si forced_difficulty viene (easy/normal/hard/expert) se fuerza esa dificultad.
     bonus_time añade segundos extra para responder.
@@ -179,6 +182,10 @@ async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str = Non
         reward = int(pay * DIFFICULTY_MULT[difficulty]) + random.randint(0, int(pay*0.15))
         return reward, f"✅ ¡Correcto! (+{reward}💰) — Categoria: {category.capitalize()} ({difficulty})"
     else:
+        # Biblioteca Antigua: +20% chance de acertar una pregunta incorrecta
+        if book_bonus and random.random() < 0.20:
+            reward = int(pay * DIFFICULTY_MULT[difficulty] * 0.5)
+            return reward, f"📚 ¡La Biblioteca te ayudó! Respuesta parcial. (+{reward}💰)"
         penalty = max(5, int(pay*0.08 * DIFFICULTY_MULT[difficulty]))
         return -penalty, f"❌ Incorrecto. (Respuesta esperada: {respuestas[0]}) Perdistes {penalty}💰"
 
@@ -281,6 +288,9 @@ class WorkCog(commands.Cog):
         # bonus por upgrade de club "Aula de Entrenamiento"
         if await club_has_upgrade(user_id, "Aula de Entrenamiento"):
             money_multiplier *= 1.25  # +25% dinero
+        
+        # bonus por upgrade de club "Biblioteca Antigua"
+        book_bonus = await club_has_upgrade(user_id, "Biblioteca Antigua")
 
         # elegir minijuego
         game_name = random.choice(JOBS[job]["games"])
@@ -311,9 +321,9 @@ class WorkCog(commands.Cog):
 
         try:
             if game_name == "pregunta":
-                result, msg_text = await play_pregunta(send_fn, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty, user_id=user_id, bot=bot)
+                result, msg_text = await play_pregunta(send_fn, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty, user_id=user_id, bot=bot, book_bonus=book_bonus)
             else:
-                result, msg_text = await game_func(send_fn, pay, bonus_time=bonus_time)
+                result, msg_text = await game_func(send_fn, pay, bonus_time=bonus_time, book_bonus=book_bonus)
         except Exception as e:
             return await send_fn(f"❌ Error al ejecutar el minijuego: {e}")
 

@@ -10,7 +10,7 @@ from db import (
     set_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
     add_money, get_user, add_item_to_user, get_inventory,
-    remove_item, get_shop_item
+    remove_item, get_shop_item, add_experiencia, club_has_upgrade
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
@@ -155,6 +155,9 @@ class BossesCog(commands.Cog):
                     if view.damage_buff:
                         player_dmg = int(player_dmg * 1.5)
                         view.damage_buff = False
+                    # Bonus por upgrade Armería Mejorada
+                    if await club_has_upgrade(user_id, "Armería Mejorada"):
+                        player_dmg = int(player_dmg * 1.15)
                     boss_hp -= player_dmg
                     crit_text = " ¡CRÍTICO!" if player_crit else ""
                     fight_log.append(f"⚔️ Golpeaste por {player_dmg}{crit_text}")
@@ -298,9 +301,14 @@ class BossesCog(commands.Cog):
         if boss_hp <= 0:
             reward = await get_boss_reward(boss)
             await add_money(user_id, reward["dinero"])
+            # Agregar XP por victoria
+            xp_reward = 150
+            if await club_has_upgrade(user_id, "Sala de Meditación"):
+                xp_reward = int(xp_reward * 1.30)  # +30% XP
+            await add_experiencia(user_id, xp_reward)
             embed = discord.Embed(title="✅ ¡VICTORIA!", color=discord.Color.green())
             embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
-            embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero", inline=False)
+            embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero | ⭐ {xp_reward} XP", inline=False)
             if reward["item"]:
                 await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
                 embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
