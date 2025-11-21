@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import aiosqlite
-from db import add_money, set_job, get_user, DB
+from db import add_money, set_job, get_user, DB, set_allowed_channel, get_allowed_channel, set_allowed_channel, get_allowed_channel
 
 class AdminCog(commands.Cog):
     def __init__(self, bot):
@@ -108,6 +108,63 @@ class AdminCog(commands.Cog):
             f"🔁 Cooldown reiniciado para {member.mention} "
             f"{f'del trabajo **{job_name}**' if job_name else 'de todos los trabajos'}."
         )
+
+    @app_commands.command(name="setchannel", description="Establecer canal donde funciona el bot (Admin)")
+    @app_commands.describe(channel="Canal permitido (dejar vacío para permitir todos)")
+    async def setchannel_slash(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
+        if not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message("❌ Solo admins.", ephemeral=True)
+
+        guild_id = interaction.guild_id
+        if channel:
+            await set_allowed_channel(guild_id, channel.id)
+            embed = discord.Embed(
+                title="✅ Canal Configurado",
+                description=f"El bot ahora solo funciona en {channel.mention}",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="Canal", value=f"{channel.name} (ID: {channel.id})")
+        else:
+            await set_allowed_channel(guild_id, None)
+            embed = discord.Embed(
+                title="✅ Restricción Eliminada",
+                description="El bot ahora funciona en todos los canales",
+                color=discord.Color.green()
+            )
+        
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="getchannel", description="Ver canal configurado (Admin)")
+    async def getchannel_slash(self, interaction: discord.Interaction):
+        if not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message("❌ Solo admins.", ephemeral=True)
+
+        guild_id = interaction.guild_id
+        channel_id = await get_allowed_channel(guild_id)
+        
+        if channel_id:
+            channel = interaction.guild.get_channel(channel_id)
+            if channel:
+                embed = discord.Embed(
+                    title="📍 Canal Configurado",
+                    description=f"El bot solo funciona en {channel.mention}",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name="Canal", value=f"{channel.name}")
+            else:
+                embed = discord.Embed(
+                    title="❌ Canal Inválido",
+                    description=f"El canal ID {channel_id} no existe o fue eliminado",
+                    color=discord.Color.red()
+                )
+        else:
+            embed = discord.Embed(
+                title="🌍 Sin Restricción",
+                description="El bot funciona en todos los canales",
+                color=discord.Color.blue()
+            )
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(AdminCog(bot))
