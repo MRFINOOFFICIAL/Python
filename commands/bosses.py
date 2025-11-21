@@ -16,6 +16,16 @@ from bosses import (
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type
 )
 
+async def boss_autocomplete(interaction: discord.Interaction, current: str) -> list:
+    """Autocomplete for boss names - shows all bosses"""
+    try:
+        all_bosses = get_all_boss_names()
+        filtered = [name for name in all_bosses if current.lower() in name.lower()] if current else all_bosses
+        return filtered[:25]
+    except Exception as e:
+        print(f"Error en autocomplete: {e}")
+        return []
+
 class BossesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -266,16 +276,6 @@ class BossesCog(commands.Cog):
                 pass
         
         await ctx.send("✅ Jefe spawneado")
-
-    async def boss_autocomplete(self, interaction: discord.Interaction, current: str) -> list:
-        """Autocomplete for boss names - shows all bosses"""
-        try:
-            all_bosses = get_all_boss_names()
-            filtered = [name for name in all_bosses if current.lower() in name.lower()] if current else all_bosses
-            return filtered[:25]
-        except Exception as e:
-            print(f"Error en autocomplete: {e}")
-            return []
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
     @app_commands.describe(tipo="Tipo de jefe: Mini-Boss, Boss o Especial", jefe="O selecciona un jefe específico")
