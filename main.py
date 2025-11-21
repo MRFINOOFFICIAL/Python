@@ -37,6 +37,24 @@ async def on_ready():
         _tree_synced = True
 
 @bot.event
+async def on_app_command_error(interaction: discord.Interaction, error: Exception):
+    """Manejar errores de comandos slash"""
+    if isinstance(error, discord.app_commands.CommandNotFound):
+        await interaction.response.send_message("❌ Comando no encontrado.", ephemeral=True)
+    elif "deprecated" in str(error).lower() or "obsoleto" in str(error).lower():
+        print(f"⚠️ Comando obsoleto detectado: {interaction.command.name if interaction.command else 'unknown'}")
+        print("⚠️ Resincronizando comandos globales...")
+        try:
+            synced = await bot.tree.sync()
+            print(f"✅ Comandos resincronizados: {len(synced)}")
+            await interaction.response.send_message("✅ Comandos actualizados. Intenta de nuevo.", ephemeral=True)
+        except Exception as e:
+            print(f"Error al resincronizar: {e}")
+            await interaction.response.send_message("⚠️ Error al actualizar comandos. Intenta en unos momentos.", ephemeral=True)
+    else:
+        await interaction.response.send_message(f"❌ Error: {error}", ephemeral=True)
+
+@bot.event
 async def on_guild_join(guild):
     """Sincronizar comandos cuando el bot se une a un nuevo servidor"""
     try:
