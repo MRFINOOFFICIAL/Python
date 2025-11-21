@@ -1,7 +1,7 @@
 # commands/bosses.py
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ui
 from datetime import datetime, timedelta
 import random
 from typing import Optional
@@ -9,12 +9,64 @@ from db import (
     get_active_boss, set_active_boss, remove_active_boss, update_boss_hp,
     add_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
-    add_money, get_user, add_item_to_user, create_boss_tables
+    add_money, get_user, add_item_to_user, create_boss_tables, get_user_inventory,
+    remove_item_from_inventory
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type
 )
+
+class FightActionView(ui.View):
+    def __init__(self, user_id, interaction):
+        super().__init__(timeout=60)
+        self.user_id = user_id
+        self.interaction = interaction
+        self.action = None
+        self.selected_item = None
+    
+    @ui.button(label="⚔️ Atacar", style=discord.ButtonStyle.red)
+    async def attack_button(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.defer()
+            return
+        self.action = "attack"
+        self.stop()
+        await interaction.response.defer()
+    
+    @ui.button(label="🛡️ Defender", style=discord.ButtonStyle.blurple)
+    async def defend_button(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.defer()
+            return
+        self.action = "defend"
+        self.stop()
+        await interaction.response.defer()
+    
+    @ui.button(label="📦 Usar Item", style=discord.ButtonStyle.green)
+    async def item_button(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.defer()
+            return
+        inventory = await get_user_inventory(self.user_id)
+        if not inventory:
+            await interaction.response.send_message("❌ Inventario vacío", ephemeral=True)
+            return
+        options = [discord.SelectOption(label=f"{item['item']} (x{item['usos']})", value=str(item['id'])) for item in inventory[:25]]
+        await interaction.response.send_message("Selecciona un item:", view=ItemSelectView(self.user_id, self), ephemeral=True)
+
+class ItemSelectView(ui.View):
+    def __init__(self, user_id, fight_view):
+        super().__init__(timeout=30)
+        self.user_id = user_id
+        self.fight_view = fight_view
+    
+    @ui.select(placeholder="Elige un item para usar")
+    async def select_item(self, interaction: discord.Interaction, select: ui.Select):
+        self.fight_view.action = "use_item"
+        self.fight_view.selected_item = select.values[0]
+        self.fight_view.stop()
+        await interaction.response.defer()
 
 async def boss_autocomplete(interaction: discord.Interaction, current: str):
     """Autocomplete for boss names - shows all bosses"""
@@ -31,106 +83,127 @@ class BossesCog(commands.Cog):
         self.bot = bot
         self.spawn_tasks = {}
 
-    async def _fight_internal(self, user_id, guild_id, send_fn):
-        """Internal fight logic shared by prefix and slash commands"""
+    async def _fight_internal(self, user_id, guild_id, interaction):
+        """Interactive fight logic - user chooses actions each turn"""
         boss = await get_active_boss(guild_id)
         if not boss:
-            return await send_fn("❌ No hay jefe activo en este servidor.")
+            return await interaction.response.send_message("❌ No hay jefe activo en este servidor.", ephemeral=True)
         
         cooldown = await get_fight_cooldown(user_id, guild_id)
         if cooldown and datetime.fromisoformat(cooldown.isoformat()) > datetime.now() - timedelta(minutes=2):
-            return await send_fn("⏳ Debes esperar 2 minutos entre peleas.")
+            return await interaction.response.send_message("⏳ Debes esperar 2 minutos entre peleas.", ephemeral=True)
         
         equipped = await get_equipped_item(user_id)
         weapon = equipped["item_name"] if equipped else None
-        
-        embed = discord.Embed(title=f"⚔️ Pelea: {boss['name']}", color=discord.Color.red())
-        embed.add_field(name="Tu HP", value="100 HP", inline=False)
-        embed.add_field(name=f"HP del Jefe", value=f"{boss['hp']} / {boss['max_hp']} HP", inline=False)
         
         player_hp = 100
         boss_hp = boss["hp"]
         turn = 1
         fight_log = []
+        defend_next = False
+        
+        await interaction.response.send_message("⚔️ ¡Iniciando combate!")
         
         while player_hp > 0 and boss_hp > 0 and turn <= 30:
-            player_hit, player_dmg, player_crit = resolve_player_attack(weapon)
-            boss_hit, boss_dmg, boss_crit = resolve_boss_attack(boss)
+            embed = discord.Embed(title=f"⚔️ Turno {turn}: {boss['name']}", color=discord.Color.red())
+            embed.add_field(name="Tu HP", value=f"{player_hp} HP", inline=True)
+            embed.add_field(name="HP Jefe", value=f"{boss_hp}/{boss['max_hp']} HP", inline=True)
+            embed.add_field(name="Elige tu acción:", value="⚔️ Atacar | 🛡️ Defender | 📦 Usar Item", inline=False)
+            embed.add_field(name="Último evento", value=fight_log[-1] if fight_log else "...", inline=False)
             
-            if player_hit:
-                boss_hp -= player_dmg
-                crit_text = " (¡CRÍTICO!)" if player_crit else ""
-                fight_log.append(f"**Turno {turn}:** Golpeaste por {player_dmg} daño{crit_text}. Boss HP: {max(0, boss_hp)}")
-            else:
-                fight_log.append(f"**Turno {turn}:** ¡Fallaste!")
+            view = FightActionView(user_id, interaction)
+            msg = await interaction.followup.send(embed=embed, view=view)
+            await view.wait()
+            
+            if view.action == "attack":
+                player_hit, player_dmg, player_crit = resolve_player_attack(weapon)
+                if player_hit:
+                    boss_hp -= player_dmg
+                    crit_text = " ¡CRÍTICO!" if player_crit else ""
+                    fight_log.append(f"⚔️ Golpeaste por {player_dmg}{crit_text}")
+                else:
+                    fight_log.append(f"❌ ¡Fallaste tu ataque!")
+            elif view.action == "defend":
+                defend_next = True
+                fight_log.append(f"🛡️ ¡Te preparaste para defender!")
+            elif view.action == "use_item" and view.selected_item:
+                fight_log.append(f"📦 Usaste un item")
+                try:
+                    await remove_item_from_inventory(int(view.selected_item))
+                    player_hp = min(100, player_hp + 30)
+                    fight_log[-1] = f"📦 ¡Recuperaste 30 HP!"
+                except:
+                    pass
             
             if boss_hp <= 0:
                 break
             
+            boss_hit, boss_dmg, boss_crit = resolve_boss_attack(boss)
+            if defend_next:
+                boss_dmg = int(boss_dmg * 0.5)
+                defend_next = False
+            
             if boss_hit:
                 player_hp -= boss_dmg
-                crit_text = " (¡CRÍTICO!)" if boss_crit else ""
-                fight_log.append(f"El jefe golpeó por {boss_dmg}{crit_text}. Tu HP: {max(0, player_hp)}")
+                crit_text = " ¡CRÍTICO!" if boss_crit else ""
+                fight_log.append(f"💥 {boss['name']} golpeó por {boss_dmg}{crit_text}")
             else:
-                fight_log.append(f"¡El jefe falló!")
+                fight_log.append(f"🛡️ {boss['name']} falló")
             
             turn += 1
+            try:
+                await msg.delete()
+            except:
+                pass
         
         await update_boss_hp(guild_id, max(0, boss_hp))
         await set_fight_cooldown(user_id, guild_id)
         
-        log_text = "\n".join(fight_log[-10:])
-        
         if boss_hp <= 0:
             reward = await get_boss_reward(boss)
             await add_money(user_id, reward["dinero"])
-            
-            embed.title = "✅ ¡Victoria!"
-            embed.color = discord.Color.green()
-            embed.add_field(name="Resultado", value=f"Derrotaste a {boss['name']}", inline=False)
-            embed.add_field(name="Recompensas", value=f"💰 {reward['dinero']} dinero", inline=False)
+            embed = discord.Embed(title="✅ ¡VICTORIA!", color=discord.Color.green())
+            embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
+            embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero", inline=False)
             if reward["item"]:
                 await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
                 embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
-            
             await remove_active_boss(guild_id)
             channels = await get_event_channels(guild_id)
             for ch_id in channels:
                 try:
                     ch = self.bot.get_channel(ch_id)
                     if ch:
-                        user = await get_user(user_id)
-                        mention = f"<@{user_id}>"
-                        await ch.send(f"🏆 {mention} derrotó a **{boss['name']}**!")
+                        await ch.send(f"🏆 <@{user_id}> derrotó a **{boss['name']}**!")
                 except:
                     pass
         else:
-            embed.title = "❌ Derrota"
-            embed.color = discord.Color.greyple()
-            embed.add_field(name="Resultado", value=f"{boss['name']} te derrotó", inline=False)
+            embed = discord.Embed(title="❌ DERROTA", color=discord.Color.greyple())
+            embed.add_field(name=f"{boss['name']} te derrotó", value=f"Tu HP: {player_hp}", inline=False)
             lost_money = random.randint(10, 50)
-            user = await get_user(user_id)
-            new_balance = max(0, user["dinero"] - lost_money)
-            embed.add_field(name="Castigo", value=f"Perdiste 💰 {lost_money}", inline=False)
-            embed.add_field(name="Balance", value=f"💰 {new_balance}", inline=False)
+            embed.add_field(name="Perdiste", value=f"💰 {lost_money} dinero", inline=False)
         
-        embed.add_field(name="Registro de Combate", value=log_text or "Sin registros", inline=False)
-        await send_fn(embed=embed)
+        embed.add_field(name="Eventos", value="\n".join(fight_log[-5:]) or "...", inline=False)
+        await interaction.followup.send(embed=embed)
 
     @commands.command(name="fight")
     async def fight_prefix(self, ctx):
         """!fight - Pelea contra el jefe activo"""
-        async def send_fn(*args, **kwargs):
-            await ctx.send(*args, **kwargs)
-        await self._fight_internal(ctx.author.id, ctx.guild.id, send_fn)
+        class DummyInteraction:
+            async def response_send_message(self, *args, **kwargs):
+                await ctx.send(*args, **kwargs)
+            async def followup_send(self, *args, **kwargs):
+                await ctx.send(*args, **kwargs)
+        dummy = DummyInteraction()
+        dummy.response = type('obj', (object,), {'send_message': dummy.response_send_message})()
+        dummy.followup = type('obj', (object,), {'send': dummy.followup_send})()
+        await self._fight_internal(ctx.author.id, ctx.guild.id, dummy)
 
     @app_commands.command(name="fight", description="Pelea contra el jefe activo")
     async def fight_slash(self, interaction: discord.Interaction):
         """Fight the active boss"""
         await interaction.response.defer()
-        async def send_fn(*args, **kwargs):
-            await interaction.followup.send(*args, **kwargs)
-        await self._fight_internal(interaction.user.id, interaction.guild_id, send_fn)
+        await self._fight_internal(interaction.user.id, interaction.guild_id, interaction)
 
     @commands.command(name="bossinfo")
     async def bossinfo_prefix(self, ctx):
