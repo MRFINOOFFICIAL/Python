@@ -101,7 +101,7 @@ async def init_db():
             PRIMARY KEY (guild_id, channel_id)
         )
         """)
-                await db.execute("""
+        await db.execute("""
         CREATE TABLE IF NOT EXISTS daily_missions (
             user_id TEXT,
             fecha TEXT,
