@@ -336,3 +336,120 @@ async def get_allowed_channel(guild_id):
         cur = await db.execute("SELECT allowed_channel_id FROM bot_settings WHERE guild_id = ?", (str(guild_id),))
         row = await cur.fetchone()
         return int(row[0]) if row and row[0] else None
+
+# ---------- Boss System ----------
+async def create_boss_tables():
+    """Create tables for boss system"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS active_boss (
+            guild_id TEXT PRIMARY KEY,
+            boss_name TEXT,
+            boss_type TEXT,
+            current_hp INTEGER,
+            max_hp INTEGER,
+            spawned_at TIMESTAMP
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS event_channels (
+            guild_id TEXT,
+            channel_id TEXT,
+            PRIMARY KEY(guild_id, channel_id)
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS equipment (
+            user_id TEXT PRIMARY KEY,
+            item_id INTEGER,
+            item_name TEXT
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS boss_cooldowns (
+            user_id TEXT,
+            guild_id TEXT,
+            last_fight TIMESTAMP,
+            PRIMARY KEY(user_id, guild_id)
+        )
+        """)
+        await db.commit()
+
+async def set_active_boss(guild_id, boss_data):
+    """Set the active boss for a guild"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("""
+        INSERT OR REPLACE INTO active_boss(guild_id, boss_name, boss_type, current_hp, max_hp, spawned_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (str(guild_id), boss_data["name"], boss_data["type"], boss_data["hp"], boss_data["hp"], datetime.now().isoformat()))
+        await db.commit()
+
+async def get_active_boss(guild_id):
+    """Get the active boss for a guild"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT boss_name, boss_type, current_hp, max_hp, spawned_at FROM active_boss WHERE guild_id = ?", (str(guild_id),))
+        row = await cur.fetchone()
+        if row:
+            return {"name": row[0], "type": row[1], "hp": row[2], "max_hp": row[3], "spawned_at": row[4]}
+        return None
+
+async def update_boss_hp(guild_id, new_hp):
+    """Update the current HP of the active boss"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("UPDATE active_boss SET current_hp = ? WHERE guild_id = ?", (new_hp, str(guild_id)))
+        await db.commit()
+
+async def remove_active_boss(guild_id):
+    """Remove the active boss from a guild"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("DELETE FROM active_boss WHERE guild_id = ?", (str(guild_id),))
+        await db.commit()
+
+async def add_event_channel(guild_id, channel_id):
+    """Add an event channel for a guild"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("INSERT OR IGNORE INTO event_channels(guild_id, channel_id) VALUES (?, ?)", (str(guild_id), str(channel_id)))
+        await db.commit()
+
+async def remove_event_channel(guild_id, channel_id):
+    """Remove an event channel from a guild"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("DELETE FROM event_channels WHERE guild_id = ? AND channel_id = ?", (str(guild_id), str(channel_id)))
+        await db.commit()
+
+async def get_event_channels(guild_id):
+    """Get all event channels for a guild"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT channel_id FROM event_channels WHERE guild_id = ?", (str(guild_id),))
+        rows = await cur.fetchall()
+        return [int(row[0]) for row in rows]
+
+async def set_equipped_item(user_id, item_id, item_name):
+    """Equip an item for a user"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("INSERT OR REPLACE INTO equipment(user_id, item_id, item_name) VALUES (?, ?, ?)", (str(user_id), item_id, item_name))
+        await db.commit()
+
+async def get_equipped_item(user_id):
+    """Get the equipped item for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT item_id, item_name FROM equipment WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row:
+            return {"item_id": row[0], "item_name": row[1]}
+        return None
+
+async def set_fight_cooldown(user_id, guild_id):
+    """Set fight cooldown for a user in a guild"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("INSERT OR REPLACE INTO boss_cooldowns(user_id, guild_id, last_fight) VALUES (?, ?, ?)", (str(user_id), str(guild_id), datetime.now().isoformat()))
+        await db.commit()
+
+async def get_fight_cooldown(user_id, guild_id):
+    """Get the last fight time for a user in a guild"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_fight FROM boss_cooldowns WHERE user_id = ? AND guild_id = ?", (str(user_id), str(guild_id)))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None

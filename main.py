@@ -24,6 +24,8 @@ async def on_ready():
     if bot.user:
         print(f"Bot listo: {bot.user} (ID: {bot.user.id})")
     await init_db()
+    from db import create_boss_tables
+    await create_boss_tables()
     if not _tree_synced:
         try:
             synced = await bot.tree.sync()
@@ -65,6 +67,7 @@ async def main():
         await bot.load_extension("commands.helpme")
         await bot.load_extension("commands.admin_tools")
         await bot.load_extension("commands.blackjack")
+        await bot.load_extension("commands.bosses")
 
 
 
