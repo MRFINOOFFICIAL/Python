@@ -11,7 +11,8 @@ from db import (
     add_money, get_user, add_item_to_user, create_boss_tables
 )
 from bosses import (
-    get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward
+    get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
+    get_boss_by_name, get_all_boss_names, get_available_bosses_by_type
 )
 
 class BossesCog(commands.Cog):
@@ -265,31 +266,42 @@ class BossesCog(commands.Cog):
         
         await ctx.send("✅ Jefe spawneado")
 
+    async def boss_autocomplete(self, interaction: discord.Interaction, current: str) -> list:
+        """Autocomplete for boss names"""
+        all_bosses = get_all_boss_names()
+        return [name for name in all_bosses if current.lower() in name.lower()][:25]
+
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
-    @app_commands.describe(boss_type="Mini-Boss o Boss")
-    async def spawnboss_slash(self, interaction: discord.Interaction, boss_type: str):
+    @app_commands.describe(boss_type="Mini-Boss, Boss o nombre específico", boss_name="Nombre específico del jefe (opcional)")
+    @app_commands.autocomplete(boss_name=boss_autocomplete)
+    async def spawnboss_slash(self, interaction: discord.Interaction, boss_type: str, boss_name: str = None):
         """Force spawn a boss"""
         if not interaction.user.guild_permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
+        boss = None
         
-        if boss_type not in ["Mini-Boss", "Boss"]:
-            return await interaction.response.send_message("❌ Tipo debe ser 'Mini-Boss' o 'Boss'", ephemeral=True)
-        
-        boss = get_random_boss(boss_type)
-        if not boss:
-            return await interaction.response.send_message("❌ Error al generar jefe", ephemeral=True)
+        if boss_name:
+            boss = get_boss_by_name(boss_name)
+            if not boss:
+                return await interaction.response.send_message(f"❌ Jefe '{boss_name}' no encontrado", ephemeral=True)
+        elif boss_type in ["Mini-Boss", "Boss", "Especial"]:
+            boss = get_random_boss(boss_type)
+            if not boss:
+                return await interaction.response.send_message(f"❌ Error al generar jefe de tipo {boss_type}", ephemeral=True)
+        else:
+            return await interaction.response.send_message("❌ Tipo debe ser 'Mini-Boss', 'Boss' o 'Especial', o especifica un nombre de jefe", ephemeral=True)
         
         await set_active_boss(guild_id, boss)
         
         channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
         embed.add_field(name="Nombre", value=boss["name"], inline=True)
-        embed.add_field(name="Tipo", value=boss_type, inline=True)
+        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
         embed.add_field(name="HP", value=boss["hp"], inline=True)
         embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
-        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
+        embed.add_field(name="Dinero", value=f"{boss['rewards']['dinero'][0]}-{boss['rewards']['dinero'][1]}", inline=True)
         embed.add_field(name="Usa !fight o /fight para pelear", value="⚔️", inline=False)
         
         for ch_id in channels:

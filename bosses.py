@@ -13,6 +13,12 @@ BOSSES_DB = {
         {"name": "Dragón Antiguo", "hp": 300, "ataque": 20, "rareza": "legendario", "prob": 0.15, "rewards": {"dinero": (1000, 2000), "items": ["Llave Maestra", "Mecha Enojado"]}},
         {"name": "Rey Esqueleto", "hp": 250, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (800, 1500), "items": ["Pistola vieja", "Máscara de Xfi"]}},
         {"name": "Demonio Oscuro", "hp": 280, "ataque": 22, "rareza": "legendario", "prob": 0.1, "rewards": {"dinero": (1200, 2500), "items": ["Llave Maestra"]}},
+    ],
+    "Especial": [
+        {"name": "Psicólogo Loco", "hp": 350, "ataque": 25, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (3000, 5000), "items": ["Fragmento Omega", "Núcleo energético"]}},
+        {"name": "Médico Misterioso", "hp": 320, "ataque": 28, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (2500, 4500), "items": ["Traje ritual", "Llave Maestra"]}},
+        {"name": "Enfermera de Hierro", "hp": 400, "ataque": 30, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (4000, 6000), "items": ["Fragmento Omega"]}},
+        {"name": "Director del Caos", "hp": 500, "ataque": 35, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (5000, 8000), "items": ["Fragmento Omega", "Núcleo energético", "Traje ritual"]}},
     ]
 }
 
@@ -66,6 +72,28 @@ def get_random_boss(boss_type: str) -> Optional[Dict]:
             return boss.copy()
     
     return random.choice(candidates).copy()
+
+def get_boss_by_name(boss_name: str) -> Optional[Dict]:
+    """Get a specific boss by name"""
+    for category in BOSSES_DB.values():
+        for boss in category:
+            if boss["name"].lower() == boss_name.lower():
+                return boss.copy()
+    return None
+
+def get_all_boss_names() -> list:
+    """Get all available boss names for autocomplete"""
+    names = []
+    for category in BOSSES_DB.values():
+        for boss in category:
+            names.append(boss["name"])
+    return names
+
+def get_available_bosses_by_type(boss_type: str) -> list:
+    """Get all boss names in a category"""
+    if boss_type not in BOSSES_DB:
+        return []
+    return [boss["name"] for boss in BOSSES_DB[boss_type]]
 
 def calculate_player_damage(equipped_item: Optional[str] = None) -> tuple:
     """Calculate player damage based on equipped weapon"""
