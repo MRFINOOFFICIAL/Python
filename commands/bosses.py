@@ -16,6 +16,24 @@ from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type, get_weapon_benefit
 )
+from db import get_inventory
+
+
+# ==================== AUTOCOMPLETE ====================
+
+async def equip_item_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para equipar items"""
+    try:
+        inv = await get_inventory(interaction.user.id)
+        if not inv:
+            return []
+        
+        items = [item["item"] for item in inv]
+        filtered = [name for name in items if current.lower() in name.lower()] if current else items
+        
+        return [app_commands.Choice(name=name[:100], value=name) for name in filtered[:25]]
+    except Exception:
+        return []
 
 class FightActionView(ui.View):
     def __init__(self, user_id, interaction):
@@ -355,6 +373,7 @@ class BossesCog(commands.Cog):
 
     @app_commands.command(name="equip", description="Equipar un arma")
     @app_commands.describe(item_name="Nombre del item a equipar")
+    @app_commands.autocomplete(item_name=equip_item_autocomplete)
     async def equip_slash(self, interaction: discord.Interaction, item_name: str):
         """Equip a weapon"""
         await interaction.response.defer()

@@ -10,6 +10,38 @@ from db import get_inventory, remove_item, add_money, update_rank
 from typing import Optional
 
 
+# ==================== AUTOCOMPLETE ====================
+
+async def inventario_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para mostrar items del inventario"""
+    try:
+        inv = await get_inventory(interaction.user.id)
+        if not inv:
+            return []
+        
+        items = [item["item"] for item in inv]
+        filtered = [name for name in items if current.lower() in name.lower()] if current else items
+        
+        return [app_commands.Choice(name=name[:100], value=name) for name in filtered[:25]]
+    except Exception:
+        return []
+
+
+async def use_item_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para usar items"""
+    try:
+        inv = await get_inventory(interaction.user.id)
+        if not inv:
+            return []
+        
+        items = [f"{item['item']} (ID: {item['id']})" for item in inv]
+        filtered = [name for name in items if current.lower() in name.lower()] if current else items
+        
+        return [app_commands.Choice(name=name[:100], value=name.split("(ID: ")[1].rstrip(")")) for name in filtered[:25]]
+    except Exception:
+        return []
+
+
 class ItemUseView(ui.View):
     """Vista interactiva para usar items"""
     def __init__(self, user_id: int, timeout: int = 60):
@@ -158,7 +190,8 @@ class ItemsCog(commands.Cog):
         await self._use_send(ctx.author.id, send_fn)
 
     @app_commands.command(name="use", description="Usar un item de tu inventario")
-    async def use_slash(self, interaction: discord.Interaction):
+    @app_commands.autocomplete(item_name=use_item_autocomplete)
+    async def use_slash(self, interaction: discord.Interaction, item_name: Optional[str] = None):
         """Usar un item del inventario"""
         await interaction.response.defer()
         async def send_fn(*args, **kwargs):
