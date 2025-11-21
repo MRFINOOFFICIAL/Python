@@ -10,7 +10,7 @@ from db import (
     add_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
     add_money, get_user, add_item_to_user, create_boss_tables, get_inventory,
-    remove_item_from_inventory, get_allowed_channel
+    remove_item_from_inventory, get_allowed_channel, get_shop_item
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
@@ -24,6 +24,7 @@ class FightActionView(ui.View):
         self.interaction = interaction
         self.action = None
         self.selected_item = None
+        self.damage_buff = False
     
     @ui.button(label="⚔️ Atacar", style=discord.ButtonStyle.red)
     async def attack_button(self, interaction: discord.Interaction, button: ui.Button):
@@ -122,6 +123,9 @@ class BossesCog(commands.Cog):
             if view.action == "attack":
                 player_hit, player_dmg, player_crit = resolve_player_attack(weapon)
                 if player_hit:
+                    if view.damage_buff:
+                        player_dmg = int(player_dmg * 1.5)
+                        view.damage_buff = False
                     boss_hp -= player_dmg
                     crit_text = " ¡CRÍTICO!" if player_crit else ""
                     fight_log.append(f"⚔️ Golpeaste por {player_dmg}{crit_text}")
@@ -131,13 +135,40 @@ class BossesCog(commands.Cog):
                 defend_next = True
                 fight_log.append(f"🛡️ ¡Te preparaste para defender!")
             elif view.action == "use_item" and view.selected_item:
-                fight_log.append(f"📦 Usaste un item")
                 try:
-                    await remove_item_from_inventory(int(view.selected_item))
-                    player_hp = min(100, player_hp + 30)
-                    fight_log[-1] = f"📦 ¡Recuperaste 30 HP!"
-                except:
-                    pass
+                    item_id = int(view.selected_item)
+                    inventory = await get_inventory(user_id)
+                    used_item = None
+                    for item in inventory:
+                        if item['id'] == item_id:
+                            used_item = item
+                            break
+                    
+                    if used_item:
+                        shop_data = await get_shop_item(used_item['item'])
+                        item_type = used_item.get('categoria', 'consumible')
+                        
+                        # Aplicar efectos según tipo
+                        if item_type == "consumible":
+                            player_hp = min(100, player_hp + 50)
+                            fight_log.append(f"📦 ¡Recuperaste 50 HP!")
+                        elif item_type == "consumible_damage":
+                            boss_hp -= 40
+                            fight_log.append(f"💥 ¡Infligiste 40 de daño directo!")
+                        elif item_type == "consumible_buff":
+                            view.damage_buff = True
+                            fight_log.append(f"⚡ ¡Tu próximo ataque inflige +50% de daño!")
+                        elif item_type == "consumible_shield":
+                            defend_next = True
+                            fight_log.append(f"🛡️ ¡Te protegerás del próximo ataque!")
+                        else:
+                            player_hp = min(100, player_hp + 30)
+                            fight_log.append(f"📦 ¡Recuperaste 30 HP!")
+                        
+                        await remove_item_from_inventory(item_id)
+                except Exception as e:
+                    print(f"Error usando item: {e}")
+                    fight_log.append(f"❌ Error al usar item")
             
             if boss_hp <= 0:
                 break

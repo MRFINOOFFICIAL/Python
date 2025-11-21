@@ -12,9 +12,11 @@ from db import (
 # ----------------- Default shop items to insert -----------------
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
-    ("Paquete de peluches fino", 10000, "consumible", "Contiene 3 peluches aleatorios. Pueden venderse o usarse.", "epico"),
-    ("x2 de dinero de mecha", 1200, "boost", "Duplica las ganancias relacionadas con 'Mecha' durante 1 uso.", "epico"),
-    ("Danza de Saviteto", 5000, "boost", "Aumenta ligeramente tus probabilidades en el blackjack mientras la tengas.", "raro"),
+    ("Paquete de peluches fino", 10000, "consumible", "Recupera 50 HP en combate o vende por 5000💰", "epico"),
+    ("x2 de dinero de mecha", 1200, "consumible_damage", "Inflige 40 de daño al jefe en combate", "epico"),
+    ("Danza de Saviteto", 5000, "consumible_buff", "Aumenta tu daño en 50% en el próximo ataque", "raro"),
+    ("Poción de Furia", 3500, "consumible_damage", "Inflige 60 de daño directo al jefe", "epico"),
+    ("Escudo Mágico", 2800, "consumible_shield", "Te protege del próximo ataque enemigo", "raro"),
     # 7 adicionales solicitadas
     ("Bastón de Staff", 9500, "arma", "Aumenta el poder en robos y minijuegos relacionados.", "raro"),
     ("Teléfono", 300, "herramienta", "Útil para minijuegos y algunas interacciones.", "comun"),
@@ -23,6 +25,7 @@ DEFAULT_ITEMS = [
     ("Linterna", 150, "herramienta", "Permite encontrar objetos más raros al explorar.", "comun"),
     ("Llave Maestra", 2200, "herramienta", "Aumenta posibilidades de saqueo exitoso y desbloquea cofres.", "epico"),
     ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
+    ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
 ]
 
 # ----------------- Shop Cog -----------------
@@ -76,8 +79,8 @@ class ShopCog(commands.Cog):
         if user["dinero"] < item["price"]:
             return await ctx.send("❌ No tienes dinero suficiente.")
         await add_money(ctx.author.id, -item["price"])
-        # add to inventory (no categoría/poder por defecto, queda como 'desconocido'/0)
-        await add_item_to_user(ctx.author.id, item["name"], item["rarity"], usos=1, durabilidad=100)
+        # add to inventory con categoría del shop (type)
+        await add_item_to_user(ctx.author.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
         await update_rank(ctx.author.id)
         await ctx.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
@@ -93,7 +96,8 @@ class ShopCog(commands.Cog):
         if user["dinero"] < item["price"]:
             return await interaction.followup.send("❌ No tienes dinero suficiente.", ephemeral=True)
         await add_money(interaction.user.id, -item["price"])
-        await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100)
+        # add to inventory con categoría del shop (type)
+        await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
         await update_rank(interaction.user.id)
         await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
