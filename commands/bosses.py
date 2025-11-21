@@ -145,11 +145,45 @@ class BossesCog(commands.Cog):
                             break
                     
                     if used_item:
-                        shop_data = await get_shop_item(used_item['item'])
+                        item_name = used_item['item'].lower()
                         item_type = used_item.get('categoria', 'consumible')
                         
-                        # Aplicar efectos según tipo
-                        if item_type == "consumible":
+                        # Efectos especiales por nombre de item (explore)
+                        if "núcleo energético" in item_name:
+                            boss_hp -= 80
+                            fight_log.append(f"⚡ ¡Núcleo Energético explotó! -80 HP al jefe!")
+                        elif "fragmento omega" in item_name:
+                            boss_hp -= 60
+                            view.damage_buff = True
+                            fight_log.append(f"✨ ¡Fragmento Omega! -60 HP y +50% daño!")
+                        elif "pistola vieja" in item_name or "máscara de xfi" in item_name:
+                            boss_hp -= 50
+                            fight_log.append(f"🔫 ¡Ataque crítico! -50 HP al jefe!")
+                        elif "llave maestra" in item_name:
+                            player_hp = min(100, player_hp + 40)
+                            boss_hp -= 30
+                            fight_log.append(f"🔑 ¡Magia de la llave! +40 HP y -30 HP jefe!")
+                        elif "aconsejante fantasma" in item_name:
+                            view.damage_buff = True
+                            fight_log.append(f"👻 ¡El fantasma te fortalece! +50% daño próximo!")
+                        elif "chihuahua" in item_name:
+                            attack_dmg = random.randint(15, 35)
+                            boss_hp -= attack_dmg
+                            fight_log.append(f"🐕 ¡El chihuahua ataca! -{attack_dmg} HP al jefe!")
+                        elif "traje ritual" in item_name:
+                            player_hp = min(100, player_hp + 60)
+                            defend_next = True
+                            fight_log.append(f"🎭 ¡Ritual mágico! +60 HP y defensa!")
+                        elif "botella de sedante" in item_name or "cuchillo oxidado" in item_name:
+                            boss_hp -= 35
+                            fight_log.append(f"💀 ¡Ataque efectivo! -{35} HP al jefe!")
+                        elif "palo golpeador" in item_name or "arma blanca artesanal" in item_name:
+                            boss_hp -= 40
+                            fight_log.append(f"⚒️ ¡Golpe contundente! -{40} HP al jefe!")
+                        elif "mecha enojado" in item_name:
+                            boss_hp -= 70
+                            fight_log.append(f"🤖 ¡Mecha Enojado te ayuda! -{70} HP al jefe!")
+                        elif item_type == "consumible":
                             player_hp = min(100, player_hp + 50)
                             fight_log.append(f"📦 ¡Recuperaste 50 HP!")
                         elif item_type == "consumible_damage":
@@ -161,9 +195,31 @@ class BossesCog(commands.Cog):
                         elif item_type == "consumible_shield":
                             defend_next = True
                             fight_log.append(f"🛡️ ¡Te protegerás del próximo ataque!")
+                        elif item_type == "arma":
+                            boss_hp -= 35
+                            fight_log.append(f"⚔️ ¡Arma equipada! -{35} HP al jefe!")
+                        elif item_type == "herramientas":
+                            player_hp = min(100, player_hp + 20)
+                            fight_log.append(f"🔧 ¡Herramienta usada! +20 HP!")
+                        elif item_type == "salud":
+                            player_hp = min(100, player_hp + 40)
+                            fight_log.append(f"⚕️ ¡Recuperaste 40 HP!")
+                        elif item_type == "mascota":
+                            dmg = random.randint(10, 25)
+                            boss_hp -= dmg
+                            fight_log.append(f"🐾 ¡Tu mascota ataca! -{dmg} HP al jefe!")
+                        elif item_type == "engano":
+                            view.damage_buff = True
+                            fight_log.append(f"🎭 ¡Engaño! +50% daño próximo!")
+                        elif item_type == "quimicos":
+                            boss_hp -= 30
+                            fight_log.append(f"🧪 ¡Químico! -{30} HP al jefe!")
+                        elif item_type == "tecnologia":
+                            boss_hp -= 25
+                            fight_log.append(f"⚙️ ¡Tecnología! -{25} HP al jefe!")
                         else:
-                            player_hp = min(100, player_hp + 30)
-                            fight_log.append(f"📦 ¡Recuperaste 30 HP!")
+                            player_hp = min(100, player_hp + 25)
+                            fight_log.append(f"📦 ¡Usaste item! +25 HP!")
                         
                         await remove_item_from_inventory(item_id)
                 except Exception as e:
