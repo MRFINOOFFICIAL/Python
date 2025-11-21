@@ -5,6 +5,27 @@ from discord import app_commands
 from db import get_user, set_job
 from jobs import JOBS
 
+
+# ==================== AUTOCOMPLETE ====================
+
+async def apply_jobs_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para mostrar trabajos disponibles según rango"""
+    try:
+        user = await get_user(interaction.user.id)
+        rango = user.get("rango", "Novato")
+        trabajos = JOBS.get(rango, [])
+        
+        if not trabajos:
+            return []
+        
+        job_names = [job["name"] for job in trabajos]
+        filtered = [name for name in job_names if current.lower() in name.lower()] if current else job_names
+        
+        return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
+    except Exception:
+        return []
+
+
 class JobsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -51,8 +72,9 @@ class JobsCog(commands.Cog):
     async def apply_prefix(self, ctx, *, trabajo_nombre: str):
         await self._apply(ctx.author.id, trabajo_nombre, send_fn=lambda **kw: ctx.send(**kw))
 
-    @app_commands.command(name="apply", description="Aplica a un trabajo (uso: /apply trabajo)")
-    @app_commands.describe(trabajo_nombre="Nombre exacto del trabajo")
+    @app_commands.command(name="apply", description="Aplica a un trabajo")
+    @app_commands.describe(trabajo_nombre="Nombre del trabajo disponible")
+    @app_commands.autocomplete(trabajo_nombre=apply_jobs_autocomplete)
     async def apply_slash(self, interaction: discord.Interaction, trabajo_nombre: str):
         await interaction.response.defer()
         await self._apply(interaction.user.id, trabajo_nombre, send_fn=lambda **kw: interaction.followup.send(**kw))
