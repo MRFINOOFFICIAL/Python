@@ -6,17 +6,16 @@ from datetime import datetime, timedelta
 import random
 from typing import Optional
 from db import (
-    get_active_boss, set_active_boss, remove_active_boss, update_boss_hp,
-    add_event_channel, remove_event_channel, get_event_channels,
+    get_active_boss, create_boss, damage_boss, deactivate_boss,
+    set_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
-    add_money, get_user, add_item_to_user, create_boss_tables, get_inventory,
-    remove_item_from_inventory, get_allowed_channel, get_shop_item
+    add_money, get_user, add_item_to_user, get_inventory,
+    remove_item, get_shop_item
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type, get_weapon_benefit
 )
-from db import get_inventory
 
 
 # ==================== AUTOCOMPLETE ====================
@@ -263,7 +262,7 @@ class BossesCog(commands.Cog):
                             player_hp = min(100, player_hp + 25)
                             fight_log.append(f"📦 ¡Usaste item! +25 HP!")
                         
-                        await remove_item_from_inventory(item_id)
+                        await remove_item(item_id)
                 except Exception as e:
                     print(f"Error usando item: {e}")
                     fight_log.append(f"❌ Error al usar item")
@@ -293,7 +292,7 @@ class BossesCog(commands.Cog):
             except:
                 pass
         
-        await update_boss_hp(guild_id, max(0, boss_hp))
+        await damage_boss(guild_id, max(0, boss_hp))
         await set_fight_cooldown(user_id, guild_id)
         
         if boss_hp <= 0:
@@ -305,7 +304,7 @@ class BossesCog(commands.Cog):
             if reward["item"]:
                 await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
                 embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
-            await remove_active_boss(guild_id)
+            await deactivate_boss(guild_id)
             channels = await get_event_channels(guild_id)
             for ch_id in channels:
                 try:
@@ -416,7 +415,7 @@ class BossesCog(commands.Cog):
         if action.lower() == "enable":
             if not channel:
                 return await ctx.send("❌ Debes especificar un canal: `!event enable #canal`")
-            await add_event_channel(guild_id, channel.id)
+            await set_event_channel(guild_id, channel.id)
             embed = discord.Embed(title="✅ Canal Habilitado", color=discord.Color.green())
             embed.add_field(name="Canal", value=channel.mention, inline=False)
         elif action.lower() == "disable":
@@ -444,7 +443,7 @@ class BossesCog(commands.Cog):
         if action.lower() == "enable":
             if not channel:
                 return await interaction.response.send_message("❌ Debes especificar un canal", ephemeral=True)
-            await add_event_channel(guild_id, channel.id)
+            await set_event_channel(guild_id, channel.id)
             embed = discord.Embed(title="✅ Canal Habilitado", color=discord.Color.green())
             embed.add_field(name="Canal", value=channel.mention, inline=False)
         elif action.lower() == "disable":
@@ -471,7 +470,7 @@ class BossesCog(commands.Cog):
         if not boss:
             return await ctx.send("❌ Error al generar jefe")
         
-        await set_active_boss(guild_id, boss)
+        await create_boss(guild_id, boss)
         
         channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
@@ -536,7 +535,7 @@ class BossesCog(commands.Cog):
         if is_special and interaction.user.id != OWNER_ID:
             return await interaction.response.send_message("❌ Solo el dueño del bot puede invocar bosses especiales.", ephemeral=True)
         
-        await set_active_boss(guild_id, boss)
+        await create_boss(guild_id, boss)
         
         channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
