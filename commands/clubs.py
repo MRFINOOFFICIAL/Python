@@ -50,6 +50,20 @@ class ClubsCog(commands.Cog):
             )
             rows = await cur.fetchall()
             return [{"user_id": row[0], "rango": row[1]} for row in rows]
+    
+    async def is_club_leader(self, club_id, user_id):
+        """Verificar si el usuario es líder del club"""
+        club = await self.get_club_by_id(club_id)
+        return club and club["lider"] == str(user_id)
+    
+    async def get_club_by_id(self, club_id):
+        """Obtener club por ID"""
+        async with aiosqlite.connect(DB) as db:
+            cur = await db.execute("SELECT id, nombre, lider, dinero, miembros_max FROM clubs WHERE id = ?", (club_id,))
+            row = await cur.fetchone()
+            if row:
+                return {"id": row[0], "nombre": row[1], "lider": row[2], "dinero": row[3], "miembros_max": row[4]}
+            return None
 
     @app_commands.command(name="crear-club", description="Crear un nuevo club")
     async def create_club(self, interaction: discord.Interaction, nombre: str):
@@ -161,6 +175,213 @@ class ClubsCog(commands.Cog):
             await db.commit()
         
         await interaction.followup.send(f"✅ Saliste de **{club['nombre']}**")
+
+    @app_commands.command(name="depositar-club", description="Depositar dinero a tu club")
+    async def deposit_club(self, interaction: discord.Interaction, cantidad: int):
+        """Depositar dinero al club"""
+        await interaction.response.defer()
+        
+        if cantidad <= 0:
+            await interaction.followup.send("❌ La cantidad debe ser mayor a 0.")
+            return
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        from db import get_money, add_money
+        balance = await get_money(interaction.user.id)
+        if balance < cantidad:
+            await interaction.followup.send(f"❌ No tienes {cantidad}💰. Tienes {balance}💰")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            await db.execute("UPDATE users SET dinero = dinero - ? WHERE user_id = ?", (cantidad, str(interaction.user.id)))
+            await db.execute("UPDATE clubs SET dinero = dinero + ? WHERE id = ?", (cantidad, club["id"]))
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Depositaste {cantidad}💰 a **{club['nombre']}**")
+
+    @app_commands.command(name="retirar-club", description="Retirar dinero del club (solo líder)")
+    async def withdraw_club(self, interaction: discord.Interaction, cantidad: int):
+        """Retirar dinero del club (solo líder)"""
+        await interaction.response.defer()
+        
+        if cantidad <= 0:
+            await interaction.followup.send("❌ La cantidad debe ser mayor a 0.")
+            return
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede retirar dinero.")
+            return
+        
+        if club["dinero"] < cantidad:
+            await interaction.followup.send(f"❌ El club no tiene {cantidad}💰. Tiene {club['dinero']}💰")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            await db.execute("UPDATE clubs SET dinero = dinero - ? WHERE id = ?", (cantidad, club["id"]))
+            await db.execute("UPDATE users SET dinero = dinero + ? WHERE user_id = ?", (cantidad, str(interaction.user.id)))
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Retiraste {cantidad}💰 del club.")
+
+    @app_commands.command(name="expulsar-miembro", description="Expulsar miembro del club (solo líder)")
+    async def kick_member(self, interaction: discord.Interaction, usuario: discord.User):
+        """Expulsar miembro del club"""
+        await interaction.response.defer()
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede expulsar miembros.")
+            return
+        
+        target_club = await self.get_user_club(usuario.id)
+        if not target_club or target_club["id"] != club["id"]:
+            await interaction.followup.send("❌ Ese usuario no está en tu club.")
+            return
+        
+        if str(usuario.id) == club["lider"]:
+            await interaction.followup.send("❌ No puedes expulsar al líder.")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            await db.execute(
+                "DELETE FROM club_members WHERE club_id = ? AND user_id = ?",
+                (club["id"], str(usuario.id))
+            )
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Expulsaste a {usuario.mention} del club.")
+
+    @app_commands.command(name="promover-miembro", description="Promover miembro a oficial (solo líder)")
+    async def promote_member(self, interaction: discord.Interaction, usuario: discord.User):
+        """Promover miembro a oficial"""
+        await interaction.response.defer()
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede promover miembros.")
+            return
+        
+        target_club = await self.get_user_club(usuario.id)
+        if not target_club or target_club["id"] != club["id"]:
+            await interaction.followup.send("❌ Ese usuario no está en tu club.")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            await db.execute(
+                "UPDATE club_members SET rango = 'oficial' WHERE club_id = ? AND user_id = ?",
+                (club["id"], str(usuario.id))
+            )
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Promoviste a {usuario.mention} a oficial.")
+
+    @app_commands.command(name="clubs", description="Ver lista de todos los clubs")
+    async def list_clubs(self, interaction: discord.Interaction):
+        """Listar todos los clubs"""
+        await interaction.response.defer()
+        
+        async with aiosqlite.connect(DB) as db:
+            cur = await db.execute(
+                "SELECT id, nombre, lider, dinero, miembros_max FROM clubs ORDER BY dinero DESC LIMIT 20"
+            )
+            rows = await cur.fetchall()
+        
+        if not rows:
+            await interaction.followup.send("📭 No hay clubs aún.")
+            return
+        
+        embed = discord.Embed(title="🏢 Lista de Clubs", color=discord.Color.gold())
+        for row in rows:
+            club_id, nombre, lider, dinero, max_m = row
+            members = await self.get_club_members(club_id)
+            embed.add_field(
+                name=f"**{nombre}**",
+                value=f"👑 <@{lider}> | 💰 {dinero}💰 | 👥 {len(members)}/{max_m}",
+                inline=False
+            )
+        
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="stats-club", description="Ver estadísticas detalladas del club")
+    async def club_stats(self, interaction: discord.Interaction):
+        """Ver estadísticas del club"""
+        await interaction.response.defer()
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        members = await self.get_club_members(club["id"])
+        
+        from db import get_user
+        dinero_total = 0
+        exp_total = 0
+        for member in members:
+            user = await get_user(member["user_id"])
+            if user:
+                dinero_total += user["dinero"]
+                exp_total += user["experiencia"]
+        
+        embed = discord.Embed(title=f"📊 Stats - {club['nombre']}", color=discord.Color.blurple())
+        embed.add_field(name="👑 Líder", value=f"<@{club['lider']}>", inline=False)
+        embed.add_field(name="💰 Tesorería", value=f"{club['dinero']}💰", inline=False)
+        embed.add_field(name="💵 Dinero Total (miembros)", value=f"{dinero_total}💰", inline=False)
+        embed.add_field(name="⭐ XP Total (miembros)", value=f"{exp_total} ⭐", inline=False)
+        embed.add_field(name="👥 Miembros", value=f"{len(members)}/10", inline=False)
+        embed.add_field(name="💪 Poder Total", value=f"{(dinero_total + club['dinero']) // 100} pts", inline=False)
+        
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="transferir-liderazgo", description="Transferir liderazgo a otro miembro")
+    async def transfer_leadership(self, interaction: discord.Interaction, usuario: discord.User):
+        """Transferir liderazgo"""
+        await interaction.response.defer()
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede transferir liderazgo.")
+            return
+        
+        target_club = await self.get_user_club(usuario.id)
+        if not target_club or target_club["id"] != club["id"]:
+            await interaction.followup.send("❌ Ese usuario no está en tu club.")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            await db.execute("UPDATE clubs SET lider = ? WHERE id = ?", (str(usuario.id), club["id"]))
+            await db.execute(
+                "UPDATE club_members SET rango = 'oficial' WHERE club_id = ? AND user_id = ?",
+                (club["id"], str(interaction.user.id))
+            )
+            await db.execute(
+                "UPDATE club_members SET rango = 'lider' WHERE club_id = ? AND user_id = ?",
+                (club["id"], str(usuario.id))
+            )
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Transferiste el liderazgo a {usuario.mention}.")
 
 async def setup(bot):
     await bot.add_cog(ClubsCog(bot))
