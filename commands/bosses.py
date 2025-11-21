@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 from datetime import datetime, timedelta
 import random
+from typing import Optional
 from db import (
     get_active_boss, set_active_boss, remove_active_boss, update_boss_hp,
     add_event_channel, remove_event_channel, get_event_channels,
@@ -185,7 +186,7 @@ class BossesCog(commands.Cog):
 
     @commands.command(name="event")
     @commands.has_guild_permissions(administrator=True)
-    async def event_prefix(self, ctx, action: str, channel: discord.TextChannel = None):
+    async def event_prefix(self, ctx, action: str, channel: Optional[discord.TextChannel] = None):
         """!event enable/disable #channel - Habilitar/deshabilitar canal de eventos"""
         guild_id = ctx.guild.id
         
@@ -208,9 +209,9 @@ class BossesCog(commands.Cog):
 
     @app_commands.command(name="event", description="Habilitar/deshabilitar canal de eventos")
     @app_commands.describe(action="enable o disable", channel="Canal para eventos")
-    async def event_slash(self, interaction: discord.Interaction, action: str, channel: discord.TextChannel = None):
+    async def event_slash(self, interaction: discord.Interaction, action: str, channel: Optional[discord.TextChannel] = None):
         """Enable/disable event channel"""
-        if not interaction.user.guild_permissions.administrator:
+        if not (interaction.member and interaction.member.guild_permissions.administrator):
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
@@ -279,9 +280,9 @@ class BossesCog(commands.Cog):
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
     @app_commands.describe(tipo="Tipo de jefe: Mini-Boss, Boss o Especial", jefe="O selecciona un jefe específico")
     @app_commands.autocomplete(jefe=boss_autocomplete)
-    async def spawnboss_slash(self, interaction: discord.Interaction, tipo: str = None, jefe: str = None):
+    async def spawnboss_slash(self, interaction: discord.Interaction, tipo: Optional[str] = None, jefe: Optional[str] = None):
         """Force spawn a boss"""
-        if not interaction.user.guild_permissions.administrator:
+        if not (interaction.member and interaction.member.guild_permissions.administrator):
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
