@@ -1,40 +1,53 @@
-# commands/ayuda.py
+# commands/helpme.py
+"""
+Sistema completo de ayuda interactivo con menú de secciones.
+Incluye guía de comandos, almanaque de items, cofres y sistema de combate.
+"""
 import discord
 from discord.ext import commands
 from discord import app_commands
 
-# ====== Datos del almanaque (edítalos si agregas nuevos items) ======
+
+# ==================== DATOS DEL ALMANAQUE ====================
+
 ALMANAC_ITEMS = {
-    "Cinta adhesiva":         {"rarity": "comun",  "desc": "Herramienta básica. Poco poder pero barata."},
-    "Botella de sedante":     {"rarity": "comun",  "desc": "Consumible que puede ayudar en minijuegos relacionados con calma."},
-    "Cuchillo oxidado":       {"rarity": "raro",   "desc": "Arma de contacto — buen poder en robos físicos."},
-    "Pistola vieja":          {"rarity": "epico",  "desc": "Arma de fuego antigua — alto poder en robos."},
-    "Botiquín":               {"rarity": "comun",  "desc": "Consumible que restaura durabilidad/usos o evita pequeñas penalizaciones."},
-    "Arma blanca artesanal":  {"rarity": "raro",   "desc": "Arma hecha a mano — buen balance entre poder y durabilidad."},
-    "Palo golpeador de parejas felices": {"rarity":"epico","desc":"Arma contundente con alto poder."},
-    "Savi peluche":           {"rarity": "epico",  "desc": "Objeto engañoso — puede aumentar probabilidades en minijuegos de engaño."},
-    "Hélice de ventilador":   {"rarity": "comun",  "desc": "Herramienta — aumenta pequeñas probabilidades al explorar zonas oscuras."},
-    "Aconsejante Fantasma":   {"rarity": "epico",  "desc": "Objeto raro que otorga bonificaciones en ciertos minijuegos de mente."},
-    "ID falso":               {"rarity": "raro",   "desc": "Usable para engañar en robos o interacciones (mejora chance de éxito en algunos intentos)."},
-    "Máscara de Xfi":         {"rarity": "epico",  "desc": "Objeto de engaño con alto valor para ocultamiento en atracos."},
-    "Bastón de Staff":        {"rarity": "raro",   "desc": "Herramienta/arma que aumenta poder en robos y minijuegos."},
-    "Teléfono":               {"rarity": "comun",  "desc": "Herramienta que activa ciertas opciones en minijuegos (pequeña ventaja)."},
-    "Chihuahua":              {"rarity": "raro",   "desc": "Mascota con bonificaciones pasivas pequeñas (p. ej. detecta cofres comunes)."},
-    "Mecha Enojado":          {"rarity": "epico",  "desc": "Arma potente; mejora significativamente chance en robos."},
-    "Linterna":               {"rarity": "comun",  "desc": "Aumenta la probabilidad de encontrar objetos raros al explorar."},
-    "Llave Maestra":         {"rarity": "epico",   "desc": "Herramienta que permite desbloquear cofres y aumenta loot de cofres."},
-    # Items de tienda / boosts
-    "Paquete de peluches fino": {"rarity":"raro", "desc":"Consumible que contiene varios peluches (se pueden vender o usar)."},
-    "x2 de dinero de mecha":     {"rarity":"epico","desc":"Boost: duplica ganancias relacionadas con 'Mecha' en 1 uso / mano de blackjack."},
-    "Danza de Saviteto":         {"rarity":"raro", "desc":"Boost: aumenta ligeramente las probabilidades en blackjack mientras lo poseas."},
-    "Kit de reparación":        {"rarity":"comun","desc":"Consumible que repara durabilidad de un item."}
+    # Items de Exploración - Básicos
+    "Cinta adhesiva": {"rarity": "comun", "desc": "Herramienta básica. Poco poder pero barata.", "tipo": "exploración"},
+    "Botella de sedante": {"rarity": "comun", "desc": "Consumible que ayuda en minijuegos y robos.", "tipo": "exploración"},
+    "Cuchillo oxidado": {"rarity": "raro", "desc": "Arma de contacto — buen poder en robos físicos.", "tipo": "exploración"},
+    "Pistola vieja": {"rarity": "epico", "desc": "Arma de fuego antigua — alto poder en robos y combate.", "tipo": "exploración"},
+    "Botiquín": {"rarity": "comun", "desc": "Consumible que restaura durabilidad/usos.", "tipo": "exploración"},
+    "Arma blanca artesanal": {"rarity": "raro", "desc": "Arma hecha a mano — buen balance entre poder y durabilidad.", "tipo": "exploración"},
+    "Palo golpeador de parejas felices": {"rarity": "epico", "desc": "Arma contundente con alto poder.", "tipo": "exploración"},
+    "Savi peluche": {"rarity": "epico", "desc": "Objeto engañoso — bonificaciones en minijuegos.", "tipo": "exploración"},
+    "Hélice de ventilador": {"rarity": "comun", "desc": "Herramienta — útil en exploración nocturna.", "tipo": "exploración"},
+    "Aconsejante Fantasma": {"rarity": "epico", "desc": "Objeto raro que otorga bonificaciones en combate y minijuegos.", "tipo": "exploración"},
+    "ID falso": {"rarity": "raro", "desc": "Usable para engañar en robos (mejora chance de éxito).", "tipo": "exploración"},
+    "Máscara de Xfi": {"rarity": "epico", "desc": "Objeto de engaño con alto valor en robos y combate.", "tipo": "exploración"},
+    "Bastón de Staff": {"rarity": "raro", "desc": "Herramienta/arma que aumenta poder en robos y combate.", "tipo": "exploración"},
+    "Teléfono": {"rarity": "comun", "desc": "Herramienta que activa opciones en minijuegos (+6s extra).", "tipo": "exploración"},
+    "Chihuahua": {"rarity": "raro", "desc": "Mascota con ataques aleatorios en combate (15-35 daño).", "tipo": "exploración"},
+    "Mecha Enojado": {"rarity": "epico", "desc": "Arma potente; 70 de daño directo en combate.", "tipo": "exploración"},
+    "Linterna": {"rarity": "comun", "desc": "Aumenta probabilidad de encontrar cofres raros.", "tipo": "exploración"},
+    "Llave Maestra": {"rarity": "epico", "desc": "Desbloquea cofres sellados; 40 HP + 30 daño en combate.", "tipo": "exploración"},
+    "Núcleo energético": {"rarity": "legendario", "desc": "Objeto legendario — 80 de daño directo al jefe en combate.", "tipo": "exploración"},
+    "Fragmento Omega": {"rarity": "maestro", "desc": "Objeto maestro — 60 daño + +50% daño en próximo ataque.", "tipo": "exploración"},
+    "Traje ritual": {"rarity": "legendario", "desc": "Objeto legendario — 60 HP de recuperación + defensa.", "tipo": "exploración"},
+    
+    # Items de Tienda - Especiales
+    "Paquete de peluches fino": {"rarity": "epico", "desc": "Consumible que contiene 3 peluches aleatorios. Recupera 50 HP o vende por 5000💰", "tipo": "tienda"},
+    "Poción de Furia": {"rarity": "epico", "desc": "Bebida potente — inflige 60 de daño directo al jefe en combate.", "tipo": "tienda"},
+    "Escudo Mágico": {"rarity": "raro", "desc": "Protección mágica — te protege del próximo ataque enemigo en combate.", "tipo": "tienda"},
+    "Nektar Antiguo": {"rarity": "legendario", "desc": "Bebida legendaria — recupera 100 HP completos en combate.", "tipo": "tienda"},
+    "Danza de Saviteto": {"rarity": "raro", "desc": "Hechizo de aumento — tu próximo ataque inflige +50% de daño.", "tipo": "tienda"},
+    "x2 de dinero de mecha": {"rarity": "epico", "desc": "Duplicador de daño — inflige 40 daño directo al jefe.", "tipo": "tienda"},
+    "Kit de reparación": {"rarity": "comun", "desc": "Consumible que repara durabilidad de un item.", "tipo": "tienda"},
 }
 
-# ====== Cofres y probabilidades (información explicativa del almanaque) ======
 CHEST_INFO = {
     "Cofre Común": {
         "spawn_hint": "Frecuencia alta (lo más probable que aparezca).",
-        "contains": "Objetos comunes y a veces raros en pequeña proporción.",
+        "contains": "Objetos comunes y a veces raros.",
         "example_chance": "aprox. 60% de aparecer entre cofres"
     },
     "Cofre Raro": {
@@ -44,7 +57,7 @@ CHEST_INFO = {
     },
     "Cofre Épico": {
         "spawn_hint": "Baja probabilidad; buen loot.",
-        "contains": "Armas épicas o herramientas de gran valor.",
+        "contains": "Armas épicas o herramientas valiosas.",
         "example_chance": "aprox. 10% de aparecer entre cofres"
     },
     "Cofre Legendario": {
@@ -54,43 +67,74 @@ CHEST_INFO = {
     },
     "Cofre Maestro": {
         "spawn_hint": "Extremadamente raro; 'drop' muy difícil.",
-        "contains": "Objetos únicos o boosts muy potentes (ej.: duplicadores, llaves maestras).",
+        "contains": "Objetos únicos de alto poder (Fragmento Omega, Núcleo Energético).",
         "example_chance": "aprox. 1% de aparecer entre cofres"
     }
 }
 
-# ====== Vista interactiva ======
+BOSS_INFO = {
+    "Mini-Bosses (5)": [
+        "• **Goblin Capitán** (80 HP, raro)",
+        "• **Orco Guerrero** (100 HP, raro)",
+        "• **Bruja del Bosque** (70 HP, épico)",
+        "• **Mecha Enojado** (120 HP, épico)",
+        "• **Savi Forma Teto** (150 HP, épico)",
+    ],
+    "Bosses Normales (4)": [
+        "• **Dragón Antiguo** (300 HP, legendario)",
+        "• **Rey Esqueleto** (250 HP, épico)",
+        "• **Demonio Oscuro** (280 HP, legendario)",
+        "• **Savi Forma Final** (350 HP, legendario)",
+    ],
+    "Bosses Especiales (5)": [
+        "• **Psicólogo Loco** (350 HP, maestro)",
+        "• **Médico Misterioso** (320 HP, maestro)",
+        "• **Enfermera de Hierro** (400 HP, maestro)",
+        "• **Director del Caos** (500 HP, maestro)",
+        "• **Fino** (600 HP, maestro)",
+    ]
+}
+
+
+# ==================== VISTA INTERACTIVA ====================
+
 class HelpAlmanacView(discord.ui.View):
+    """Vista con selector de temas para la ayuda"""
+    
     def __init__(self, author_id: int, timeout: int = 120):
         super().__init__(timeout=timeout)
         self.author_id = int(author_id)
 
         options = [
-            discord.SelectOption(label="General", description="Ver la ayuda general de comandos", emoji="📜"),
-            discord.SelectOption(label="Almanaque — Objetos", description="Descripción y efectos de cada objeto", emoji="📦"),
-            discord.SelectOption(label="Almanaque — Cofres & Probabilidades", description="Qué contienen los cofres y su probabilidad", emoji="🗝️"),
-            discord.SelectOption(label="Comandos Admin", description="Comandos que solo pueden usar administradores", emoji="🔒"),
+            discord.SelectOption(label="General", description="Guía rápida de todos los comandos", emoji="📜"),
+            discord.SelectOption(label="Exploración & Objetos", description="Cómo explorar y usar items", emoji="🌲"),
+            discord.SelectOption(label="Combate & Bosses", description="Sistema de peleas contra jefes", emoji="⚔️"),
+            discord.SelectOption(label="Tienda & Compras", description="Items de tienda y efectos", emoji="🏪"),
+            discord.SelectOption(label="Almanaque — Cofres", description="Tipos de cofres y probabilidades", emoji="🗝️"),
+            discord.SelectOption(label="Comandos Admin", description="Comandos solo para administradores", emoji="🔒"),
         ]
         self.select = discord.ui.Select(placeholder="Elige una sección...", options=options, min_values=1, max_values=1)
         self.select.callback = self.on_select
         self.add_item(self.select)
 
-        # botón cerrar
         btn = discord.ui.Button(label="Cerrar", style=discord.ButtonStyle.danger)
         btn.callback = self.on_close
         self.add_item(btn)
 
     async def on_select(self, interaction: discord.Interaction):
-        # solo el autor puede interactuar
         if interaction.user.id != self.author_id:
             return await interaction.response.send_message("❌ Solo quien abrió la ayuda puede usar este menú.", ephemeral=True)
 
         choice = self.select.values[0]
         if choice == "General":
             embed = self._build_general()
-        elif choice == "Almanaque — Objetos":
-            embed = self._build_almanac_items()
-        elif choice == "Almanaque — Cofres & Probabilidades":
+        elif choice == "Exploración & Objetos":
+            embed = self._build_exploration()
+        elif choice == "Combate & Bosses":
+            embed = self._build_combat()
+        elif choice == "Tienda & Compras":
+            embed = self._build_shop()
+        elif choice == "Almanaque — Cofres":
             embed = self._build_chests()
         elif choice == "Comandos Admin":
             embed = self._build_admins()
@@ -100,119 +144,266 @@ class HelpAlmanacView(discord.ui.View):
         try:
             await interaction.response.edit_message(embed=embed, view=self)
         except Exception:
-            # si no se puede editar (fallback)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     async def on_close(self, interaction: discord.Interaction):
         if interaction.user.id != self.author_id:
             return await interaction.response.send_message("❌ Solo quien abrió la ayuda puede cerrar esto.", ephemeral=True)
-        # desactivar controles y editar
         for child in list(self.children):
             try:
-                if isinstance(child, discord.ui.Item):
-                    child.disabled = True
+                child.disabled = True
             except Exception:
                 pass
         try:
-            await interaction.response.edit_message(content="— Vista cerrada —", view=self, embed=None)
+            await interaction.response.edit_message(content="✅ Vista cerrada", view=self, embed=None)
         except Exception:
-            try:
-                await interaction.response.send_message("Vista cerrada.", ephemeral=True)
-            except Exception:
-                pass
+            pass
         self.stop()
 
     def _build_general(self) -> discord.Embed:
+        """Ayuda general de comandos"""
         embed = discord.Embed(
             title="📜 Menú de Ayuda — Los Ezquisos",
-            description="Guía rápida de comandos. Usa el **prefijo `!`** delante de cada comando (ej.: `!profile`).",
+            description="Guía completa del bot (RPG de economía hospitalaria).",
             color=discord.Color.dark_teal()
         )
-        embed.add_field(name="Economía & Perfil",
-                        value="`!profile` — Ver perfil\n`!shop` — Ver tienda\n`!buy <item>` — Comprar\n`!work` — Trabajar (minijuegos)\n`!jobs` — Trabajos\n`!apply <trabajo>` — Aplicarte",
-                        inline=False)
-        embed.add_field(name="Exploración & Objetos",
-                        value="`!explore` — Buscar objetos\n`!inventory` — Ver inventario\n`!use <id>` — Usar item\n`!repair <id>` — Reparar item",
-                        inline=False)
-        embed.add_field(name="Minijuegos",
-                        value="Al trabajar recibirás minijuegos. Responde rápido cuando aparezcan preguntas para ganar más.",
-                        inline=False)
-        embed.set_footer(text="Pulsa el menú para ver el Almanaque de objetos o cofres.")
+        embed.add_field(
+            name="📊 Perfil & Dinero",
+            value="`/profile` — Ver tu perfil y stats\n`/work` — Trabajar y ganar dinero\n`/jobs` — Ver trabajos disponibles\n`/apply <trabajo>` — Aplicarte a un trabajo",
+            inline=False
+        )
+        embed.add_field(
+            name="🛍️ Tienda & Items",
+            value="`/shop` — Ver la tienda\n`/buy <item>` — Comprar items\n`/equip <item>` — Equipar arma\n`/profile` — Ver tu inventario",
+            inline=False
+        )
+        embed.add_field(
+            name="🌲 Exploración",
+            value="`/explore` — Buscar objetos y cofres (cooldown 25s)",
+            inline=False
+        )
+        embed.add_field(
+            name="⚔️ Combate & Bosses",
+            value="`/spawnboss <nombre>` — Invocar un jefe en el servidor\n`/fight` — Pelear contra el jefe activo\n`/bossinfo` — Ver info del jefe actual",
+            inline=False
+        )
+        embed.add_field(
+            name="🃏 Minijuegos",
+            value="`/blackjack` — Jugar blackjack y apostar dinero",
+            inline=False
+        )
+        embed.add_field(
+            name="💰 Robar",
+            value="`/rob <@usuario>` — Robar dinero de otro jugador",
+            inline=False
+        )
+        embed.set_footer(text="Usa el menú para ver detalles de cada sección.")
         return embed
 
-    def _build_almanac_items(self) -> discord.Embed:
-        embed = discord.Embed(title="📚 Almanaque — Objetos", color=discord.Color.gold())
+    def _build_exploration(self) -> discord.Embed:
+        """Guía de exploración"""
+        embed = discord.Embed(
+            title="🌲 Exploración & Objetos",
+            description="Sistema de búsqueda de items y cofres.",
+            color=discord.Color.teal()
+        )
+        embed.add_field(
+            name="¿Cómo explorar?",
+            value="Usa `/explore` (cooldown: 25 segundos). Encontrarás:\n• **Items aleatorios** (rareza comun a maestro)\n• **Cofres con múltiples items** (12% de probabilidad)\n• **Efectos especiales** (Linterna, Teléfono, Chihuahua)",
+            inline=False
+        )
+        embed.add_field(
+            name="Inventario",
+            value="Máximo **3 items** en el inventario.\n• Si encuentras un item con inventario lleno, puedes reemplazar uno.\n• Usa `/profile` para ver tu inventario completo.",
+            inline=False
+        )
+        embed.add_field(
+            name="Items Especiales",
+            value="🔦 **Linterna** — Aumenta probabilidad de cofres/items raros (24h)\n📱 **Teléfono** — +6s extra en preguntas de trabajo\n🐕 **Chihuahua** — Te da una moneda de compañía",
+            inline=False
+        )
+        embed.add_field(
+            name="Cofres Sellados",
+            value="Los cofres épicos, legendarios y maestros pueden estar **sellados** 🔐\nNecesitas **Llave Maestra** para abrirlos (se consume al usarla).",
+            inline=False
+        )
+        embed.set_footer(text="Los items encontrados se usan automáticamente en combate si los tienes equipados.")
+        return embed
+
+    def _build_combat(self) -> discord.Embed:
+        """Guía de combate"""
+        embed = discord.Embed(
+            title="⚔️ Combate & Bosses",
+            description="Sistema de combate por turnos contra 14 jefes diferentes.",
+            color=discord.Color.red()
+        )
+        embed.add_field(
+            name="¿Cómo pelear?",
+            value="**1.** Admin usa `/spawnboss <nombre>` para invocar un jefe\n**2.** Tú usas `/fight` para atacar\n**3.** Elige una acción cada turno: ⚔️ **Atacar**, 🛡️ **Defender**, 📦 **Usar Item**",
+            inline=False
+        )
+        embed.add_field(
+            name="⚔️ Atacar",
+            value="Inflige daño basado en tu arma equipada. Posibilidad de **crítico** (doble daño).",
+            inline=False
+        )
+        embed.add_field(
+            name="🛡️ Defender",
+            value="Reduce el daño del próximo ataque enemigo.",
+            inline=False
+        )
+        embed.add_field(
+            name="📦 Usar Item",
+            value="**Items de exploración:**\n• Núcleo Energético: 80 daño\n• Fragmento Omega: 60 daño + +50% daño próximo\n• Pistola/Máscara: 50 daño\n• Chihuahua: 15-35 daño aleatorio\n\n**Items de tienda:**\n• Poción de Furia: 60 daño\n• Escudo Mágico: Protege del próximo ataque\n• Nektar Antiguo: 100 HP recuperados",
+            inline=False
+        )
+        embed.add_field(
+            name="Cooldown de Combate",
+            value="Espera **2 minutos** entre combates contra el mismo jefe.",
+            inline=False
+        )
+        # Agregar info de bosses
+        for boss_type, bosses in BOSS_INFO.items():
+            embed.add_field(name=boss_type, value="\n".join(bosses), inline=False)
+        return embed
+
+    def _build_shop(self) -> discord.Embed:
+        """Guía de tienda"""
+        embed = discord.Embed(
+            title="🏪 Tienda & Compras",
+            description="Items especiales con efectos en combate.",
+            color=discord.Color.gold()
+        )
+        
+        tienda_items = {item: info for item, info in ALMANAC_ITEMS.items() if info.get("tipo") == "tienda"}
+        for name, info in tienda_items.items():
+            embed.add_field(
+                name=f"{name} ({info['rarity'].capitalize()})",
+                value=info["desc"],
+                inline=False
+            )
+        
+        embed.set_footer(text="Usa `/buy <nombre exacto>` para comprar. Los items se añaden a tu inventario.")
+        return embed
+
+    def _build_exploration_items(self) -> discord.Embed:
+        """Almanaque de items de exploración"""
+        embed = discord.Embed(title="📚 Almanaque — Items de Exploración", color=discord.Color.gold())
         embed.set_thumbnail(url="https://i.imgur.com/4M7IWwP.png")
-        # agrupamos por rareza para mantener orden
+        
         rarities = {}
         for name, info in ALMANAC_ITEMS.items():
-            rar = info.get("rarity", "comun").capitalize()
-            rarities.setdefault(rar, []).append((name, info["desc"]))
+            if info.get("tipo") == "exploración":
+                rar = info.get("rarity", "comun").capitalize()
+                rarities.setdefault(rar, []).append((name, info["desc"]))
 
-        for rar in sorted(rarities.keys(), key=lambda r: ["Comun","Raro","Epico","Legendario","Maestro"].index(r) if r in ["Comun","Raro","Epico","Legendario","Maestro"] else 0):
+        rarity_order = ["Comun", "Raro", "Epico", "Legendario", "Maestro"]
+        for rar in sorted(rarities.keys(), key=lambda r: rarity_order.index(r) if r in rarity_order else 999):
             lines = []
             for n, desc in rarities[rar]:
                 lines.append(f"**{n}** — {desc}")
-            embed.add_field(name=f"{rar} ({len(lines)})", value="\n".join(lines)[:1024], inline=False)
+            value = "\n".join(lines)
+            if len(value) > 1024:
+                value = value[:1021] + "..."
+            embed.add_field(name=f"{rar} ({len(lines)})", value=value, inline=False)
 
-        embed.set_footer(text="Si agregas nuevos objetos al juego, actualiza ALMANAC_ITEMS en commands/ayuda.py")
         return embed
 
     def _build_chests(self) -> discord.Embed:
-        embed = discord.Embed(title="🗝️ Almanaque — Cofres y probabilidades", color=discord.Color.purple())
-        embed.add_field(name="Qué es un cofre", value="Al explorar, de vez en cuando puedes encontrar cofres en lugar de objetos. Cada cofre tiene un nivel y mejores cofres dan mejores objetos.", inline=False)
+        """Guía de cofres"""
+        embed = discord.Embed(
+            title="🗝️ Almanaque — Cofres y Probabilidades",
+            color=discord.Color.purple()
+        )
+        embed.add_field(
+            name="¿Qué es un cofre?",
+            value="Al explorar (12% probabilidad), encuentras un cofre en lugar de un item. Contiene múltiples items basados en su rareza.",
+            inline=False
+        )
+        
         for k, v in CHEST_INFO.items():
-            embed.add_field(name=f"{k}", value=f"{v['spawn_hint']}\n**Contiene:** {v['contains']}\n**Ejemplo probabilidad (entre cofres):** {v['example_chance']}", inline=False)
-        embed.add_field(name="Consejos",
-                        value="- Tener llaves maestras o linternas aumenta la probabilidad de recibir mejores cofres.\n- Cofre Maestro: extremadamente raro; consérvalo o abre con todo preparado.",
-                        inline=False)
+            embed.add_field(
+                name=f"{k}",
+                value=f"🎁 **Frecuencia:** {v['spawn_hint']}\n📦 **Contiene:** {v['contains']}\n📊 **Probabilidad:** {v['example_chance']}",
+                inline=False
+            )
+        
+        embed.add_field(
+            name="Consejos",
+            value="🔦 Tener **Linterna** aumenta probabilidad de cofres raros.\n🔑 **Llave Maestra** abre cofres sellados (se consume).\n⚡ Cofre Maestro: extremadamente raro; consérvalo o prepárate bien.",
+            inline=False
+        )
         return embed
 
     def _build_admins(self) -> discord.Embed:
-        embed = discord.Embed(title="🔒 Comandos de Administrador", color=discord.Color.dark_red())
-        embed.add_field(name="Comandos clave",
-                        value="`!addmoney @user <cantidad>` — Añadir dinero.\n`!setjob @user <trabajo>` — Asignar trabajo.\n`!resetcooldown @user [trabajo]` — Reiniciar cooldowns de work.",
-                        inline=False)
+        """Comandos para admins"""
+        embed = discord.Embed(
+            title="🔒 Comandos de Administrador",
+            color=discord.Color.dark_red()
+        )
+        embed.add_field(
+            name="Gestión de Servidores",
+            value="`/setchannel <#canal>` — Configurar canal para anuncios de bosses\n`/getchannel` — Ver canal configurado\n`/event enable` — Activar anuncios de eventos",
+            inline=False
+        )
+        embed.add_field(
+            name="Gestión de Jugadores",
+            value="`/addmoney @user <cantidad>` — Añadir dinero\n`/setjob @user <trabajo>` — Asignar trabajo\n`/resetcooldown @user [trabajo]` — Reiniciar cooldowns",
+            inline=False
+        )
+        embed.add_field(
+            name="Bosses",
+            value="`/spawnboss <nombre>` — Invocar un jefe con autocomplete\n`/bossinfo` — Ver información del jefe actual",
+            inline=False
+        )
         embed.set_footer(text="Estos comandos requieren permisos de administrador en el servidor.")
         return embed
 
     async def on_timeout(self):
-        # desactivar controles
+        """Desactiva controles al expirar"""
         for child in list(self.children):
             try:
-                if isinstance(child, discord.ui.Item):
-                    child.disabled = True
+                child.disabled = True
             except Exception:
                 pass
 
-# ====== Cog principal ======
+
+# ==================== COG PRINCIPAL ====================
+
 class HelpCog(commands.Cog):
+    """Sistema de ayuda interactivo"""
+    
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="ayuda")
     async def ayuda_prefix(self, ctx):
         """Comando de prefijo: !ayuda"""
-        embed = discord.Embed(title="📜 Menú de Ayuda — Los Ezquisos",
-                              description="Pulsa el menú para expandir secciones (Almanaque: objetos y cofres).",
-                              color=discord.Color.dark_teal())
-        embed.set_footer(text="Usa el menú para navegar. Los ejemplos usan prefijo `!`.")
+        embed = discord.Embed(
+            title="📜 Menú de Ayuda — Los Ezquisos",
+            description="Guía completa del bot. Usa el menú para navegar entre secciones.",
+            color=discord.Color.dark_teal()
+        )
+        embed.set_footer(text="Sistema RPG de economía hospitalaria.")
         view = HelpAlmanacView(ctx.author.id)
         await ctx.send(embed=embed, view=view)
 
-    @app_commands.command(name="ayuda", description="Muestra la ayuda del bot (menú interactivo)")
+    @app_commands.command(name="ayuda", description="📜 Muestra la ayuda del bot (menú interactivo)")
     async def ayuda_slash(self, interaction: discord.Interaction):
         """Comando slash: /ayuda"""
         await interaction.response.defer()
-        embed = discord.Embed(title="📜 Menú de Ayuda — Los Ezquisos",
-                              description="Pulsa el menú para expandir secciones (Almanaque: objetos y cofres).",
-                              color=discord.Color.dark_teal())
+        embed = discord.Embed(
+            title="📜 Menú de Ayuda — Los Ezquisos",
+            description="Guía completa del bot. Usa el menú para navegar entre secciones.",
+            color=discord.Color.dark_teal()
+        )
+        embed.set_footer(text="Sistema RPG de economía hospitalaria.")
         view = HelpAlmanacView(interaction.user.id)
         await interaction.followup.send(embed=embed, view=view)
 
+
+# ==================== SETUP ====================
+
 async def setup(bot):
+    """Carga el cog de ayuda"""
     await bot.add_cog(HelpCog(bot))
-
-
-
-
