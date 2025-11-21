@@ -267,31 +267,23 @@ class BossesCog(commands.Cog):
         await ctx.send("✅ Jefe spawneado")
 
     async def boss_autocomplete(self, interaction: discord.Interaction, current: str) -> list:
-        """Autocomplete for boss names"""
+        """Autocomplete for boss names - shows all bosses"""
         all_bosses = get_all_boss_names()
-        return [name for name in all_bosses if current.lower() in name.lower()][:25]
+        return all_bosses[:25]
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
-    @app_commands.describe(boss_type="Mini-Boss, Boss o nombre específico", boss_name="Nombre específico del jefe (opcional)")
-    @app_commands.autocomplete(boss_name=boss_autocomplete)
-    async def spawnboss_slash(self, interaction: discord.Interaction, boss_type: str, boss_name: str = None):
-        """Force spawn a boss"""
+    @app_commands.describe(jefe="Selecciona un jefe de la lista")
+    @app_commands.autocomplete(jefe=boss_autocomplete)
+    async def spawnboss_slash(self, interaction: discord.Interaction, jefe: str):
+        """Force spawn a specific boss"""
         if not interaction.user.guild_permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
-        boss = None
         
-        if boss_name:
-            boss = get_boss_by_name(boss_name)
-            if not boss:
-                return await interaction.response.send_message(f"❌ Jefe '{boss_name}' no encontrado", ephemeral=True)
-        elif boss_type in ["Mini-Boss", "Boss", "Especial"]:
-            boss = get_random_boss(boss_type)
-            if not boss:
-                return await interaction.response.send_message(f"❌ Error al generar jefe de tipo {boss_type}", ephemeral=True)
-        else:
-            return await interaction.response.send_message("❌ Tipo debe ser 'Mini-Boss', 'Boss' o 'Especial', o especifica un nombre de jefe", ephemeral=True)
+        boss = get_boss_by_name(jefe)
+        if not boss:
+            return await interaction.response.send_message(f"❌ Jefe '{jefe}' no encontrado", ephemeral=True)
         
         await set_active_boss(guild_id, boss)
         
