@@ -20,15 +20,10 @@ async def boss_autocomplete(interaction: discord.Interaction, current: str):
     """Autocomplete for boss names - shows all bosses"""
     try:
         all_bosses = get_all_boss_names()
-        print(f"[AUTOCOMPLETE] Called! current='{current}', total_bosses={len(all_bosses)}, bosses={all_bosses}")
         filtered = [name for name in all_bosses if current.lower() in name.lower()] if current else all_bosses
-        choices = [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
-        print(f"[AUTOCOMPLETE] Returning {len(choices)} choices: {[c.name for c in choices]}")
-        return choices
+        return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
     except Exception as e:
-        print(f"[ERROR AUTOCOMPLETE] {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error en autocomplete: {e}")
         return []
 
 class BossesCog(commands.Cog):

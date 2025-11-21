@@ -76,16 +76,25 @@ def get_random_boss(boss_type: str) -> Optional[Dict]:
     candidates = BOSSES_DB[boss_type]
     for boss in candidates:
         if random.random() < boss["prob"]:
-            return boss.copy()
+            boss_copy = boss.copy()
+            boss_copy["type"] = boss_type
+            boss_copy["max_hp"] = boss_copy["hp"]
+            return boss_copy
     
-    return random.choice(candidates).copy()
+    boss_copy = random.choice(candidates).copy()
+    boss_copy["type"] = boss_type
+    boss_copy["max_hp"] = boss_copy["hp"]
+    return boss_copy
 
 def get_boss_by_name(boss_name: str) -> Optional[Dict]:
     """Get a specific boss by name"""
-    for category in BOSSES_DB.values():
+    for boss_type, category in BOSSES_DB.items():
         for boss in category:
             if boss["name"].lower() == boss_name.lower():
-                return boss.copy()
+                boss_copy = boss.copy()
+                boss_copy["type"] = boss_type
+                boss_copy["max_hp"] = boss_copy["hp"]
+                return boss_copy
     return None
 
 def get_all_boss_names() -> list:
