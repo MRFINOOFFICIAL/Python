@@ -98,6 +98,10 @@ async def main():
         await bot.load_extension("commands.blackjack")
         await bot.load_extension("commands.bosses")
         await bot.load_extension("commands.items")
+        
+        # Iniciar tarea de auto-spawn de bosses
+        from boss_autospawn import auto_spawn_bosses
+        bot.loop.create_task(auto_spawn_bosses(bot))
 
 
 
