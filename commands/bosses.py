@@ -91,11 +91,11 @@ class BossesCog(commands.Cog):
         """Interactive fight logic - user chooses actions each turn"""
         boss = await get_active_boss(guild_id)
         if not boss:
-            return await interaction.response.send_message("❌ No hay jefe activo en este servidor.", ephemeral=True)
+            return await interaction.followup.send("❌ No hay jefe activo en este servidor.", ephemeral=True)
         
         cooldown = await get_fight_cooldown(user_id, guild_id)
         if cooldown and datetime.fromisoformat(cooldown.isoformat()) > datetime.now() - timedelta(minutes=2):
-            return await interaction.response.send_message("⏳ Debes esperar 2 minutos entre peleas.", ephemeral=True)
+            return await interaction.followup.send("⏳ Debes esperar 2 minutos entre peleas.", ephemeral=True)
         
         equipped = await get_equipped_item(user_id)
         weapon = equipped["item_name"] if equipped else None
@@ -106,7 +106,7 @@ class BossesCog(commands.Cog):
         fight_log = []
         defend_next = False
         
-        await interaction.response.send_message("⚔️ ¡Iniciando combate!")
+        await interaction.followup.send("⚔️ ¡Iniciando combate!")
         
         while player_hp > 0 and boss_hp > 0 and turn <= 30:
             embed = discord.Embed(title=f"⚔️ Turno {turn}: {boss['name']}", color=discord.Color.red())
