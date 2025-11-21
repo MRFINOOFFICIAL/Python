@@ -78,10 +78,12 @@ Preferred communication style: Simple, everyday language.
 - **Experience**: Gained through work and activities
 
 ### Boss System
-- **Boss Types**: Mini-Boss and Boss categories with varying HP/attack/rewards
+- **Boss Types**: Mini-Boss, Boss, and Especial categories (14 total bosses) with varying HP/attack/rewards
 - **Guild-Wide**: One active boss per server
 - **Combat**: Turn-based with equipped weapon mechanics and critical hits
 - **Cooldowns**: 2-minute cooldown between fight attempts per user
+- **Weapon Benefits**: Each weapon has unique combat effects (25+ weapons with specific bonuses like ráfagas, sedación, etc.)
+- **Fragmento Omega Mechanic**: Requires 2 sequential uses for super attack (120 damage) - first use prepares, second use activates
 
 ### Loot System
 - **Chest Types**: Común, Raro, Épico, Legendario with weighted spawn rates
@@ -163,3 +165,10 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
 **Modular Cog System**: Commands organized into separate files under `/commands` directory for maintainability.
 
 **Dual Command Support**: Maintains backward compatibility with prefix commands while supporting modern slash commands.
+
+## Recent Changes (Session Nov 21, 2025)
+
+1. **Fixed Explore Errors**: Corrected `remove_item()` function calls - changed from 2 arguments to 1 argument (item_id only)
+2. **Updated Help System**: Completely rewrote `/ayuda` command with 6 interactive sections covering 14 bosses, combat mechanics, items, chests, and admin tools
+3. **Weapon Benefit System**: Added 25+ unique weapon-specific descriptions showing actual combat bonuses (e.g., "Sedación: Disminuye precisión del jefe -5%")
+4. **Fragmento Omega Mechanic**: Implemented 2-turn charge system - first use prepares the weapon, second use activates 120-damage super attack

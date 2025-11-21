@@ -25,6 +25,7 @@ class FightActionView(ui.View):
         self.action = None
         self.selected_item = None
         self.damage_buff = False
+        self.omega_charging = False  # Estado de carga de Fragmento Omega
     
     @ui.button(label="⚔️ Atacar", style=discord.ButtonStyle.red)
     async def attack_button(self, interaction: discord.Interaction, button: ui.Button):
@@ -106,6 +107,7 @@ class BossesCog(commands.Cog):
         turn = 1
         fight_log = []
         defend_next = False
+        omega_charging = False
         
         await interaction.followup.send("⚔️ ¡Iniciando combate!")
         
@@ -117,8 +119,10 @@ class BossesCog(commands.Cog):
             embed.add_field(name="Último evento", value=fight_log[-1] if fight_log else "...", inline=False)
             
             view = FightActionView(user_id, interaction)
+            view.omega_charging = omega_charging  # Transferir estado de preparación
             msg = await interaction.followup.send(embed=embed, view=view)
             await view.wait()
+            omega_charging = view.omega_charging  # Actualizar estado para próximo turno
             
             if view.action == "attack":
                 player_hit, player_dmg, player_crit = resolve_player_attack(weapon)
@@ -153,9 +157,15 @@ class BossesCog(commands.Cog):
                             boss_hp -= 80
                             fight_log.append(f"⚡ ¡Núcleo Energético explotó! -80 HP al jefe!")
                         elif "fragmento omega" in item_name:
-                            boss_hp -= 60
-                            view.damage_buff = True
-                            fight_log.append(f"✨ ¡Fragmento Omega! -60 HP y +50% daño!")
+                            if not view.omega_charging:
+                                # Primera carga: modo preparación
+                                view.omega_charging = True
+                                fight_log.append(f"✨ ¡PREPARANDO FRAGMENTO OMEGA! Usa de nuevo el próximo turno para SUPER ATAQUE (120 dmg)!")
+                            else:
+                                # Segunda carga: super ataque activado
+                                boss_hp -= 120
+                                view.omega_charging = False
+                                fight_log.append(f"⚡⚡ ¡¡SUPER ATAQUE FRAGMENTO OMEGA!! -120 HP CRÍTICO al jefe!")
                         elif "pistola vieja" in item_name or "máscara de xfi" in item_name:
                             boss_hp -= 50
                             fight_log.append(f"🔫 ¡Ataque crítico! -50 HP al jefe!")
