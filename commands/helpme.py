@@ -112,6 +112,7 @@ class HelpAlmanacView(discord.ui.View):
             discord.SelectOption(label="Tienda & Compras", description="Items de tienda y efectos", emoji="🏪"),
             discord.SelectOption(label="Almanaque — Cofres", description="Tipos de cofres y probabilidades", emoji="🗝️"),
             discord.SelectOption(label="Social & Economía", description="Misiones, Trading, Mercado, Duelos", emoji="💼"),
+            discord.SelectOption(label="🏢 Clubs & Gremios", description="Crear clubs, upgrades, tesorería", emoji="🏢"),
             discord.SelectOption(label="Leaderboards & Upgrades", description="Rankings y mejoras permanentes", emoji="🏆"),
             discord.SelectOption(label="Comandos Admin", description="Comandos solo para administradores", emoji="🔒"),
         ]
@@ -140,6 +141,8 @@ class HelpAlmanacView(discord.ui.View):
             embed = self._build_chests()
         elif choice == "Social & Economía":
             embed = self._build_social()
+        elif choice == "🏢 Clubs & Gremios":
+            embed = self._build_clubs()
         elif choice == "Leaderboards & Upgrades":
             embed = self._build_leaderboards()
         elif choice == "Comandos Admin":
@@ -206,6 +209,11 @@ class HelpAlmanacView(discord.ui.View):
         embed.add_field(
             name="💼 Social & Competencia",
             value="`/misiones` — Ver misiones diarias\n`/leaderboard [stat]` — Ver rankings\n`/ofrecer-trade` — Intercambiar items\n`/vender-item` — Vender en mercado\n`/desafiar` — Apostar dinero vs otro jugador",
+            inline=False
+        )
+        embed.add_field(
+            name="🏢 Clubs (Gremios)",
+            value="`/crear-club <nombre>` — Crear un nuevo club\n`/unirse-club <nombre>` — Unirse a un club existente\n`/club-info` — Ver info de tu club\n`/salir-club` — Salir de tu club\n`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n`/upgrades-club` — Ver upgrades disponibles\n`/comprar-upgrade-club <nombre>` — Comprar upgrade",
             inline=False
         )
         embed.set_footer(text="Usa el menú para ver detalles de cada sección.")
@@ -382,6 +390,45 @@ class HelpAlmanacView(discord.ui.View):
         embed.add_field(
             name="⚔️ Duelos por Dinero",
             value="`/desafiar @user cantidad` — Apuesta dinero en un duelo\n`/mis-duelos` — Ver desafíos pendientes\n\n💡 El ganador se lleva todo. ¡Arriesga sabiamente!",
+            inline=False
+        )
+        return embed
+
+    def _build_clubs(self) -> discord.Embed:
+        """Guía de clubs y gremios"""
+        embed = discord.Embed(
+            title="🏢 Clubs & Gremios",
+            description="Crea gremios, ahorra dinero en común y obtén bonificadores para todos los miembros.",
+            color=discord.Color.dark_blue()
+        )
+        embed.add_field(
+            name="📝 Crear & Gestionar Club",
+            value="`/crear-club <nombre>` — Crear un club nuevo (máx 10 miembros)\n`/unirse-club <nombre>` — Unirse a un club existente\n`/club-info` — Ver información de tu club\n`/salir-club` — Salir del club",
+            inline=False
+        )
+        embed.add_field(
+            name="💰 Tesorería Compartida",
+            value="`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n\n💡 El dinero del club se usa para comprar upgrades que benefician a TODOS",
+            inline=False
+        )
+        embed.add_field(
+            name="🎁 Upgrades de Club (4 tipos)",
+            value="**🏫 Aula de Entrenamiento** (5000💰) — +25% dinero en trabajos\n**🧘 Sala de Meditación** (8000💰) — +30% XP por victoria\n**⚔️ Armería Mejorada** (10000💰) — +15% daño en combate\n**📚 Biblioteca Antigua** (6000💰) — +20% éxito en minijuegos\n\n✅ Los upgrades benefician a TODOS los miembros automáticamente",
+            inline=False
+        )
+        embed.add_field(
+            name="👥 Rangos de Miembros",
+            value="**👑 Líder** — Crea el club, gestiona tesorería y elige upgrades\n**🔨 Oficial** — Promocionado por el líder\n**👤 Miembro** — Parte del club\n\nComandos de líder: `/promover-miembro`, `/expulsar-miembro`, `/transferir-liderazgo`",
+            inline=False
+        )
+        embed.add_field(
+            name="📊 Estadísticas",
+            value="`/stats-club` — Ver tesorería, dinero de miembros, XP combinado\n`/clubs` — Ver lista de todos los clubs en el servidor",
+            inline=False
+        )
+        embed.add_field(
+            name="💡 Estrategia",
+            value="🤝 Únete a un club para multiplicar tus ganancias\n💰 Contribuye dinero a los upgrades para beneficiarte\n📈 Los upgrades son inversiones colectivas que pagan dividendos infinitos",
             inline=False
         )
         return embed
