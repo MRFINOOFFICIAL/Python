@@ -31,7 +31,7 @@ ALMANAC_ITEMS = {
     "Linterna": {"rarity": "comun", "desc": "Aumenta probabilidad de encontrar cofres raros.", "tipo": "exploración"},
     "Llave Maestra": {"rarity": "epico", "desc": "Desbloquea cofres sellados; 40 HP + 30 daño en combate.", "tipo": "exploración"},
     "Núcleo energético": {"rarity": "legendario", "desc": "Objeto legendario — 80 de daño directo al jefe en combate.", "tipo": "exploración"},
-    "Fragmento Omega": {"rarity": "maestro", "desc": "Objeto maestro — 60 daño + +50% daño en próximo ataque.", "tipo": "exploración"},
+    "Fragmento Omega": {"rarity": "maestro", "desc": "Objeto maestro — Sistema de 2 turnos: 1º turno prepara (sin daño), 2º turno SUPER ATAQUE 120 daño.", "tipo": "exploración"},
     "Traje ritual": {"rarity": "legendario", "desc": "Objeto legendario — 60 HP de recuperación + defensa.", "tipo": "exploración"},
     
     # Items de Tienda - Especiales
@@ -40,7 +40,7 @@ ALMANAC_ITEMS = {
     "Escudo Mágico": {"rarity": "raro", "desc": "Protección mágica — te protege del próximo ataque enemigo en combate.", "tipo": "tienda"},
     "Nektar Antiguo": {"rarity": "legendario", "desc": "Bebida legendaria — recupera 100 HP completos en combate.", "tipo": "tienda"},
     "Danza de Saviteto": {"rarity": "raro", "desc": "Hechizo de aumento — tu próximo ataque inflige +50% de daño.", "tipo": "tienda"},
-    "x2 de dinero de mecha": {"rarity": "epico", "desc": "Duplicador de daño — inflige 40 daño directo al jefe.", "tipo": "tienda"},
+    "x2 de dinero de mecha": {"rarity": "epico", "desc": "Duplica dinero ganado en trabajos durante 1 hora. Se reactiva si trabajas nuevamente.", "tipo": "tienda"},
     "Kit de reparación": {"rarity": "comun", "desc": "Consumible que repara durabilidad de un item.", "tipo": "tienda"},
 }
 
@@ -174,7 +174,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="🛍️ Tienda & Items",
-            value="`/shop` — Ver la tienda\n`/buy <item>` — Comprar items\n`/equip <item>` — Equipar arma\n`/profile` — Ver tu inventario",
+            value="`/shop` — Ver la tienda\n`/buy <item>` — Comprar items\n`/equip <item>` — Equipar arma\n`/inventario` — Ver tu inventario completo\n`/use <item>` — Usar un item\n`/repair` — Reparar items con Kit de reparación",
             inline=False
         )
         embed.add_field(
@@ -214,7 +214,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="Inventario",
-            value="Máximo **3 items** en el inventario.\n• Si encuentras un item con inventario lleno, puedes reemplazar uno.\n• Usa `/profile` para ver tu inventario completo.",
+            value="Máximo **3 items** en el inventario.\n• Si encuentras un item con inventario lleno, puedes reemplazar uno.\n• Usa `/inventario` para ver tu inventario completo con detalles.\n• Usa `/use` para usar items directamente.\n• Usa `/repair` para reparar items dañados con Kit de reparación.",
             inline=False
         )
         embed.add_field(
@@ -254,7 +254,12 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="📦 Usar Item",
-            value="**Items de exploración:**\n• Núcleo Energético: 80 daño\n• Fragmento Omega: 60 daño + +50% daño próximo\n• Pistola/Máscara: 50 daño\n• Chihuahua: 15-35 daño aleatorio\n\n**Items de tienda:**\n• Poción de Furia: 60 daño\n• Escudo Mágico: Protege del próximo ataque\n• Nektar Antiguo: 100 HP recuperados",
+            value="**Items de exploración:**\n• Núcleo Energético: 80 daño\n• Fragmento Omega: 2-turno (1º prepara, 2º = 120 daño CRÍTICO)\n• Pistola/Máscara: 50 daño\n• Chihuahua: 15-35 daño aleatorio\n• Llave Maestra: 40 HP + 30 daño\n• Traje Ritual: 60 HP + defensa\n\n**Items de tienda:**\n• Poción de Furia: 60 daño\n• Escudo Mágico: Protege del próximo ataque\n• Nektar Antiguo: 100 HP recuperados\n• Danza de Saviteto: +50% daño próximo\n\n**Cada arma tiene beneficio único** (usa `/equip` para ver tu arma actual)",
+            inline=False
+        )
+        embed.add_field(
+            name="🎯 Beneficios de Armas",
+            value="Cada arma tiene un beneficio especial único:\n• **Pistola vieja**: Ráfagas (20% crítico)\n• **Fragmento Omega**: 90% precisión, 60 daño, 40% crítico - **MÁS POTENTE**\n• **Núcleo Energético**: 80% precisión, 50 daño, 30% crítico\n• **Máscara de Xfi**: Intimidante (reduce ataque jefe 20%)\n• **Chihuahua**: Tu amiguito ataca también (15-35 dmg aleatorio)\n\nUsa `/equip <nombre>` para equipar un arma y ver su beneficio completo.",
             inline=False
         )
         embed.add_field(
@@ -271,7 +276,7 @@ class HelpAlmanacView(discord.ui.View):
         """Guía de tienda"""
         embed = discord.Embed(
             title="🏪 Tienda & Compras",
-            description="Items especiales con efectos en combate.",
+            description="Items especiales con efectos únicos.",
             color=discord.Color.gold()
         )
         
@@ -282,6 +287,12 @@ class HelpAlmanacView(discord.ui.View):
                 value=info["desc"],
                 inline=False
             )
+        
+        embed.add_field(
+            name="💡 Recomendaciones",
+            value="🔧 **Kit de reparación** — Usa `/repair` para restaurar durabilidad de items (250💰)\n💰 **x2 de dinero de mecha** — Duplica dinero en trabajos 1 hora (1200💰)\n⚡ **Fragmento Omega** — El item más potente del juego",
+            inline=False
+        )
         
         embed.set_footer(text="Usa `/buy <nombre exacto>` para comprar. Los items se añaden a tu inventario.")
         return embed
