@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 from datetime import datetime, timedelta
-from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory
+from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory, club_has_upgrade
 from cache import set_buff, get_buff
 import time
 
@@ -277,6 +277,10 @@ class WorkCog(commands.Cog):
                     # Activar buff por 1 hora
                     set_buff(user_id, "mecha_money_x2_until", time.time() + 3600)
                     money_multiplier = 2.0
+        
+        # bonus por upgrade de club "Aula de Entrenamiento"
+        if await club_has_upgrade(user_id, "Aula de Entrenamiento"):
+            money_multiplier *= 1.25  # +25% dinero
 
         # elegir minijuego
         game_name = random.choice(JOBS[job]["games"])

@@ -674,6 +674,19 @@ async def has_upgrade(user_id, upgrade_name):
 
 # ---------- CLUB UPGRADES ----------
 
+async def club_has_upgrade(user_id, upgrade_name):
+    """Verificar si el club del usuario tiene un upgrade específico"""
+    try:
+        async with aiosqlite.connect(DB) as db:
+            cur = await db.execute(
+                "SELECT 1 FROM club_upgrades cu JOIN club_members cm ON cu.club_id = cm.club_id "
+                "WHERE cm.user_id = ? AND cu.upgrade = ?",
+                (str(user_id), upgrade_name)
+            )
+            return await cur.fetchone() is not None
+    except:
+        return False
+
 async def get_club_bonus(user_id):
     """Calcular bonificador de trabajo basado en dinero del club"""
     try:
