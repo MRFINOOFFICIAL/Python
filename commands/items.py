@@ -142,7 +142,9 @@ class ItemsCog(commands.Cog):
             min_values=1,
             max_values=1
         )
-        select.callback = view.select_item
+        async def select_callback(interaction: discord.Interaction):
+            await view.select_item(interaction, select)
+        select.callback = select_callback
         view.add_item(select)
         
         msg = await send_fn(embed=embed, view=view)
@@ -262,7 +264,9 @@ class ItemsCog(commands.Cog):
             min_values=1,
             max_values=1
         )
-        select.callback = view.select_item
+        async def select_callback(interaction: discord.Interaction):
+            await view.select_item(interaction, select)
+        select.callback = select_callback
         view.add_item(select)
         
         msg = await send_fn(embed=embed, view=view)
