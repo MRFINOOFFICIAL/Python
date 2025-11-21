@@ -140,7 +140,7 @@ async def play_dados(ctx, pay, bonus_time=0):
         loss = max(10, pay//6)
         return -loss, f"🎲 Sacaste un {dado}, fallaste y perdiste {loss}💰"
 
-async def play_pregunta(ctx, pay, bonus_time=0, forced_difficulty: str = None):
+async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str = None, user_id=None, bot=None):
     """
     Si forced_difficulty viene (easy/normal/hard/expert) se fuerza esa dificultad.
     bonus_time añade segundos extra para responder.
@@ -163,13 +163,13 @@ async def play_pregunta(ctx, pay, bonus_time=0, forced_difficulty: str = None):
                      f"{pregunta}\n\nTienes {total_time}s para responder."),
         color=discord.Color.blurple()
     )
-    await ctx.send(embed=embed)
+    await send_fn(embed=embed)
 
     def check(msg):
-        return msg.author == ctx.author and msg.channel == ctx.channel
+        return msg.author.id == user_id
 
     try:
-        msg = await ctx.bot.wait_for("message", timeout=total_time, check=check)
+        msg = await bot.wait_for("message", timeout=total_time, check=check)
         answer = msg.content.lower().strip()
     except Exception:
         penalty = max(5, int(pay*0.12))
@@ -307,9 +307,9 @@ class WorkCog(commands.Cog):
 
         try:
             if game_name == "pregunta":
-                result, msg_text = await play_pregunta(None, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty)
+                result, msg_text = await play_pregunta(send_fn, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty, user_id=user_id, bot=bot)
             else:
-                result, msg_text = await game_func(None, pay, bonus_time=bonus_time)
+                result, msg_text = await game_func(send_fn, pay, bonus_time=bonus_time)
         except Exception as e:
             return await send_fn(f"❌ Error al ejecutar el minijuego: {e}")
 
