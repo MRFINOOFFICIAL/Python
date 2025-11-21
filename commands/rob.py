@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import get_user, get_inventory, damage_item, add_money
+from db import get_user, get_inventory, damage_item, add_money, remove_item_from_inventory
 import random
 from typing import Optional
 
@@ -27,6 +27,14 @@ ITEM_STATS = {
     "mecha enojado":       {"categoria": "arma",       "poder": 40},
     "linterna":            {"categoria": "herramientas","poder": 7},
     "llave maestra":       {"categoria": "herramientas","poder": 40},
+    # Items de tienda
+    "paquete de peluches fino": {"categoria": "consumible", "poder": 15},
+    "x2 de dinero de mecha": {"categoria": "consumible", "poder": 12},
+    "danza de saviteto": {"categoria": "consumible", "poder": 20},
+    "poción de furia": {"categoria": "consumible", "poder": 18},
+    "escudo mágico": {"categoria": "consumible", "poder": 10},
+    "nektar antiguo": {"categoria": "consumible", "poder": 8},
+    "kit de reparación": {"categoria": "consumible", "poder": 3},
 }
 
 def weapon_power_from_rareza(rareza: Optional[str]):
@@ -127,12 +135,12 @@ class RobCog(commands.Cog):
             await add_money(user_id, steal_amount)
             await add_money(target_member.id, -steal_amount)
             if chosen_item_id:
-                # damage item chosen (best effort)
+                # usar y gastar item (remover del inventario)
                 try:
-                    await damage_item(chosen_item_id, 20)
+                    await remove_item_from_inventory(chosen_item_id)
                 except Exception:
                     pass
-            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!)."
+            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!) — tu item se gastó."
         else:
             loss = random.randint(10, 100)
             await add_money(user_id, -loss)
