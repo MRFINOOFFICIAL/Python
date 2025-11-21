@@ -266,6 +266,7 @@ class BossesCog(commands.Cog):
                 break
             
             boss_hit, boss_dmg, boss_crit = resolve_boss_attack(boss)
+            shield_active = defend_next
             if defend_next:
                 boss_dmg = int(boss_dmg * 0.5)
                 defend_next = False
@@ -273,7 +274,10 @@ class BossesCog(commands.Cog):
             if boss_hit:
                 player_hp -= boss_dmg
                 crit_text = " ¡CRÍTICO!" if boss_crit else ""
-                fight_log.append(f"💥 {boss['name']} golpeó por {boss_dmg}{crit_text}")
+                if shield_active:
+                    fight_log.append(f"🛡️ ¡Escudo Mágico activado! {boss['name']} golpeó por {boss_dmg}{crit_text} (daño reducido 50%)")
+                else:
+                    fight_log.append(f"💥 {boss['name']} golpeó por {boss_dmg}{crit_text}")
             else:
                 fight_log.append(f"🛡️ {boss['name']} falló")
             
