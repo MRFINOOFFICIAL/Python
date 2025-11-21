@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import add_item_to_user, get_inventory, remove_item
+from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives
 import random
 from typing import Tuple, List, Optional
 from cache import set_buff, get_buff, clear_buff

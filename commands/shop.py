@@ -43,6 +43,7 @@ DEFAULT_ITEMS = [
     ("Llave Maestra", 2200, "herramienta", "Aumenta posibilidades de saqueo exitoso y desbloquea cofres.", "epico"),
     ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
     ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
+    ("Bebida de la Vida", 8000, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
 ]
 
 # ----------------- Shop Cog -----------------
