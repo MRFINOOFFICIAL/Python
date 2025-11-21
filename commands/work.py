@@ -262,8 +262,8 @@ class WorkCog(commands.Cog):
 
         # cooldown
         last = await get_work_cooldown(user_id, job)
-        if last and datetime.utcnow() < last:
-            remaining = last - datetime.utcnow()
+        if last and datetime.now() < last:
+            remaining = last - datetime.now()
             secs = int(remaining.total_seconds())
             m, s = divmod(secs, 60)
             return await send_fn(f"⌛ Ya trabajaste. Próximo intento en {m}m {s}s")
@@ -332,7 +332,7 @@ class WorkCog(commands.Cog):
             await add_money(user_id, result)
 
         # cooldown 2 min
-        await set_work_cooldown(user_id, job, datetime.utcnow() + timedelta(minutes=2))
+        await set_work_cooldown(user_id, job, datetime.now() + timedelta(minutes=2))
 
         color = discord.Color.green() if result > 0 else discord.Color.red()
         embed = discord.Embed(title=f"💼 Trabajo — {job}", description=msg_text, color=color)

@@ -279,7 +279,7 @@ class ExploreCog(commands.Cog):
             return
         
         if sealed and key_id and CONSUME_KEY_ON_SEALED:
-            await remove_item(key_id)
+            await remove_item(user.id, key_id)
 
         # Animación de apertura
         try:
