@@ -15,6 +15,20 @@ async def club_autocomplete(interaction: discord.Interaction, current: str):
     except Exception:
         return []
 
+async def upgrades_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocompletado para upgrades disponibles del club"""
+    try:
+        UPGRADES = {
+            "Aula de Entrenamiento": {"costo": 5000, "desc": "+25% dinero en trabajos"},
+            "Sala de Meditación": {"costo": 8000, "desc": "+30% XP"},
+            "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate"},
+            "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos"},
+        }
+        filtered = [name for name in UPGRADES.keys() if current.lower() in name.lower()] if current else list(UPGRADES.keys())
+        return [app_commands.Choice(name=f"{name} ({UPGRADES[name]['costo']}💰)", value=name) for name in filtered[:25]]
+    except Exception:
+        return []
+
 class ClubsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -427,6 +441,7 @@ class ClubsCog(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="comprar-upgrade-club", description="Comprar upgrade para el club (solo líder)")
+    @app_commands.autocomplete(upgrade=upgrades_autocomplete)
     async def buy_club_upgrade(self, interaction: discord.Interaction, upgrade: str):
         """Comprar upgrade del club"""
         await interaction.response.defer()
