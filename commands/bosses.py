@@ -116,9 +116,23 @@ class BossesCog(commands.Cog):
 
     async def _fight_internal(self, user_id, guild_id, interaction):
         """Interactive fight logic - user chooses actions each turn"""
-        boss = await get_active_boss(guild_id)
-        if not boss:
+        # Get all active bosses for this server
+        active_bosses = await get_all_active_bosses(guild_id)
+        if not active_bosses:
             return await interaction.followup.send("❌ No hay jefe activo en este servidor.", ephemeral=True)
+        
+        # Get the first (or only) active boss
+        boss_data = active_bosses[0]
+        boss_name = boss_data["boss_name"]
+        
+        # Get full boss info from bosses.py
+        boss = get_boss_by_name(boss_name)
+        if not boss:
+            return await interaction.followup.send("❌ Jefe no encontrado.", ephemeral=True)
+        
+        # Update boss HP from DB
+        boss["current_hp"] = boss_data["current_hp"]
+        boss["max_hp"] = boss_data["max_hp"]
         
         cooldown = await get_fight_cooldown(user_id, guild_id)
         if cooldown and datetime.fromisoformat(cooldown.isoformat()) > datetime.now() - timedelta(minutes=2):
@@ -128,7 +142,7 @@ class BossesCog(commands.Cog):
         weapon = equipped["item_name"] if equipped else None
         
         player_hp = 100
-        boss_hp = boss["hp"]
+        boss_hp = boss["current_hp"]
         turn = 1
         fight_log = []
         defend_next = False
@@ -295,7 +309,7 @@ class BossesCog(commands.Cog):
             except:
                 pass
         
-        await damage_boss(guild_id, max(0, boss_hp))
+        await damage_boss(guild_id, boss_name, max(0, boss_hp))
         await set_fight_cooldown(user_id, guild_id)
         
         if boss_hp <= 0:
@@ -312,7 +326,7 @@ class BossesCog(commands.Cog):
             if reward["item"]:
                 await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
                 embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
-            await deactivate_boss(guild_id)
+            await deactivate_boss(guild_id, boss_name)
             channels = await get_event_channels(guild_id)
             for ch_id in channels:
                 try:
@@ -353,10 +367,13 @@ class BossesCog(commands.Cog):
     async def bossinfo_prefix(self, ctx):
         """!bossinfo - Ver información del jefe activo"""
         guild_id = ctx.guild.id
-        boss = await get_active_boss(guild_id)
+        active_bosses = await get_all_active_bosses(guild_id)
         
-        if not boss:
+        if not active_bosses:
             return await ctx.send("❌ No hay jefe activo.")
+        
+        boss_data = active_bosses[0]
+        boss = get_boss_by_name(boss_data["boss_name"])
         
         embed = discord.Embed(title=f"📊 {boss['name']}", color=discord.Color.yellow())
         embed.add_field(name="Tipo", value=boss["type"], inline=True)
