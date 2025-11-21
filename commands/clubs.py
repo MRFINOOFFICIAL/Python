@@ -100,6 +100,9 @@ class ClubsCog(commands.Cog):
                 (nombre, str(interaction.user.id))
             )
             row = await cur.fetchone()
+            if not row:
+                await interaction.followup.send("❌ Error al crear el club.")
+                return
             club_id = row[0]
             
             await db.execute(

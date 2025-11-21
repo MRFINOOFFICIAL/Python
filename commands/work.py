@@ -143,7 +143,7 @@ async def play_dados(ctx, pay, bonus_time=0, book_bonus=False):
         loss = max(10, pay//6)
         return -loss, f"🎲 Sacaste un {dado}, fallaste y perdiste {loss}💰"
 
-async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str = None, user_id=None, bot=None, book_bonus=False):
+async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | None = None, user_id=None, bot=None, book_bonus=False):
     """
     Si forced_difficulty viene (easy/normal/hard/expert) se fuerza esa dificultad.
     bonus_time añade segundos extra para responder.
@@ -197,6 +197,7 @@ class ChooseDifficultyView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.user_id = int(user_id)
         self.result = None  # "easy"/"normal"/"hard"/"expert"/"random"
+        self.message: discord.Message | None = None
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         return interaction.user.id == self.user_id
@@ -205,7 +206,8 @@ class ChooseDifficultyView(discord.ui.View):
         # disable buttons (so user sees it's expired)
         for child in self.children:
             try:
-                child.disabled = True
+                if hasattr(child, 'disabled'):
+                    child.disabled = True
             except Exception:
                 pass
         # try to edit original message if available
@@ -254,6 +256,8 @@ class WorkCog(commands.Cog):
     async def _work_internal(self, user_id, guild_id, send_fn, bot):
         """Internal work logic shared by prefix and slash commands"""
         user = await get_user(user_id)
+        if not user:
+            return await send_fn("❌ Usuario no encontrado en la base de datos.")
         job = user.get("trabajo", "Desempleado")
         if job not in JOBS:
             return await send_fn("❌ No tienes un trabajo asignado o tu trabajo no está en la lista.")
@@ -321,7 +325,7 @@ class WorkCog(commands.Cog):
 
         try:
             if game_name == "pregunta":
-                result, msg_text = await play_pregunta(send_fn, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty, user_id=user_id, bot=bot, book_bonus=book_bonus)
+                result, msg_text = await play_pregunta(send_fn, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty or "normal", user_id=user_id, bot=bot, book_bonus=book_bonus)
             else:
                 result, msg_text = await game_func(send_fn, pay, bonus_time=bonus_time, book_bonus=book_bonus)
         except Exception as e:
