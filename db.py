@@ -174,6 +174,14 @@ async def init_db():
             FOREIGN KEY (club_id) REFERENCES clubs(id)
         )
         """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS club_upgrades (
+            club_id INTEGER,
+            upgrade TEXT,
+            PRIMARY KEY (club_id, upgrade),
+            FOREIGN KEY (club_id) REFERENCES clubs(id)
+        )
+        """)
 
         await db.commit()
 
@@ -663,3 +671,28 @@ async def has_upgrade(user_id, upgrade_name):
             (str(user_id), upgrade_name)
         )
         return await cur.fetchone() is not None
+
+# ---------- CLUB UPGRADES ----------
+
+async def get_club_bonus(user_id):
+    """Calcular bonificador de trabajo basado en dinero del club"""
+    try:
+        async with aiosqlite.connect(DB) as db:
+            cur = await db.execute(
+                "SELECT c.dinero FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
+                (str(user_id),)
+            )
+            row = await cur.fetchone()
+            if row and row[0]:
+                club_money = row[0]
+                if club_money >= 50000:
+                    return 0.50  # 50% bonus
+                elif club_money >= 30000:
+                    return 0.35  # 35% bonus
+                elif club_money >= 10000:
+                    return 0.20  # 20% bonus
+                elif club_money >= 5000:
+                    return 0.10  # 10% bonus
+            return 0
+    except:
+        return 0

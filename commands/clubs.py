@@ -383,5 +383,96 @@ class ClubsCog(commands.Cog):
         
         await interaction.followup.send(f"✅ Transferiste el liderazgo a {usuario.mention}.")
 
+    @app_commands.command(name="upgrades-club", description="Ver upgrades disponibles del club")
+    async def club_upgrades(self, interaction: discord.Interaction):
+        """Ver upgrades del club"""
+        await interaction.response.defer()
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        UPGRADES = {
+            "Aula de Entrenamiento": {"costo": 5000, "desc": "+25% dinero en trabajos para todos", "tipo": "trabajo"},
+            "Sala de Meditación": {"costo": 8000, "desc": "+30% XP para todos en actividades", "tipo": "xp"},
+            "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate contra bosses", "tipo": "combate"},
+            "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos", "tipo": "minigames"},
+        }
+        
+        owned = []
+        available = []
+        
+        async with aiosqlite.connect(DB) as db:
+            for upg_name in UPGRADES.keys():
+                cur = await db.execute(
+                    "SELECT 1 FROM club_upgrades WHERE club_id = ? AND upgrade = ?",
+                    (club["id"], upg_name)
+                )
+                if await cur.fetchone():
+                    owned.append(upg_name)
+                else:
+                    available.append(upg_name)
+        
+        embed = discord.Embed(title=f"⚙️ Upgrades — {club['nombre']}", color=discord.Color.blue())
+        embed.add_field(name="💰 Tesorería", value=f"{club['dinero']}💰", inline=False)
+        
+        if owned:
+            embed.add_field(name="✅ Comprados", value="\n".join([f"• {u}" for u in owned]), inline=False)
+        
+        if available:
+            value = "\n".join([f"• **{u}** — {UPGRADES[u]['costo']}💰\n  {UPGRADES[u]['desc']}" for u in available])
+            embed.add_field(name="🛍️ Disponibles", value=value, inline=False)
+        
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="comprar-upgrade-club", description="Comprar upgrade para el club (solo líder)")
+    async def buy_club_upgrade(self, interaction: discord.Interaction, upgrade: str):
+        """Comprar upgrade del club"""
+        await interaction.response.defer()
+        
+        UPGRADES = {
+            "Aula de Entrenamiento": {"costo": 5000, "desc": "+25% dinero en trabajos"},
+            "Sala de Meditación": {"costo": 8000, "desc": "+30% XP"},
+            "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate"},
+            "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos"},
+        }
+        
+        if upgrade not in UPGRADES:
+            await interaction.followup.send("❌ Upgrade no encontrado.")
+            return
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede comprar upgrades.")
+            return
+        
+        costo = UPGRADES[upgrade]["costo"]
+        if club["dinero"] < costo:
+            await interaction.followup.send(f"❌ Dinero insuficiente. Necesitas {costo}💰 (tienes {club['dinero']}💰)")
+            return
+        
+        async with aiosqlite.connect(DB) as db:
+            cur = await db.execute(
+                "SELECT 1 FROM club_upgrades WHERE club_id = ? AND upgrade = ?",
+                (club["id"], upgrade)
+            )
+            if await cur.fetchone():
+                await interaction.followup.send("❌ Ya tienes este upgrade.")
+                return
+            
+            await db.execute("UPDATE clubs SET dinero = dinero - ? WHERE id = ?", (costo, club["id"]))
+            await db.execute(
+                "INSERT INTO club_upgrades(club_id, upgrade) VALUES (?, ?)",
+                (club["id"], upgrade)
+            )
+            await db.commit()
+        
+        await interaction.followup.send(f"✅ Compraste **{upgrade}** por {costo}💰!\n💡 {UPGRADES[upgrade]['desc']}")
+
 async def setup(bot):
     await bot.add_cog(ClubsCog(bot))
