@@ -14,7 +14,7 @@ from db import (
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
-    get_boss_by_name, get_all_boss_names, get_available_bosses_by_type
+    get_boss_by_name, get_all_boss_names, get_available_bosses_by_type, get_weapon_benefit
 )
 
 class FightActionView(ui.View):
@@ -339,7 +339,7 @@ class BossesCog(commands.Cog):
         
         embed = discord.Embed(title="✅ Item Equipado", color=discord.Color.blue())
         embed.add_field(name="Arma", value=item_name, inline=False)
-        embed.add_field(name="Beneficio", value="Mejora tu probabilidad de golpe, daño y crítico", inline=False)
+        embed.add_field(name="Beneficio", value=get_weapon_benefit(item_name), inline=False)
         
         await ctx.send(embed=embed)
 
@@ -354,7 +354,7 @@ class BossesCog(commands.Cog):
         
         embed = discord.Embed(title="✅ Item Equipado", color=discord.Color.blue())
         embed.add_field(name="Arma", value=item_name, inline=False)
-        embed.add_field(name="Beneficio", value="Mejora tu probabilidad de golpe, daño y crítico", inline=False)
+        embed.add_field(name="Beneficio", value=get_weapon_benefit(item_name), inline=False)
         
         await interaction.followup.send(embed=embed)
 

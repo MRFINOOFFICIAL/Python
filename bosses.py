@@ -156,3 +156,39 @@ async def get_boss_reward(boss: Dict) -> Dict:
     item = random.choice(items) if items else None
     
     return {"dinero": dinero, "item": item}
+
+def get_weapon_benefit(weapon: Optional[str]) -> str:
+    """Get specific weapon benefit description"""
+    if not weapon:
+        return "⚔️ Sin arma equipada"
+    
+    benefits = {
+        "Cinta adhesiva": "🔗 Pegadizo: Aumenta adherencia (pequeña bonificación)",
+        "Botella de sedante": "💤 Sedación: Disminuye precisión del jefe (-5% ataque)",
+        "Cuchillo oxidado": "🩸 Sangrado: Algunos golpes causan sangrado adicional",
+        "Pistola vieja": "🔫 Ráfagas: Mayor probabilidad de crítico (20%)",
+        "Botiquín": "🏥 Curación: Restaura 5 HP por cada ataque defendido",
+        "Arma blanca artesanal": "⚔️ Versátil: Balance entre daño y defensa",
+        "Palo golpeador de parejas felices": "💥 Contundente: 10% chance extra de crítico",
+        "Savi peluche": "🎲 Engañoso: Aumento de evasión (30% crítico)",
+        "Hélice de ventilador": "🌪️ Viento: Pequeña deflexión de ataques enemigos",
+        "Aconsejante Fantasma": "👻 Fantasmal: Aumenta daño crítico (+25%)",
+        "ID falso": "🎭 Engaño: Altas probabilidades de crítico (35%)",
+        "Máscara de Xfi": "😈 Intimidante: Reduce ataque del jefe 20%, crítico 18%",
+        "Bastón de Staff": "🪄 Mágico: Golpes mágicos + defensa mejorada",
+        "Teléfono": "📱 Llamada: Puede convocar ayuda (pequeño daño extra)",
+        "Chihuahua": "🐕 Compañía: Tu amiguito ataca también (aleatorio 15-35 dmg)",
+        "Mecha Enojado": "🤖 Potencia Máxima: 85% precisión, 40 daño, 25% crítico",
+        "Linterna": "🔦 Iluminación: Revela puntos débiles del jefe",
+        "Llave Maestra": "🔑 Desbloqueador: Abre oportunidades de defensa (+40 HP)",
+        "Núcleo energético": "⚡ Energía Pura: 80% precisión, 50 daño, 30% crítico",
+        "Fragmento Omega": "✨ Omega: 90% precisión, 60 daño, 40% crítico - MÁS POTENTE",
+        "Traje ritual": "🎭 Ritual: 75 HP max, 45 daño, 35% crítico + defensa",
+        "Poción de Furia": "💢 Furia: +50% daño en próximo turno",
+        "Escudo Mágico": "🛡️ Mágico: Protege completamente del próximo ataque",
+        "Nektar Antiguo": "🍯 Antiguo: Restaura 100 HP (máximo poder de curación)",
+        "Danza de Saviteto": "💃 Danza: Próximo ataque +50% daño",
+        "x2 de dinero de mecha": "💰 Duplicador: Dobla el daño del próximo ataque",
+    }
+    
+    return benefits.get(weapon, "⚔️ Arma: Mejora probabilidad de golpe, daño y crítico")
