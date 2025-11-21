@@ -387,15 +387,18 @@ class BossesCog(commands.Cog):
     async def bossinfo_slash(self, interaction: discord.Interaction):
         """Get info about the active boss"""
         guild_id = interaction.guild_id
-        boss = await get_active_boss(guild_id)
+        active_bosses = await get_all_active_bosses(guild_id)
         
-        if not boss:
+        if not active_bosses:
             return await interaction.response.send_message("❌ No hay jefe activo.", ephemeral=True)
         
+        boss_data = active_bosses[0]
+        boss = get_boss_by_name(boss_data["boss_name"])
+        
         embed = discord.Embed(title=f"📊 {boss['name']}", color=discord.Color.yellow())
-        embed.add_field(name="Tipo", value=boss["type"], inline=True)
-        embed.add_field(name="HP", value=f"{boss['hp']} / {boss['max_hp']}", inline=True)
+        embed.add_field(name="HP Actual", value=f"{boss_data['current_hp']} / {boss_data['max_hp']}", inline=True)
         embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
+        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
         embed.add_field(name="Usa !fight o /fight para atacar", value="⚔️", inline=False)
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -495,7 +498,7 @@ class BossesCog(commands.Cog):
         if not boss:
             return await ctx.send("❌ Error al generar jefe")
         
-        await create_boss(guild_id, boss)
+        await create_boss(guild_id, boss["name"], boss["hp"])
         
         channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
@@ -560,7 +563,7 @@ class BossesCog(commands.Cog):
         if is_special and interaction.user.id != OWNER_ID:
             return await interaction.response.send_message("❌ Solo el dueño del bot puede invocar bosses especiales.", ephemeral=True)
         
-        await create_boss(guild_id, boss)
+        await create_boss(guild_id, boss["name"], boss["hp"])
         
         channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
