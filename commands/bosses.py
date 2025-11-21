@@ -10,7 +10,7 @@ from db import (
     add_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
     add_money, get_user, add_item_to_user, create_boss_tables, get_inventory,
-    remove_item_from_inventory
+    remove_item_from_inventory, get_allowed_channel
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
@@ -356,6 +356,15 @@ class BossesCog(commands.Cog):
             except:
                 pass
         
+        allowed_ch_id = await get_allowed_channel(guild_id)
+        if allowed_ch_id:
+            try:
+                ch = self.bot.get_channel(allowed_ch_id)
+                if ch:
+                    await ch.send(embed=embed)
+            except:
+                pass
+        
         await ctx.send("✅ Jefe spawneado")
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
@@ -396,6 +405,15 @@ class BossesCog(commands.Cog):
         for ch_id in channels:
             try:
                 ch = self.bot.get_channel(ch_id)
+                if ch:
+                    await ch.send(embed=embed)
+            except:
+                pass
+        
+        allowed_ch_id = await get_allowed_channel(guild_id)
+        if allowed_ch_id:
+            try:
+                ch = self.bot.get_channel(allowed_ch_id)
                 if ch:
                     await ch.send(embed=embed)
             except:
