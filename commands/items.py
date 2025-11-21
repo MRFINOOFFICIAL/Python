@@ -6,7 +6,7 @@ Comandos: /inventario, !inventario, /use, !use
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
-from db import get_inventory, remove_item, add_money, update_rank, update_item_durability, add_lives
+from db import get_inventory, remove_item, add_money, update_rank, repair_item, add_lives
 from typing import Optional
 
 
@@ -280,7 +280,7 @@ class ItemsCog(commands.Cog):
             return
         
         # Restaurar durabilidad a 100
-        await update_item_durability(item_id, 100)
+        await repair_item(item_id, 100)
         
         # Eliminar Kit de reparación
         kit = next((i for i in inv if i['item'].lower() == "kit de reparación"), None)

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import aiosqlite
-from db import add_money, set_job, get_user, DB, set_allowed_channel, get_allowed_channel
+from db import add_money, set_job, get_user, DB, set_event_channel, get_event_channels
 
 class AdminCog(commands.Cog):
     def __init__(self, bot):
