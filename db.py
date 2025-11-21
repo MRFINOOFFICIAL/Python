@@ -182,6 +182,17 @@ async def get_lives(user_id):
     user = await get_user(user_id)
     return user["vidas"] if user and "vidas" in user else 1
 
+async def reset_user_progress(user_id):
+    """Resetear el progreso de un usuario: dinero, experiencia, trabajo, inventario"""
+    async with aiosqlite.connect(DB) as db:
+        # Resetear dinero y experiencia
+        await db.execute("UPDATE users SET dinero = 0, experiencia = 0, trabajo = 'Desempleado' WHERE user_id = ?", (str(user_id),))
+        # Eliminar todo el inventario
+        await db.execute("DELETE FROM inventory WHERE user_id = ?", (str(user_id),))
+        # Resetear vidas a 1
+        await db.execute("UPDATE users SET vidas = 1 WHERE user_id = ?", (str(user_id),))
+        await db.commit()
+
 # ---------- INVENTARIO ----------
 
 async def add_item_to_user(user_id, item_name, rareza="comun", usos=1, durabilidad=100, categoria="desconocido", poder=0):

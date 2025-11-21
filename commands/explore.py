@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives
+from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress
 import random
 from typing import Tuple, List, Optional
 from cache import set_buff, get_buff, clear_buff
@@ -331,7 +331,8 @@ class ExploreCog(commands.Cog):
                 await set_lives(user.id, lives - 1)
                 await send_fn(content=f"💀 ¡Encontraste un peligro! Perdiste una vida. Te quedan: **{lives - 1}** vidas.")
             else:
-                await send_fn(content=f"💀 ¡Has muerto en la exploración! No tenías vidas extra. Usa **Bebida de la Vida** para obtener más vidas.")
+                await reset_user_progress(user.id)
+                await send_fn(content=f"💀 ¡HAS MUERTO EN LA EXPLORACIÓN! 💀\n\n😢 Perdiste TODO tu progreso:\n- Dinero: **0💰**\n- Experiencia: **0xp**\n- Inventario: **vacío**\n- Vidas: **1** (reseteadas)\n\n📖 Compra **Bebida de la Vida** (8000💰) en la tienda para obtener más vidas y no perderlo todo.")
             return
         
         item = random.choices(LOOT_TABLE, weights=WEIGHTS, k=1)[0]

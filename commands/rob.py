@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import get_user, get_inventory, damage_item, add_money, remove_item_from_inventory
+from db import get_user, get_inventory, damage_item, add_money, remove_item
 import random
 from typing import Optional
 
