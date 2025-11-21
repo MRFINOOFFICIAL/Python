@@ -35,6 +35,11 @@ ITEM_STATS = {
     "escudo mágico": {"categoria": "consumible", "poder": 10},
     "nektar antiguo": {"categoria": "consumible", "poder": 8},
     "kit de reparación": {"categoria": "consumible", "poder": 3},
+    # Items adicionales de explore
+    "botiquín": {"categoria": "salud", "poder": 2},
+    "traje ritual": {"categoria": "ropa", "poder": 35},
+    "núcleo energético": {"categoria": "tecnologia", "poder": 45},
+    "fragmento omega": {"categoria": "arma", "poder": 50},
 }
 
 def weapon_power_from_rareza(rareza: Optional[str]):
@@ -135,12 +140,12 @@ class RobCog(commands.Cog):
             await add_money(user_id, steal_amount)
             await add_money(target_member.id, -steal_amount)
             if chosen_item_id:
-                # usar y gastar item (remover del inventario)
+                # dañar item (reducir durabilidad)
                 try:
-                    await remove_item_from_inventory(chosen_item_id)
+                    await damage_item(chosen_item_id, 25)
                 except Exception:
                     pass
-            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!) — tu item se gastó."
+            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!) — tu item sufrió daño."
         else:
             loss = random.randint(10, 100)
             await add_money(user_id, -loss)
