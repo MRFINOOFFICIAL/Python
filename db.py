@@ -137,24 +137,10 @@ async def add_item_to_user(user_id, item, rareza="comun", usos=1, durabilidad=10
         )
         await db.commit()
 
-async def remove_item(user_id, item_name: str, amount: int = 1) -> bool:
-    """Elimina 'amount' instancias de item_name del usuario."""
-    await ensure_user(user_id)
+async def remove_item_from_inventory(item_id):
     async with aiosqlite.connect(DB) as db:
-        # Obtener IDs de los items a eliminar
-        cur = await db.execute(
-            "SELECT id FROM inventory WHERE user_id = ? AND item = ? LIMIT ?",
-            (str(user_id), item_name, amount)
-        )
-        rows = await cur.fetchall()
-        if not rows:
-            return False
-        
-        ids_to_remove = [row[0] for row in rows]
-        placeholders = ",".join("?" * len(ids_to_remove))
-        await db.execute(f"DELETE FROM inventory WHERE id IN ({placeholders})", ids_to_remove)
+        await db.execute("DELETE FROM inventory WHERE id = ?", (item_id,))
         await db.commit()
-        return True
 
 async def get_inventory(user_id):
     await ensure_user(user_id)
@@ -233,6 +219,13 @@ async def get_shop_item(name):
             return None
         return {"name": row[0], "price": row[1], "type": row[2], "effect": row[3], "rarity": row[4]}
 
+async def get_shop():
+    """Get all shop items (alias for compatibility)"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT name, price, type, effect, rarity FROM shop")
+        rows = await cur.fetchall()
+        return [{"name": row[0], "price": row[1], "type": row[2], "effect": row[3], "rarity": row[4]} for row in rows]
+
 async def get_all_shop_items():
     async with aiosqlite.connect(DB) as db:
         cur = await db.execute("SELECT name, price, type, effect, rarity FROM shop")
@@ -251,7 +244,7 @@ async def add_shop_item(name, price, type_item, effect, rarity):
 async def add_active_buff(user_id, buff_name, uses=1, duration_seconds=3600):
     """Agrega un buff activo al usuario por X segundos."""
     await ensure_user(user_id)
-    expires_at = (datetime.now() + datetime.timedelta(seconds=duration_seconds)).isoformat()
+    expires_at = (datetime.now() + __import__('datetime').timedelta(seconds=duration_seconds)).isoformat()
     async with aiosqlite.connect(DB) as db:
         await db.execute(
             "INSERT OR REPLACE INTO active_buffs(user_id, buff, uses, expires_at) VALUES (?,?,?,?)",
@@ -315,27 +308,6 @@ async def set_work_cooldown(user_id, job_name, timestamp: datetime):
         """, (str(user_id), job_name, timestamp.isoformat()))
         await db.commit()
 
-# ---------- Bot Settings ----------
-async def set_allowed_channel(guild_id, channel_id):
-    """Establece el canal permitido para el bot en un servidor."""
-    async with aiosqlite.connect(DB) as db:
-        await db.execute(
-            "INSERT OR REPLACE INTO bot_settings(guild_id, allowed_channel_id) VALUES (?, ?)",
-            (str(guild_id), str(channel_id) if channel_id else None)
-        )
-        await db.commit()
-
-async def get_allowed_channel(guild_id):
-    """Obtiene el canal permitido para el bot en un servidor (None si no hay restricción)."""
-    async with aiosqlite.connect(DB) as db:
-        cur = await db.execute(
-            "SELECT allowed_channel_id FROM bot_settings WHERE guild_id = ?",
-            (str(guild_id),)
-        )
-        row = await cur.fetchone()
-        if row and row[0]:
-            return int(row[0])
-        return None
 # ---------- Bot Settings ----------
 async def set_allowed_channel(guild_id, channel_id):
     async with aiosqlite.connect(DB) as db:
