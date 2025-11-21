@@ -267,7 +267,7 @@ class ExploreCog(commands.Cog):
             return
         
         if sealed and key_id and CONSUME_KEY_ON_SEALED:
-            await remove_item(user.id, key_id)
+            await remove_item(key_id)
 
         # Animación de apertura
         try:
@@ -360,7 +360,7 @@ class ExploreCog(commands.Cog):
                 if interaction.user.id != user.id:
                     await interaction.response.send_message("❌ Solo quien encontró el objeto puede reemplazar.", ephemeral=True)
                     return
-                await remove_item(interaction.user.id, item_id)
+                await remove_item(item_id)
                 await add_item_to_user(interaction.user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
                 await interaction.response.edit_message(content=f"✅ Reemplazaste **{item_name}** con **{name}**!", embed=None, view=None)
             
