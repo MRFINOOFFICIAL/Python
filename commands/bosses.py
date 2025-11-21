@@ -538,9 +538,8 @@ class BossesCog(commands.Cog):
         if not interaction.permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
-        # Especiales solo para el owner
+        # Especiales solo para el owner del bot o admins
         SPECIAL_BOSSES = ["Psicólogo Loco", "Médico Misterioso", "Enfermera de Hierro", "Director del Caos", "Fino"]
-        OWNER_ID = 1439652701288792155  # Reemplazar con el ID del owner
         
         guild_id = interaction.guild_id
         boss = None
@@ -559,8 +558,9 @@ class BossesCog(commands.Cog):
         else:
             return await interaction.response.send_message("❌ Debes elegir un tipo (Mini-Boss, Boss, Especial) o un jefe específico", ephemeral=True)
         
-        # Validar que si es especial, solo el owner puede
-        if is_special and interaction.user.id != OWNER_ID:
+        # Validar que si es especial, solo el owner del bot puede
+        is_bot_owner = interaction.user.id == self.bot.owner_id
+        if is_special and not is_bot_owner:
             return await interaction.response.send_message("❌ Solo el dueño del bot puede invocar bosses especiales.", ephemeral=True)
         
         await create_boss(guild_id, boss["name"], boss["hp"])
