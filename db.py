@@ -386,11 +386,20 @@ async def set_active_boss(guild_id, boss_data):
 
 async def get_active_boss(guild_id):
     """Get the active boss for a guild"""
+    from bosses import get_boss_by_name
     async with aiosqlite.connect(DB) as db:
         cur = await db.execute("SELECT boss_name, boss_type, current_hp, max_hp, spawned_at FROM active_boss WHERE guild_id = ?", (str(guild_id),))
         row = await cur.fetchone()
         if row:
-            return {"name": row[0], "type": row[1], "hp": row[2], "max_hp": row[3], "spawned_at": row[4]}
+            boss_data = {"name": row[0], "type": row[1], "hp": row[2], "max_hp": row[3], "spawned_at": row[4]}
+            # Obtener datos completos del boss original
+            complete_boss = get_boss_by_name(row[0])
+            if complete_boss:
+                # Mezclar: usar hp y max_hp actuales, pero agregar ataque, rareza, rewards
+                boss_data["ataque"] = complete_boss.get("ataque", 10)
+                boss_data["rareza"] = complete_boss.get("rareza", "comun")
+                boss_data["rewards"] = complete_boss.get("rewards", {"dinero": (100, 200), "items": []})
+            return boss_data
         return None
 
 async def update_boss_hp(guild_id, new_hp):
