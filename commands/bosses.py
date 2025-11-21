@@ -222,10 +222,16 @@ class BossesCog(commands.Cog):
                         elif item_type == "consumible":
                             player_hp = min(100, player_hp + 50)
                             fight_log.append(f"📦 ¡Recuperaste 50 HP!")
+                        elif "poción de furia" in item_name:
+                            boss_hp -= 60
+                            fight_log.append(f"🧪 ¡Poción de Furia lanzada! -{60} HP al jefe!")
                         elif item_type == "consumible_damage":
                             boss_hp -= 40
                             fight_log.append(f"💥 ¡Infligiste 40 de daño directo!")
-                        elif item_type == "consumible_buff":
+                        elif "nektar antiguo" in item_name:
+                            player_hp = min(100, player_hp + 100)
+                            fight_log.append(f"🍹 ¡Nektar Antiguo! +100 HP (recuperación completa)!")
+                        elif "danza de saviteto" in item_name or item_type == "consumible_buff":
                             view.damage_buff = True
                             fight_log.append(f"⚡ ¡Tu próximo ataque inflige +50% de daño!")
                         elif item_type == "consumible_shield":
