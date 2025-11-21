@@ -324,6 +324,16 @@ class ExploreCog(commands.Cog):
 
     async def _handle_item(self, user, send_fn, inv: list):
         """Maneja el encuentro de un item normal"""
+        # 20% probabilidad de morir en explore
+        if random.random() < 0.20:
+            lives = await get_lives(user.id)
+            if lives > 1:
+                await set_lives(user.id, lives - 1)
+                await send_fn(content=f"💀 ¡Encontraste un peligro! Perdiste una vida. Te quedan: **{lives - 1}** vidas.")
+            else:
+                await send_fn(content=f"💀 ¡Has muerto en la exploración! No tenías vidas extra. Usa **Bebida de la Vida** para obtener más vidas.")
+            return
+        
         item = random.choices(LOOT_TABLE, weights=WEIGHTS, k=1)[0]
         name, rarity, usos = item
         

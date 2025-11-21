@@ -6,7 +6,7 @@ Comandos: /inventario, !inventario, /use, !use
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
-from db import get_inventory, remove_item, add_money, update_rank, update_item_durability
+from db import get_inventory, remove_item, add_money, update_rank, update_item_durability, add_lives
 from typing import Optional
 
 
@@ -166,7 +166,10 @@ class ItemsCog(commands.Cog):
         item_name = item['item'].lower()
         
         # Efectos especiales de items
-        if "kit de reparación" in item_name:
+        if "bebida de la vida" in item_name:
+            await add_lives(user_id, 1)
+            await send_fn("🍷 **Bebida de la Vida usado** — ¡Has ganado una vida extra! 💚")
+        elif "kit de reparación" in item_name:
             await send_fn("🔧 **Kit de Reparación usado** — Este item repararía durabilidad (próxima versión)")
         elif "botella de sedante" in item_name:
             await send_fn("💤 **Sedante usado** — Te sientes relajado...")
