@@ -13,7 +13,7 @@ from db import (
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
     ("Paquete de peluches fino", 10000, "consumible", "Recupera 50 HP en combate o vende por 5000💰", "epico"),
-    ("x2 de dinero de mecha", 1200, "consumible_damage", "Inflige 40 de daño al jefe en combate", "epico"),
+    ("x2 de dinero de mecha", 1200, "consumible_buff", "Duplica dinero ganado en el trabajo durante 1 hora", "epico"),
     ("Danza de Saviteto", 5000, "consumible_buff", "Aumenta tu daño en 50% en el próximo ataque", "raro"),
     ("Poción de Furia", 3500, "consumible_damage", "Inflige 60 de daño directo al jefe", "epico"),
     ("Escudo Mágico", 2800, "consumible_shield", "Te protege del próximo ataque enemigo", "raro"),

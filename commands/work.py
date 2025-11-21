@@ -5,6 +5,8 @@ from discord import app_commands
 import random
 from datetime import datetime, timedelta
 from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory
+from cache import set_buff, get_buff
+import time
 
 # ---------------- Tabla de salarios y minijuegos ----------------
 JOBS = {
@@ -261,10 +263,20 @@ class WorkCog(commands.Cog):
 
         # bonus por items
         bonus_time = 0
+        money_multiplier = 1.0
         inventory = await get_inventory(user_id)
         for it in inventory:
             if it["item"].lower() == "teléfono":
                 bonus_time += 5  # +5s extra
+            elif it["item"].lower() == "x2 de dinero de mecha":
+                # Verificar si el buff está activo (menos de 1 hora)
+                mecha_expiration = get_buff(user_id, "mecha_money_x2_until")
+                if mecha_expiration and time.time() < mecha_expiration:
+                    money_multiplier = 2.0
+                else:
+                    # Activar buff por 1 hora
+                    set_buff(user_id, "mecha_money_x2_until", time.time() + 3600)
+                    money_multiplier = 2.0
 
         # elegir minijuego
         game_name = random.choice(JOBS[job]["games"])
@@ -302,6 +314,7 @@ class WorkCog(commands.Cog):
             return await send_fn(f"❌ Error al ejecutar el minijuego: {e}")
 
         if result != 0:
+            result = int(result * money_multiplier)
             await add_money(user_id, result)
 
         # cooldown 2 min
