@@ -48,6 +48,11 @@ WEAPON_STATS = {
     "Cable USB": {"hit_chance": 0.4, "damage": 2, "crit_chance": 0.05},
     "Garrafa de aceite": {"hit_chance": 0.35, "damage": 8, "crit_chance": 0.05},
     "Guitarra rota": {"hit_chance": 0.65, "damage": 16, "crit_chance": 0.2},
+    # Items de tienda
+    "Paquete de peluches fino": {"hit_chance": 0.55, "damage": 10, "crit_chance": 0.25},
+    "x2 de dinero de mecha": {"hit_chance": 0.5, "damage": 5, "crit_chance": 0.1},
+    "Danza de Saviteto": {"hit_chance": 0.7, "damage": 12, "crit_chance": 0.35},
+    "Kit de reparación": {"hit_chance": 0.3, "damage": 1, "crit_chance": 0.05},
 }
 
 def get_random_boss(boss_type: str) -> Optional[Dict]:
