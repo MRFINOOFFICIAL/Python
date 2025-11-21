@@ -6,7 +6,7 @@ Sistema automático de spawn de bosses.
 """
 import asyncio
 from datetime import datetime, timedelta
-from db import get_active_boss, set_active_boss
+from db import get_all_active_bosses, create_boss
 from bosses import get_random_boss
 import discord
 
@@ -28,8 +28,8 @@ async def auto_spawn_bosses(bot):
                 guild_id = guild.id
                 
                 # Verificar si ya hay boss activo
-                active_boss = await get_active_boss(guild_id)
-                if active_boss:
+                active_bosses = await get_all_active_bosses(guild_id)
+                if active_bosses:
                     continue
                 
                 # Verificar mini-boss (cada 1 hora)
@@ -37,8 +37,8 @@ async def auto_spawn_bosses(bot):
                 if last_mini is None or (current_time - last_mini).total_seconds() >= 3600:
                     mini_boss = get_random_boss("Mini-Boss")
                     if mini_boss:
-                        mini_boss["hp"] = mini_boss.get("max_hp", mini_boss.get("hp"))
-                        await set_active_boss(guild_id, mini_boss)
+                        max_hp = mini_boss.get("max_hp", mini_boss.get("hp", 50))
+                        await create_boss(guild_id, mini_boss["name"], max_hp)
                         LAST_SPAWN_TIMES["mini_boss"][guild_id] = current_time
                         
                         # Notificar
@@ -62,8 +62,8 @@ async def auto_spawn_bosses(bot):
                 if last_boss is None or (current_time - last_boss).total_seconds() >= 86400:
                     boss = get_random_boss("Boss")
                     if boss:
-                        boss["hp"] = boss.get("max_hp", boss.get("hp"))
-                        await set_active_boss(guild_id, boss)
+                        max_hp = boss.get("max_hp", boss.get("hp", 100))
+                        await create_boss(guild_id, boss["name"], max_hp)
                         LAST_SPAWN_TIMES["boss"][guild_id] = current_time
                         
                         # Notificar
