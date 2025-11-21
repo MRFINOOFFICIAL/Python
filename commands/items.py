@@ -6,7 +6,7 @@ Comandos: /inventario, !inventario, /use, !use
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
-from db import get_inventory, remove_item, add_money, update_rank
+from db import get_inventory, remove_item, add_money, update_rank, update_item_durability
 from typing import Optional
 
 
@@ -38,6 +38,27 @@ async def use_item_autocomplete(interaction: discord.Interaction, current: str):
         filtered = [name for name in items if current.lower() in name.lower()] if current else items
         
         return [app_commands.Choice(name=name[:100], value=name.split("(ID: ")[1].rstrip(")")) for name in filtered[:25]]
+    except Exception:
+        return []
+
+
+async def repair_item_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para reparar items (solo items con durabilidad < 100)"""
+    try:
+        inv = await get_inventory(interaction.user.id)
+        if not inv:
+            return []
+        
+        # Solo mostrar items dañados
+        damaged = [item for item in inv if item['durabilidad'] < 100]
+        if not damaged:
+            return []
+        
+        items = [f"{item['item']} ({item['durabilidad']}%)" for item in damaged]
+        filtered = [name for name in items if current.lower() in name.lower()] if current else items
+        
+        # Retornar ID del item
+        return [app_commands.Choice(name=name[:100], value=str([d['id'] for d in damaged if str(d['id']) in name or d['item'] in name][0])) for name in filtered[:25] if any([d['id'] for d in damaged if str(d['id']) in name or d['item'] in name])]
     except Exception:
         return []
 
@@ -197,6 +218,96 @@ class ItemsCog(commands.Cog):
         async def send_fn(*args, **kwargs):
             return await interaction.followup.send(*args, **kwargs)
         await self._use_send(interaction.user.id, send_fn)
+
+    # ==================== COMANDO REPAIR ====================
+    
+    async def _repair_send(self, user_id, send_fn):
+        """Interfaz para reparar un item"""
+        inv = await get_inventory(user_id)
+        
+        # Filtrar items con durabilidad menor a 100
+        damaged = [item for item in inv if item['durabilidad'] < 100]
+        
+        if not damaged:
+            await send_fn("✅ Todos tus items tienen durabilidad completa.")
+            return
+        
+        # Verificar si tiene Kit de reparación
+        has_kit = any(item['item'].lower() == "kit de reparación" for item in inv)
+        
+        if not has_kit:
+            await send_fn("❌ No tienes un Kit de reparación. Compra uno en la tienda.")
+            return
+        
+        # Crear opciones para seleccionar item dañado
+        options = []
+        for item in damaged[:25]:
+            label = f"{item['item']} ({item['durabilidad']}%)"
+            value = str(item['id'])
+            options.append(discord.SelectOption(label=label, value=value))
+        
+        embed = discord.Embed(
+            title="🔧 Reparar Item",
+            description="Selecciona un item dañado para reparar:",
+            color=discord.Color.gold()
+        )
+        
+        view = ItemUseView(user_id)
+        select = ui.Select(
+            placeholder="Elige un item para reparar",
+            options=options,
+            min_values=1,
+            max_values=1
+        )
+        select.callback = view.select_item
+        view.add_item(select)
+        
+        msg = await send_fn(embed=embed, view=view)
+        await view.wait()
+        
+        if view.selected_item is None:
+            return
+        
+        # Reparar el item
+        item_id = view.selected_item
+        damaged_item = next((i for i in damaged if i['id'] == item_id), None)
+        
+        if not damaged_item:
+            await send_fn("❌ Item no encontrado.")
+            return
+        
+        # Restaurar durabilidad a 100
+        await update_item_durability(item_id, 100)
+        
+        # Eliminar Kit de reparación
+        kit = next((i for i in inv if i['item'].lower() == "kit de reparación"), None)
+        if kit:
+            await remove_item(kit['id'])
+        
+        embed = discord.Embed(
+            title="✅ Item Reparado",
+            description=f"**{damaged_item['item']}** ha sido reparado a 100% de durabilidad.",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="Kit usado", value="Se consumió 1 Kit de reparación", inline=False)
+        
+        await send_fn(embed=embed)
+
+    @commands.command(name="repair")
+    async def repair_prefix(self, ctx):
+        """!repair - Reparar un item dañado con Kit de reparación"""
+        async def send_fn(*args, **kwargs):
+            return await ctx.send(*args, **kwargs)
+        await self._repair_send(ctx.author.id, send_fn)
+
+    @app_commands.command(name="repair", description="Reparar un item dañado con Kit de reparación")
+    @app_commands.autocomplete(item_name=repair_item_autocomplete)
+    async def repair_slash(self, interaction: discord.Interaction, item_name: Optional[str] = None):
+        """Reparar un item del inventario"""
+        await interaction.response.defer()
+        async def send_fn(*args, **kwargs):
+            return await interaction.followup.send(*args, **kwargs)
+        await self._repair_send(interaction.user.id, send_fn)
 
 
 # ==================== SETUP ====================
