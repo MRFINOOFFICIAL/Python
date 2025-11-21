@@ -16,12 +16,12 @@ from bosses import (
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type
 )
 
-async def boss_autocomplete(interaction: discord.Interaction, current: str) -> list:
+async def boss_autocomplete(interaction: discord.Interaction, current: str):
     """Autocomplete for boss names - shows all bosses"""
     try:
         all_bosses = get_all_boss_names()
         filtered = [name for name in all_bosses if current.lower() in name.lower()] if current else all_bosses
-        return filtered[:25]
+        return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
     except Exception as e:
         print(f"Error en autocomplete: {e}")
         return []
@@ -198,6 +198,8 @@ class BossesCog(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     async def event_prefix(self, ctx, action: str, channel: Optional[discord.TextChannel] = None):
         """!event enable/disable #channel - Habilitar/deshabilitar canal de eventos"""
+        if not ctx.guild:
+            return await ctx.send("❌ Este comando solo funciona en servidores")
         guild_id = ctx.guild.id
         
         if action.lower() == "enable":
@@ -221,7 +223,9 @@ class BossesCog(commands.Cog):
     @app_commands.describe(action="enable o disable", channel="Canal para eventos")
     async def event_slash(self, interaction: discord.Interaction, action: str, channel: Optional[discord.TextChannel] = None):
         """Enable/disable event channel"""
-        if not (interaction.member and interaction.member.guild_permissions.administrator):
+        if not interaction.guild:
+            return await interaction.response.send_message("❌ Este comando solo funciona en servidores", ephemeral=True)
+        if not interaction.user.guild_permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
@@ -282,7 +286,9 @@ class BossesCog(commands.Cog):
     @app_commands.autocomplete(jefe=boss_autocomplete)
     async def spawnboss_slash(self, interaction: discord.Interaction, tipo: Optional[str] = None, jefe: Optional[str] = None):
         """Force spawn a boss"""
-        if not (interaction.member and interaction.member.guild_permissions.administrator):
+        if not interaction.guild:
+            return await interaction.response.send_message("❌ Este comando solo funciona en servidores", ephemeral=True)
+        if not interaction.user.guild_permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
