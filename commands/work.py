@@ -172,6 +172,9 @@ async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | Non
         return msg.author.id == user_id
 
     try:
+        if not bot:
+            penalty = max(5, int(pay*0.12))
+            return -penalty, f"⏱️ Bot no disponible. Perdiste {penalty}💰"
         msg = await bot.wait_for("message", timeout=total_time, check=check)
         answer = msg.content.lower().strip()
     except Exception:
@@ -204,12 +207,12 @@ class ChooseDifficultyView(discord.ui.View):
 
     async def on_timeout(self):
         # disable buttons (so user sees it's expired)
-        for child in self.children:
-            try:
+        try:
+            for child in self.children:
                 if hasattr(child, 'disabled'):
                     child.disabled = True
-            except Exception:
-                pass
+        except Exception:
+            pass
         # try to edit original message if available
         try:
             msg = self.message if hasattr(self, "message") else None
@@ -336,7 +339,7 @@ class WorkCog(commands.Cog):
             await add_money(user_id, result)
 
         # cooldown 2 min
-        await set_work_cooldown(user_id, job, datetime.now() + timedelta(minutes=2))
+        await set_work_cooldown(user_id, job)
 
         color = discord.Color.green() if result > 0 else discord.Color.red()
         embed = discord.Embed(title=f"💼 Trabajo — {job}", description=msg_text, color=color)

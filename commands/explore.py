@@ -157,8 +157,12 @@ class ReplaceView(View):
 
     async def on_timeout(self) -> None:
         """Desactiva botones cuando expira el timeout"""
-        for child in self.children:
-            child.disabled = True
+        try:
+            for child in self.children:
+                if hasattr(child, 'disabled'):
+                    child.disabled = True
+        except Exception:
+            pass
         if self.message:
             try:
                 await self.message.edit(content="⌛ Tiempo terminado, botones desactivados.", view=self)
@@ -204,8 +208,12 @@ class ChestOpenView(View):
 
     async def on_timeout(self) -> None:
         """Desactiva botones cuando expira el timeout"""
-        for child in self.children:
-            child.disabled = True
+        try:
+            for child in self.children:
+                if hasattr(child, 'disabled'):
+                    child.disabled = True
+        except Exception:
+            pass
         if self.message:
             try:
                 await self.message.edit(content="⌛ Tiempo terminado. Cofre perdido.", view=self)
@@ -279,7 +287,7 @@ class ExploreCog(commands.Cog):
             return
         
         if sealed and key_id and CONSUME_KEY_ON_SEALED:
-            await remove_item(user.id, key_id)
+            await remove_item(key_id)
 
         # Animación de apertura
         try:
@@ -398,9 +406,4 @@ class ExploreCog(commands.Cog):
 
 async def setup(bot):
     """Carga el cog al bot"""
-    cog = ExploreCog(bot)
-    await bot.add_cog(cog)
-    try:
-        bot.tree.add_command(app_commands.Command(name="explore", description="🌲 Explora y encuentra objetos", callback=cog.explore_slash))
-    except Exception:
-        pass
+    await bot.add_cog(ExploreCog(bot))
