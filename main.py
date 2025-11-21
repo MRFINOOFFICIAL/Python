@@ -30,9 +30,20 @@ async def on_ready():
         try:
             synced = await bot.tree.sync()
             print(f"Slash commands sincronizados: {len(synced)}")
+            for cmd in synced:
+                print(f"  ✓ {cmd.name}")
         except Exception as e:
             print("Error al sincronizar slash commands:", e)
         _tree_synced = True
+
+@bot.event
+async def on_guild_join(guild):
+    """Sincronizar comandos cuando el bot se une a un nuevo servidor"""
+    try:
+        synced = await bot.tree.sync(guild=guild)
+        print(f"Comandos sincronizados en servidor {guild.name}: {len(synced)}")
+    except Exception as e:
+        print(f"Error sincronizando en {guild.name}: {e}")
 
 # manejo básico de errores de comando
 @bot.event
