@@ -24,8 +24,6 @@ async def on_ready():
     if bot.user:
         print(f"Bot listo: {bot.user} (ID: {bot.user.id})")
     await init_db()
-    from db import create_boss_tables
-    await create_boss_tables()
     if not _tree_synced:
         try:
             synced = await bot.tree.sync()
