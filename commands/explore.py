@@ -69,7 +69,7 @@ CONSUME_KEY_ON_SEALED = True
 # Emojis por rareza
 RARITY_EMOJI = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
 
-# Stats de items (compartido con rob.py)
+# Stats de items (sincronizado con rob.py)
 ITEM_STATS = {
     "cinta adhesiva": {"categoria": "herramientas", "poder": 3},
     "botella de sedante": {"categoria": "quimicos", "poder": 6},
@@ -88,7 +88,19 @@ ITEM_STATS = {
     "chihuahua": {"categoria": "mascota", "poder": 5},
     "mecha enojado": {"categoria": "arma", "poder": 40},
     "linterna": {"categoria": "herramientas", "poder": 7},
-    "llave maestra": {"categoria": "herramientas", "poder": 0},
+    "llave maestra": {"categoria": "herramientas", "poder": 40},
+    "anillo oxidado": {"categoria": "accesorio", "poder": 4},
+    "mapa antiguo": {"categoria": "herramientas", "poder": 6},
+    "gafas de soldador": {"categoria": "accesorio", "poder": 8},
+    "caja de cerillas": {"categoria": "herramientas", "poder": 5},
+    "receta secreta": {"categoria": "quimicos", "poder": 16},
+    "núcleo energético": {"categoria": "tecnologia", "poder": 45},
+    "fragmento omega": {"categoria": "arma", "poder": 50},
+    "traje ritual": {"categoria": "ropa", "poder": 35},
+    "placa de identificación": {"categoria": "accesorio", "poder": 7},
+    "cable usb": {"categoria": "tecnologia", "poder": 9},
+    "garrafa de aceite": {"categoria": "quimicos", "poder": 10},
+    "guitarra rota": {"categoria": "arma", "poder": 12},
 }
 
 
