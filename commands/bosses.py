@@ -20,17 +20,10 @@ async def boss_autocomplete(interaction: discord.Interaction, current: str):
     """Autocomplete for boss names - shows all bosses"""
     try:
         all_bosses = get_all_boss_names()
-        print(f"[DEBUG] get_all_boss_names() retornó: {all_bosses}")
-        print(f"[DEBUG] Total bosses: {len(all_bosses)}")
         filtered = [name for name in all_bosses if current.lower() in name.lower()] if current else all_bosses
-        print(f"[DEBUG] Filtered names: {filtered}")
-        choices = [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
-        print(f"[DEBUG] Choices generados: {len(choices)}")
-        return choices
+        return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
     except Exception as e:
-        print(f"[ERROR] Autocomplete error: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error en autocomplete: {e}")
         return []
 
 class BossesCog(commands.Cog):
@@ -232,7 +225,7 @@ class BossesCog(commands.Cog):
         """Enable/disable event channel"""
         if not interaction.guild:
             return await interaction.response.send_message("❌ Este comando solo funciona en servidores", ephemeral=True)
-        if not interaction.user.guild_permissions.administrator:
+        if not interaction.permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
@@ -295,7 +288,7 @@ class BossesCog(commands.Cog):
         """Force spawn a boss"""
         if not interaction.guild:
             return await interaction.response.send_message("❌ Este comando solo funciona en servidores", ephemeral=True)
-        if not interaction.user.guild_permissions.administrator:
+        if not interaction.permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
