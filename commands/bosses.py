@@ -9,7 +9,7 @@ from db import (
     get_active_boss, set_active_boss, remove_active_boss, update_boss_hp,
     add_event_channel, remove_event_channel, get_event_channels,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
-    add_money, get_user, add_item_to_user, create_boss_tables, get_user_inventory,
+    add_money, get_user, add_item_to_user, create_boss_tables, get_inventory,
     remove_item_from_inventory
 )
 from bosses import (
@@ -48,12 +48,16 @@ class FightActionView(ui.View):
         if interaction.user.id != self.user_id:
             await interaction.response.defer()
             return
-        inventory = await get_user_inventory(self.user_id)
-        if not inventory:
-            await interaction.response.send_message("❌ Inventario vacío", ephemeral=True)
-            return
-        options = [discord.SelectOption(label=f"{item['item']} (x{item['usos']})", value=str(item['id'])) for item in inventory[:25]]
-        await interaction.response.send_message("Selecciona un item:", view=ItemSelectView(self.user_id, self), ephemeral=True)
+        try:
+            inventory = await get_inventory(self.user_id)
+            if not inventory:
+                await interaction.response.send_message("❌ Inventario vacío", ephemeral=True)
+                return
+            options = [discord.SelectOption(label=f"{item['item']} (x{item['usos']})", value=str(item['id'])) for item in inventory[:25]]
+            await interaction.response.send_message("Selecciona un item:", view=ItemSelectView(self.user_id, self), ephemeral=True)
+        except Exception as e:
+            print(f"Error con inventario: {e}")
+            await interaction.response.send_message("❌ Error al cargar inventario", ephemeral=True)
 
 class ItemSelectView(ui.View):
     def __init__(self, user_id, fight_view):
