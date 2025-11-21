@@ -101,6 +101,60 @@ async def init_db():
             PRIMARY KEY (guild_id, channel_id)
         )
         """)
+                await db.execute("""
+        CREATE TABLE IF NOT EXISTS daily_missions (
+            user_id TEXT,
+            fecha TEXT,
+            tipo TEXT,
+            objetivo INTEGER,
+            progreso INTEGER DEFAULT 0,
+            recompensa INTEGER,
+            completado BOOLEAN DEFAULT 0,
+            PRIMARY KEY (user_id, fecha)
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            remitente TEXT,
+            receptor TEXT,
+            item_remitente INTEGER,
+            item_receptor INTEGER,
+            estado TEXT DEFAULT 'pendiente'
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS market (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vendedor TEXT,
+            item_id INTEGER,
+            precio INTEGER,
+            fecha_lista TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS pet_xp (
+            user_id TEXT PRIMARY KEY,
+            xp INTEGER DEFAULT 0
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS duels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            retador TEXT,
+            oponente TEXT,
+            cantidad INTEGER,
+            estado TEXT DEFAULT 'pendiente'
+        )
+        """)
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS upgrades (
+            user_id TEXT,
+            nombre TEXT,
+            PRIMARY KEY (user_id, nombre)
+        )
+        """)
+
         await db.commit()
 
 # ---------- USUARIOS ----------
@@ -408,3 +462,184 @@ async def get_fight_cooldown(user_id, guild_id):
         if row and row[0]:
             return datetime.fromisoformat(row[0])
         return None
+
+# ---------- LEADERBOARDS ----------
+
+async def get_leaderboard(guild_id, stat="dinero", limit=10):
+    """Obtener top jugadores por stat"""
+    async with aiosqlite.connect(DB) as db:
+        query = f"SELECT user_id, {stat} FROM users ORDER BY {stat} DESC LIMIT ?"
+        cur = await db.execute(query, (limit,))
+        rows = await cur.fetchall()
+        return [{"user_id": r[0], stat: r[1]} for r in rows]
+
+# ---------- MISIONES DIARIAS ----------
+
+async def init_daily_mission(user_id, mission_type="work", target=5, reward=500):
+    """Crear misión diaria para usuario"""
+    async with aiosqlite.connect(DB) as db:
+        today = datetime.now().strftime("%Y-%m-%d")
+        await db.execute(
+            """INSERT OR REPLACE INTO daily_missions(user_id, fecha, tipo, objetivo, progreso, recompensa, completado)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (str(user_id), today, mission_type, target, 0, reward, 0)
+        )
+        await db.commit()
+
+async def get_daily_mission(user_id):
+    """Obtener misión diaria del usuario"""
+    async with aiosqlite.connect(DB) as db:
+        today = datetime.now().strftime("%Y-%m-%d")
+        cur = await db.execute(
+            "SELECT * FROM daily_missions WHERE user_id = ? AND fecha = ?",
+            (str(user_id), today)
+        )
+        row = await cur.fetchone()
+        if row:
+            return {"user_id": row[0], "fecha": row[1], "tipo": row[2], "objetivo": row[3], 
+                    "progreso": row[4], "recompensa": row[5], "completado": row[6]}
+        return None
+
+async def update_mission_progress(user_id, amount=1):
+    """Actualizar progreso de misión"""
+    async with aiosqlite.connect(DB) as db:
+        today = datetime.now().strftime("%Y-%m-%d")
+        await db.execute(
+            "UPDATE daily_missions SET progreso = progreso + ? WHERE user_id = ? AND fecha = ?",
+            (amount, str(user_id), today)
+        )
+        await db.commit()
+
+async def complete_mission(user_id):
+    """Marcar misión como completada"""
+    async with aiosqlite.connect(DB) as db:
+        today = datetime.now().strftime("%Y-%m-%d")
+        await db.execute(
+            "UPDATE daily_missions SET completado = 1 WHERE user_id = ? AND fecha = ?",
+            (str(user_id), today)
+        )
+        await db.commit()
+
+# ---------- TRADING ----------
+
+async def create_trade(sender_id, receiver_id, item_id, asking_item_id):
+    """Crear propuesta de trade"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            """INSERT INTO trades(remitente, receptor, item_remitente, item_receptor, estado)
+               VALUES (?, ?, ?, ?, 'pendiente')""",
+            (str(sender_id), str(receiver_id), item_id, asking_item_id)
+        )
+        await db.commit()
+
+async def get_pending_trades(user_id):
+    """Obtener trades pendientes para usuario"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            "SELECT id, remitente, item_remitente, item_receptor FROM trades WHERE receptor = ? AND estado = 'pendiente'",
+            (str(user_id),)
+        )
+        rows = await cur.fetchall()
+        return [{"id": r[0], "remitente": r[1], "item_remitente": r[2], "item_receptor": r[3]} for r in rows]
+
+async def accept_trade(trade_id):
+    """Aceptar trade"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("UPDATE trades SET estado = 'aceptado' WHERE id = ?", (trade_id,))
+        await db.commit()
+
+# ---------- MERCADO ----------
+
+async def list_item_for_sale(user_id, item_id, price):
+    """Poner item a la venta en el mercado"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            "INSERT INTO market(vendedor, item_id, precio) VALUES (?, ?, ?)",
+            (str(user_id), item_id, price)
+        )
+        await db.commit()
+
+async def get_market_listings(limit=25):
+    """Obtener items en venta"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            "SELECT id, vendedor, item_id, precio FROM market LIMIT ?",
+            (limit,)
+        )
+        rows = await cur.fetchall()
+        return [{"id": r[0], "vendedor": r[1], "item_id": r[2], "precio": r[3]} for r in rows]
+
+async def buy_from_market(market_id):
+    """Comprar item del mercado"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("DELETE FROM market WHERE id = ?", (market_id,))
+        await db.commit()
+
+# ---------- PET XP ----------
+
+async def add_pet_xp(user_id, xp=10):
+    """Agregar XP a mascota"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT xp FROM pet_xp WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row:
+            await db.execute("UPDATE pet_xp SET xp = xp + ? WHERE user_id = ?", (xp, str(user_id)))
+        else:
+            await db.execute("INSERT INTO pet_xp(user_id, xp) VALUES (?, ?)", (str(user_id), xp))
+        await db.commit()
+
+async def get_pet_level(user_id):
+    """Obtener nivel de mascota (cada 100 XP = 1 nivel)"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT xp FROM pet_xp WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row:
+            return row[0] // 100
+        return 0
+
+# ---------- DUELOS ----------
+
+async def create_duel(challenger_id, opponent_id, amount):
+    """Crear desafío de duelo"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            "INSERT INTO duels(retador, oponente, cantidad, estado) VALUES (?, ?, ?, 'pendiente')",
+            (str(challenger_id), str(opponent_id), amount)
+        )
+        await db.commit()
+
+async def accept_duel(duel_id):
+    """Aceptar duelo"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute("UPDATE duels SET estado = 'aceptado' WHERE id = ?", (duel_id,))
+        await db.commit()
+
+async def get_pending_duels(user_id):
+    """Obtener duelos pendientes"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            "SELECT id, retador, cantidad FROM duels WHERE oponente = ? AND estado = 'pendiente'",
+            (str(user_id),)
+        )
+        rows = await cur.fetchall()
+        return [{"id": r[0], "retador": r[1], "cantidad": r[2]} for r in rows]
+
+# ---------- UPGRADES ----------
+
+async def buy_upgrade(user_id, upgrade_name):
+    """Comprar upgrade permanente"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            "INSERT OR IGNORE INTO upgrades(user_id, nombre) VALUES (?, ?)",
+            (str(user_id), upgrade_name)
+        )
+        await db.commit()
+
+async def has_upgrade(user_id, upgrade_name):
+    """Verificar si usuario tiene upgrade"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            "SELECT 1 FROM upgrades WHERE user_id = ? AND nombre = ?",
+            (str(user_id), upgrade_name)
+        )
+        return await cur.fetchone() is not None
