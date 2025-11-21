@@ -1,6 +1,7 @@
 # commands/work.py
 import discord
 from discord.ext import commands
+from discord import app_commands
 import random
 from datetime import datetime, timedelta
 from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory
@@ -241,26 +242,26 @@ class WorkCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="work")
-    async def work(self, ctx):
-        user = await get_user(ctx.author.id)
+    async def _work_internal(self, user_id, guild_id, send_fn, bot):
+        """Internal work logic shared by prefix and slash commands"""
+        user = await get_user(user_id)
         job = user.get("trabajo", "Desempleado")
         if job not in JOBS:
-            return await ctx.send("❌ No tienes un trabajo asignado o tu trabajo no está en la lista.")
+            return await send_fn("❌ No tienes un trabajo asignado o tu trabajo no está en la lista.")
 
         pay = JOBS[job]["pay"]
 
         # cooldown
-        last = await get_work_cooldown(ctx.author.id, job)
+        last = await get_work_cooldown(user_id, job)
         if last and datetime.utcnow() < last:
             remaining = last - datetime.utcnow()
             secs = int(remaining.total_seconds())
             m, s = divmod(secs, 60)
-            return await ctx.send(f"⌛ Ya trabajaste. Próximo intento en {m}m {s}s")
+            return await send_fn(f"⌛ Ya trabajaste. Próximo intento en {m}m {s}s")
 
         # bonus por items
         bonus_time = 0
-        inventory = await get_inventory(ctx.author.id)
+        inventory = await get_inventory(user_id)
         for it in inventory:
             if it["item"].lower() == "teléfono":
                 bonus_time += 5  # +5s extra
@@ -269,7 +270,7 @@ class WorkCog(commands.Cog):
         game_name = random.choice(JOBS[job]["games"])
         game_func = GAME_FUNCTIONS.get(game_name)
         if not game_func:
-            return await ctx.send("❌ El minijuego seleccionado no está implementado.")
+            return await send_fn("❌ El minijuego seleccionado no está implementado.")
 
         # Si es pregunta, ofrecemos elegir dificultad con botones
         forced_difficulty = None
@@ -280,8 +281,8 @@ class WorkCog(commands.Cog):
                              "Más difícil → más recompensa. Si no eliges, se seleccionará aleatoria."),
                 color=discord.Color.gold()
             )
-            view = ChooseDifficultyView(ctx.author.id, timeout=18)
-            msg = await ctx.send(embed=embed, view=view)
+            view = ChooseDifficultyView(user_id, timeout=18)
+            msg = await send_fn(embed=embed, view=view)
             # guardar mensaje en view para que on_timeout pueda editarlo
             view.message = msg
             # esperar a que el usuario elija o timeout
@@ -293,23 +294,37 @@ class WorkCog(commands.Cog):
                 forced_difficulty = choice
 
         try:
-            # si forced_difficulty es None, play_pregunta decidirá; si no, usa la elegida
             if game_name == "pregunta":
-                result, msg_text = await play_pregunta(ctx, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty)
+                result, msg_text = await play_pregunta(None, pay, bonus_time=bonus_time, forced_difficulty=forced_difficulty)
             else:
-                result, msg_text = await game_func(ctx, pay, bonus_time=bonus_time)
+                result, msg_text = await game_func(None, pay, bonus_time=bonus_time)
         except Exception as e:
-            return await ctx.send(f"❌ Error al ejecutar el minijuego: {e}")
+            return await send_fn(f"❌ Error al ejecutar el minijuego: {e}")
 
         if result != 0:
-            await add_money(ctx.author.id, result)
+            await add_money(user_id, result)
 
         # cooldown 2 min
-        await set_work_cooldown(ctx.author.id, job, datetime.utcnow() + timedelta(minutes=2))
+        await set_work_cooldown(user_id, job, datetime.utcnow() + timedelta(minutes=2))
 
         color = discord.Color.green() if result > 0 else discord.Color.red()
         embed = discord.Embed(title=f"💼 Trabajo — {job}", description=msg_text, color=color)
-        await ctx.send(embed=embed)
+        await send_fn(embed=embed)
+
+    @commands.command(name="work")
+    async def work_prefix(self, ctx):
+        """!work - Trabajar en tu empleo actual"""
+        async def send_fn(*args, **kwargs):
+            return await ctx.send(*args, **kwargs)
+        await self._work_internal(ctx.author.id, ctx.guild.id, send_fn, self.bot)
+
+    @app_commands.command(name="work", description="Trabajar en tu empleo actual")
+    async def work_slash(self, interaction: discord.Interaction):
+        """Work in your current job"""
+        await interaction.response.defer()
+        async def send_fn(*args, **kwargs):
+            return await interaction.followup.send(*args, **kwargs)
+        await self._work_internal(interaction.user.id, interaction.guild_id, send_fn, self.bot)
 
 # ---------------- Setup ----------------
 async def setup(bot):
