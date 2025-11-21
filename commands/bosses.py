@@ -267,23 +267,31 @@ class BossesCog(commands.Cog):
         await ctx.send("✅ Jefe spawneado")
 
     async def boss_autocomplete(self, interaction: discord.Interaction, current: str) -> list:
-        """Autocomplete for boss names - shows all bosses"""
+        """Autocomplete for boss names - shows all bosses as Choice objects"""
         all_bosses = get_all_boss_names()
-        return all_bosses[:25]
+        return [app_commands.Choice(name=name, value=name) for name in all_bosses][:25]
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
-    @app_commands.describe(jefe="Selecciona un jefe de la lista")
+    @app_commands.describe(tipo="Tipo de jefe: Mini-Boss, Boss o Especial", jefe="O selecciona un jefe específico")
     @app_commands.autocomplete(jefe=boss_autocomplete)
-    async def spawnboss_slash(self, interaction: discord.Interaction, jefe: str):
-        """Force spawn a specific boss"""
+    async def spawnboss_slash(self, interaction: discord.Interaction, tipo: str = None, jefe: str = None):
+        """Force spawn a boss"""
         if not interaction.user.guild_permissions.administrator:
             return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
         
         guild_id = interaction.guild_id
+        boss = None
         
-        boss = get_boss_by_name(jefe)
-        if not boss:
-            return await interaction.response.send_message(f"❌ Jefe '{jefe}' no encontrado", ephemeral=True)
+        if jefe:
+            boss = get_boss_by_name(jefe)
+            if not boss:
+                return await interaction.response.send_message(f"❌ Jefe '{jefe}' no encontrado", ephemeral=True)
+        elif tipo and tipo in ["Mini-Boss", "Boss", "Especial"]:
+            boss = get_random_boss(tipo)
+            if not boss:
+                return await interaction.response.send_message(f"❌ Error al generar jefe de tipo {tipo}", ephemeral=True)
+        else:
+            return await interaction.response.send_message("❌ Debes elegir un tipo (Mini-Boss, Boss, Especial) o un jefe específico", ephemeral=True)
         
         await set_active_boss(guild_id, boss)
         
