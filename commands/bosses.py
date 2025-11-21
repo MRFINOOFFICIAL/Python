@@ -74,19 +74,27 @@ class FightActionView(ui.View):
                 await interaction.response.send_message("❌ Inventario vacío", ephemeral=True)
                 return
             options = [discord.SelectOption(label=f"{item['item']} (x{item['usos']})", value=str(item['id'])) for item in inventory[:25]]
-            await interaction.response.send_message("Selecciona un item:", view=ItemSelectView(self.user_id, self), ephemeral=True)
+            await interaction.response.send_message("Selecciona un item:", view=ItemSelectView(self.user_id, self, options), ephemeral=True)
         except Exception as e:
             print(f"Error con inventario: {e}")
             await interaction.response.send_message("❌ Error al cargar inventario", ephemeral=True)
 
 class ItemSelectView(ui.View):
-    def __init__(self, user_id, fight_view):
+    def __init__(self, user_id, fight_view, options):
         super().__init__(timeout=30)
         self.user_id = user_id
         self.fight_view = fight_view
+        
+        if options:
+            select = ui.Select(placeholder="Elige un item para usar", options=options, min_values=1, max_values=1)
+            select.callback = self.select_item
+            self.add_item(select)
     
-    @ui.select(placeholder="Elige un item para usar")
-    async def select_item(self, interaction: discord.Interaction, select: ui.Select):
+    async def select_item(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user_id:
+            await interaction.response.defer()
+            return
+        select = self.children[0]
         self.fight_view.action = "use_item"
         self.fight_view.selected_item = select.values[0]
         self.fight_view.stop()
