@@ -73,7 +73,6 @@ class JobsCog(commands.Cog):
         await self._apply(ctx.author.id, trabajo_nombre, send_fn=lambda **kw: ctx.send(**kw))
 
     @app_commands.command(name="apply", description="Aplica a un trabajo")
-    @app_commands.describe(trabajo_nombre="Nombre del trabajo disponible")
     @app_commands.autocomplete(trabajo_nombre=apply_jobs_autocomplete)
     async def apply_slash(self, interaction: discord.Interaction, trabajo_nombre: str):
         await interaction.response.defer()
