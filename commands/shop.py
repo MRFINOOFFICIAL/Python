@@ -9,6 +9,23 @@ from db import (
     update_rank, get_user, add_shop_item, get_inventory
 )
 
+
+# ==================== AUTOCOMPLETE ====================
+
+async def shop_items_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete para mostrar items de la tienda"""
+    try:
+        items = await get_shop()
+        if not items:
+            return []
+        
+        item_names = [item["name"] for item in items]
+        filtered = [name for name in item_names if current.lower() in name.lower()] if current else item_names
+        
+        return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
+    except Exception:
+        return []
+
 # ----------------- Default shop items to insert -----------------
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
@@ -86,7 +103,8 @@ class ShopCog(commands.Cog):
 
     # --------- Slash: comprar ----------
     @app_commands.command(name="buy", description="Comprar un item de la tienda")
-    @app_commands.describe(item_name="Nombre exacto del item")
+    @app_commands.describe(item_name="Nombre del item de la tienda")
+    @app_commands.autocomplete(item_name=shop_items_autocomplete)
     async def buy_slash(self, interaction: discord.Interaction, item_name: str):
         await interaction.response.defer(ephemeral=False)
         user = await get_user(interaction.user.id)
