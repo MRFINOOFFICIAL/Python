@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import get_user, get_inventory, damage_item, add_money, remove_item
+from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress
 import random
 from typing import Optional
 
@@ -182,6 +182,8 @@ class RobCog(commands.Cog):
             steal_amount = random.randint(20, min(300, target["dinero"] // 2))
             await add_money(user_id, steal_amount)
             await add_money(target_member.id, -steal_amount)
+            # Actualizar progreso de misión "robar"
+            await update_mission_progress(user_id)
             if chosen_item_id:
                 # dañar item (reducir durabilidad)
                 try:

@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress
+from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress, update_mission_progress
 import random
 from typing import Tuple, List, Optional
 from cache import set_buff, get_buff, clear_buff
@@ -354,6 +354,8 @@ class ExploreCog(commands.Cog):
         # Si hay espacio en el inventario
         if len(inv) < 3:
             await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
+            # Actualizar progreso de misión "explorar"
+            await update_mission_progress(user.id)
             
             embed = discord.Embed(
                 title=f"{RARITY_EMOJI.get(rarity, '')} 🌲 Exploración",
