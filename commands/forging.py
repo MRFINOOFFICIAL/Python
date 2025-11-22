@@ -125,6 +125,7 @@ class ForgingCog(commands.Cog):
             return
         
         weapons = WEAPONS_RECIPES[rareza]
+        inv = await get_inventory(interaction.user.id)
         
         # Crear embed con opciones
         embed = discord.Embed(
@@ -135,13 +136,25 @@ class ForgingCog(commands.Cog):
         
         for i, weapon_data in enumerate(weapons, 1):
             requirements = self.get_weapon_requirements_str(weapon_data["materials"])
+            
+            # Verificar si el usuario tiene todos los materiales
+            can_forge = True
+            missing = []
+            for material_name, amount_needed in weapon_data["materials"]:
+                amount_have = sum(1 for item in inv if item["item"].lower() == material_name.lower())
+                if amount_have < amount_needed:
+                    can_forge = False
+                    missing.append(f"{material_name} ({amount_have}/{amount_needed})")
+            
+            status = "✅ DISPONIBLE" if can_forge else f"❌ Falta: {', '.join(missing)}"
+            
             embed.add_field(
                 name=f"{i}. ⚔️ {weapon_data['name']}",
-                value=f"```\n{requirements}```",
+                value=f"```\n{requirements}```\n{status}",
                 inline=False
             )
         
-        embed.set_footer(text="Selecciona un arma para forjarla (debes tener los materiales)")
+        embed.set_footer(text="💡 Usa /minar y /pescar para conseguir los materiales que te falten")
         
         view = ForgeSelectView(interaction.user.id, weapons, timeout=30)
         await interaction.followup.send(embed=embed, view=view)
@@ -156,17 +169,37 @@ class ForgingCog(commands.Cog):
         materials = weapon_data["materials"]
         user_id = interaction.user.id
         
-        # Obtener inventario del usuario
+        # Actualizar inventario
         inv = await get_inventory(user_id)
         
-        # Verificar que tiene todos los materiales
+        # Verificar que tiene todos los materiales con sugerencias detalladas
+        missing_materials = []
         for material_name, amount_needed in materials:
             amount_have = sum(1 for item in inv if item["item"].lower() == material_name.lower())
             if amount_have < amount_needed:
-                return await interaction.followup.send(
-                    f"❌ No tienes suficientes materiales.\n"
-                    f"**{material_name}**: tienes {amount_have}, necesitas {amount_needed}"
+                missing_materials.append((material_name, amount_have, amount_needed))
+        
+        if missing_materials:
+            error_embed = discord.Embed(
+                title="❌ Materiales Insuficientes",
+                description=f"Te faltan materiales para forjar **{weapon_name}**",
+                color=discord.Color.red()
+            )
+            
+            for material_name, have, need in missing_materials:
+                error_embed.add_field(
+                    name=f"📦 {material_name}",
+                    value=f"Tienes: {have} | Necesitas: {need}\n**Te faltan: {need - have}**",
+                    inline=False
                 )
+            
+            error_embed.add_field(
+                name="💡 Sugerencia",
+                value=f"Usa `/minar` o `/pescar` para conseguir más materiales",
+                inline=False
+            )
+            
+            return await interaction.followup.send(embed=error_embed)
         
         # Consumir materiales (eliminar del inventario)
         for material_name, amount_needed in materials:
@@ -192,6 +225,7 @@ class ForgingCog(commands.Cog):
         materials_used = self.get_weapon_requirements_str(materials)
         result_embed.add_field(name="📦 Materiales Consumidos", value=f"```\n{materials_used}```", inline=False)
         result_embed.add_field(name="✨ Resultado", value=f"El arma fue agregada a tu inventario", inline=False)
+        result_embed.set_footer(text="🔨 ¡Ahora puedes vender este arma en /mercado!")
         
         await interaction.followup.send(embed=result_embed)
 
