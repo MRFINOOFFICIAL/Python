@@ -1,7 +1,7 @@
 """
 Sistema automático de spawn de bosses.
-- Mini-bosses: cada 6 horas (reemplaza al boss actual)
-- Bosses: cada 3 días (reemplaza al boss actual)
+- Mini-bosses: cada 1 minuto (reemplaza al boss actual)
+- Bosses: cada 1 minuto (reemplaza al boss actual)
 - Especiales: cada semana (solo por comando del owner)
 """
 import asyncio
@@ -27,9 +27,9 @@ async def auto_spawn_bosses(bot):
             for guild in bot.guilds:
                 guild_id = guild.id
                 
-                # Verificar mini-boss (cada 6 horas)
+                # Verificar mini-boss (cada 60 segundos = 1 minuto)
                 last_mini = LAST_SPAWN_TIMES["mini_boss"].get(guild_id)
-                if last_mini is None or (current_time - last_mini).total_seconds() >= 21600:
+                if last_mini is None or (current_time - last_mini).total_seconds() >= 60:
                     mini_boss = get_random_boss("Mini-Boss")
                     if mini_boss:
                         # Desactivar boss actual si existe
@@ -58,9 +58,9 @@ async def auto_spawn_bosses(bot):
                                 pass
                     continue
                 
-                # Verificar boss normal (cada 3 días)
+                # Verificar boss normal (cada 60 segundos = 1 minuto)
                 last_boss = LAST_SPAWN_TIMES["boss"].get(guild_id)
-                if last_boss is None or (current_time - last_boss).total_seconds() >= 259200:
+                if last_boss is None or (current_time - last_boss).total_seconds() >= 60:
                     boss = get_random_boss("Boss")
                     if boss:
                         # Desactivar boss actual si existe
