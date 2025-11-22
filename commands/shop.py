@@ -99,7 +99,6 @@ class ShopCog(commands.Cog):
         await add_money(ctx.author.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(ctx.author.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
-        await update_rank(ctx.author.id)
         await ctx.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
     # --------- Slash: comprar ----------
@@ -117,7 +116,6 @@ class ShopCog(commands.Cog):
         await add_money(interaction.user.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
-        await update_rank(interaction.user.id)
         await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
    
