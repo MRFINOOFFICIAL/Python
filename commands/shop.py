@@ -59,17 +59,28 @@ class ShopCog(commands.Cog):
         items = await get_shop()
         if not items:
             return await ctx.send("La tienda está vacía por ahora.")
-        embed = discord.Embed(title="🏪 Tienda — Los Ezquisos", color=discord.Color.green())
-        embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-        embed.description = "Usa `!buy Nombre exacto` para comprar. También disponibles como `/buy`."
-        for it in items:
-            # mostrar name — price — rarity y la descripción/effect
-            embed.add_field(
-                name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
-                value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
-                inline=False
+        
+        # Dividir en chunks de 24 items para evitar límite de 25 campos
+        chunk_size = 24
+        for chunk_idx in range(0, len(items), chunk_size):
+            chunk = items[chunk_idx:chunk_idx + chunk_size]
+            page_num = (chunk_idx // chunk_size) + 1
+            total_pages = (len(items) + chunk_size - 1) // chunk_size
+            
+            embed = discord.Embed(
+                title=f"🏪 Tienda — Los Ezquisos (Página {page_num}/{total_pages})",
+                color=discord.Color.green()
             )
-        await ctx.send(embed=embed)
+            embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
+            embed.description = "Usa `!buy Nombre exacto` para comprar. También disponibles como `/buy`."
+            
+            for it in chunk:
+                embed.add_field(
+                    name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
+                    value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
+                    inline=False
+                )
+            await ctx.send(embed=embed)
 
     # --------- Slash: ver tienda ----------
     @app_commands.command(name="shop", description="Ver la tienda")
@@ -78,16 +89,28 @@ class ShopCog(commands.Cog):
         items = await get_shop()
         if not items:
             return await interaction.followup.send("La tienda está vacía por ahora.", ephemeral=True)
-        embed = discord.Embed(title="🏪 Tienda — Los Ezquisos", color=discord.Color.green())
-        embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-        embed.description = "Usa `/buy item_name` para comprar."
-        for it in items:
-            embed.add_field(
-                name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
-                value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
-                inline=False
+        
+        # Dividir en chunks de 24 items para evitar límite de 25 campos
+        chunk_size = 24
+        for chunk_idx in range(0, len(items), chunk_size):
+            chunk = items[chunk_idx:chunk_idx + chunk_size]
+            page_num = (chunk_idx // chunk_size) + 1
+            total_pages = (len(items) + chunk_size - 1) // chunk_size
+            
+            embed = discord.Embed(
+                title=f"🏪 Tienda — Los Ezquisos (Página {page_num}/{total_pages})",
+                color=discord.Color.green()
             )
-        await interaction.followup.send(embed=embed)
+            embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
+            embed.description = "Usa `/buy item_name` para comprar."
+            
+            for it in chunk:
+                embed.add_field(
+                    name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
+                    value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
+                    inline=False
+                )
+            await interaction.followup.send(embed=embed)
 
     # --------- Prefix: comprar ----------
     @commands.command(name="buy")
