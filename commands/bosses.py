@@ -7,7 +7,7 @@ import random
 from typing import Optional
 from db import (
     get_active_boss, create_boss, damage_boss, deactivate_boss,
-    set_event_channel, remove_event_channel, get_event_channels,
+    set_event_channel, remove_event_channel, get_event_channels, get_all_active_bosses,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
     add_money, get_user, add_item_to_user, get_inventory,
     remove_item, get_shop_item, add_experiencia, club_has_upgrade
@@ -94,8 +94,9 @@ class ItemSelectView(ui.View):
             await interaction.response.defer()
             return
         select = self.children[0]
-        self.fight_view.action = "use_item"
-        self.fight_view.selected_item = select.values[0]
+        if hasattr(select, 'values') and select.values:
+            self.fight_view.action = "use_item"
+            self.fight_view.selected_item = select.values[0]
         self.fight_view.stop()
         await interaction.response.defer()
 
@@ -348,13 +349,25 @@ class BossesCog(commands.Cog):
     async def fight_prefix(self, ctx):
         """!fight - Pelea contra el jefe activo"""
         class DummyInteraction:
-            async def response_send_message(self, *args, **kwargs):
-                await ctx.send(*args, **kwargs)
-            async def followup_send(self, *args, **kwargs):
-                await ctx.send(*args, **kwargs)
-        dummy = DummyInteraction()
-        dummy.response = type('obj', (object,), {'send_message': dummy.response_send_message})()
-        dummy.followup = type('obj', (object,), {'send': dummy.followup_send})()
+            def __init__(self, ctx):
+                self.ctx = ctx
+            class ResponseHelper:
+                def __init__(self, ctx):
+                    self.ctx = ctx
+                async def send_message(self, *args, **kwargs):
+                    await self.ctx.send(*args, **kwargs)
+                async def defer(self):
+                    pass
+            class FollowupHelper:
+                def __init__(self, ctx):
+                    self.ctx = ctx
+                async def send(self, *args, **kwargs):
+                    await self.ctx.send(*args, **kwargs)
+            def __init__(self, ctx):
+                self.ctx = ctx
+                self.response = self.ResponseHelper(ctx)
+                self.followup = self.FollowupHelper(ctx)
+        dummy = DummyInteraction(ctx)
         await self._fight_internal(ctx.author.id, ctx.guild.id, dummy)
 
     @app_commands.command(name="fight", description="Pelea contra el jefe activo")
@@ -373,12 +386,15 @@ class BossesCog(commands.Cog):
             return await ctx.send("❌ No hay jefe activo.")
         
         boss_data = active_bosses[0]
-        boss = get_boss_by_name(boss_data["boss_name"])
+        boss = get_boss_by_name(boss_data.get("boss_name"))
         
-        embed = discord.Embed(title=f"📊 {boss['name']}", color=discord.Color.yellow())
-        embed.add_field(name="Tipo", value=boss["type"], inline=True)
-        embed.add_field(name="HP", value=f"{boss['hp']} / {boss['max_hp']}", inline=True)
-        embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
+        if not boss:
+            return await ctx.send("❌ Jefe no encontrado.")
+        
+        embed = discord.Embed(title=f"📊 {boss.get('name', 'Unknown')}", color=discord.Color.yellow())
+        embed.add_field(name="Tipo", value=boss.get("type", "?"), inline=True)
+        embed.add_field(name="HP", value=f"{boss.get('hp', '?')} / {boss.get('max_hp', '?')}", inline=True)
+        embed.add_field(name="Ataque", value=boss.get("ataque", "?"), inline=True)
         embed.add_field(name="Usa !fight o /fight para atacar", value="⚔️", inline=False)
         
         await ctx.send(embed=embed)
@@ -393,12 +409,15 @@ class BossesCog(commands.Cog):
             return await interaction.response.send_message("❌ No hay jefe activo.", ephemeral=True)
         
         boss_data = active_bosses[0]
-        boss = get_boss_by_name(boss_data["boss_name"])
+        boss = get_boss_by_name(boss_data.get("boss_name"))
         
-        embed = discord.Embed(title=f"📊 {boss['name']}", color=discord.Color.yellow())
-        embed.add_field(name="HP Actual", value=f"{boss_data['current_hp']} / {boss_data['max_hp']}", inline=True)
-        embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
-        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
+        if not boss:
+            return await interaction.response.send_message("❌ Jefe no encontrado.", ephemeral=True)
+        
+        embed = discord.Embed(title=f"📊 {boss.get('name', 'Unknown')}", color=discord.Color.yellow())
+        embed.add_field(name="HP Actual", value=f"{boss_data.get('current_hp', '?')} / {boss_data.get('max_hp', '?')}", inline=True)
+        embed.add_field(name="Ataque", value=boss.get("ataque", "?"), inline=True)
+        embed.add_field(name="Rareza", value=boss.get("rareza", "?"), inline=True)
         embed.add_field(name="Usa !fight o /fight para atacar", value="⚔️", inline=False)
         
         await interaction.response.send_message(embed=embed, ephemeral=True)

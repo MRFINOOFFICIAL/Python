@@ -158,7 +158,7 @@ class RobCog(commands.Cog):
     async def _perform_rob(self, user_id: int, target_member: discord.Member, chosen_item_id: Optional[int], chosen_item_name: Optional[str]):
         """Core robber logic: returns result message string and whether success."""
         target = await get_user(target_member.id)
-        if target["dinero"] < 50:
+        if not target or target.get("dinero", 0) < 50:
             return False, "Esa persona no tiene suficiente dinero para robar."
 
         # determine power
@@ -216,7 +216,7 @@ class RobCog(commands.Cog):
             return await ctx_or_interaction.send("No puedes robarte a ti mismo.")
 
         target = await get_user(member.id)
-        if target["dinero"] < 50:
+        if not target or target.get("dinero", 0) < 50:
             if is_interaction:
                 return await ctx_or_interaction.followup.send("Esa persona no tiene suficiente dinero.")
             return await ctx_or_interaction.send("Esa persona no tiene suficiente dinero.")
@@ -277,9 +277,10 @@ class RobCog(commands.Cog):
         chosen = view.result  # either dict with id/item or None
 
         # If view timed out without selection, edit message to show timeout (if possible) and stop
-        if chosen is None and not any(child.disabled for child in view.children):
-            # This case shouldn't normally happen; keep safe
-            pass
+        if chosen is None:
+            for child in view.children:
+                if hasattr(child, 'disabled'):
+                    setattr(child, 'disabled', True)
 
         # get chosen details
         chosen_item_id = chosen.get("id") if isinstance(chosen, dict) else None

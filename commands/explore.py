@@ -185,29 +185,20 @@ class ChestOpenView(View):
         btn_open = Button(label="Abrir cofre", style=discord.ButtonStyle.success)
         btn_ignore = Button(label="Ignorar", style=discord.ButtonStyle.secondary)
 
-        async def open_cb(interaction: discord.Interaction):
-            if interaction.user.id != self.user_id:
-                await interaction.response.send_message("❌ Solo quien encontró el cofre puede abrirlo.", ephemeral=True)
+        async def open_cb(inter: discord.Interaction):
+            if inter.user.id != self.user_id:
+                await inter.response.send_message("❌ Solo quien encontró el cofre puede abrirlo.", ephemeral=True)
                 return
             self.opened = True
-    
-    async def on_timeout(self) -> None:
-        """Desactiva botones cuando expira el timeout"""
-        try:
-            for child in self.children:
-                if hasattr(child, 'disabled'):
-                    setattr(child, 'disabled', True)
-        except Exception:
-            pass
-            await interaction.response.defer()
+            await inter.response.defer()
             self.stop()
 
-        async def ignore_cb(interaction: discord.Interaction):
-            if interaction.user.id != self.user_id:
-                await interaction.response.send_message("❌ Solo quien encontró el cofre puede ignorarlo.", ephemeral=True)
+        async def ignore_cb(inter: discord.Interaction):
+            if inter.user.id != self.user_id:
+                await inter.response.send_message("❌ Solo quien encontró el cofre puede ignorarlo.", ephemeral=True)
                 return
             self.opened = False
-            await interaction.response.edit_message(content="Has decidido ignorar el cofre.", view=None)
+            await inter.response.edit_message(content="Has decidido ignorar el cofre.", view=None)
             self.stop()
 
         btn_open.callback = open_cb
@@ -220,7 +211,7 @@ class ChestOpenView(View):
         try:
             for child in self.children:
                 if hasattr(child, 'disabled'):
-                    child.disabled = True
+                    setattr(child, 'disabled', True)
         except Exception:
             pass
         if self.message:
