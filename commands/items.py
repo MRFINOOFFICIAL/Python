@@ -101,26 +101,36 @@ class ItemsCog(commands.Cog):
         """Mostrar inventario completo"""
         inv = await get_inventory(user_id)
         if not inv:
-            await send_fn("📦 Tu inventario está vacío.")
+            embed = discord.Embed(
+                title="📦 Inventario",
+                description="Tu inventario está vacío...",
+                color=discord.Color.red()
+            )
+            await send_fn(embed=embed)
             return
+        
+        # Agrupar por rareza
+        rarity_emojis = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
         
         embed = discord.Embed(
             title="📦 Inventario Completo",
-            description=f"Tienes {len(inv)} item(s):",
+            description=f"**Total:** {len(inv)} item(s)",
             color=discord.Color.gold()
         )
         
         for item in inv:
+            emoji = rarity_emojis.get(item['rareza'], "❓")
+            durability_bar = "▰" * (item['durabilidad'] // 20) + "▱" * (5 - item['durabilidad'] // 20)
+            
             embed.add_field(
-                name=f"{item['item']} (ID: {item['id']})",
-                value=(f"**Rareza:** {item['rareza']}\n"
-                       f"**Usos:** {item['usos']}\n"
-                       f"**Durabilidad:** {item['durabilidad']}%\n"
-                       f"**Categoría:** {item['categoria']}"),
+                name=f"{emoji} {item['item']} (ID: {item['id']})",
+                value=(f"`{item['rareza'].upper()}`\n"
+                       f"**Durabilidad:** {durability_bar} {item['durabilidad']}%\n"
+                       f"**Usos:** {item['usos']} | **Categoría:** {item['categoria']}"),
                 inline=False
             )
         
-        embed.set_footer(text="Usa /use o !use para usar un item.")
+        embed.set_footer(text="💡 Usa /use <id> para usar un item | /repair <id> para reparar")
         await send_fn(embed=embed)
 
     async def _use_send(self, user_id, send_fn):

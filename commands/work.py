@@ -354,8 +354,20 @@ class WorkCog(commands.Cog):
         # cooldown 2 min
         await set_work_cooldown(user_id, job)
 
+        # Mejorar embed visual
         color = discord.Color.green() if result > 0 else discord.Color.red()
-        embed = discord.Embed(title=f"💼 Trabajo — {job}", description=msg_text, color=color)
+        embed = discord.Embed(
+            title=f"💼 {job}",
+            description=f"**Resultado:** {msg_text}",
+            color=color
+        )
+        
+        if result > 0:
+            embed.add_field(name="💰 Ganancia", value=f"```{result:,} dinero```", inline=False)
+        else:
+            embed.add_field(name="❌ Resultado", value="```Perdiste el minijuego```", inline=False)
+        
+        embed.set_footer(text=f"⏳ Próximo trabajo en 10 minutos")
         await send_fn(embed=embed)
 
     @commands.command(name="work")

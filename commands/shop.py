@@ -25,19 +25,31 @@ class ShopPaginationView(ui.View):
         end_idx = start_idx + self.chunk_size
         chunk = self.items[start_idx:end_idx]
         
+        rarity_colors = {
+            "comun": discord.Color.from_rgb(128, 128, 128),
+            "raro": discord.Color.from_rgb(0, 128, 255),
+            "epico": discord.Color.from_rgb(128, 0, 255),
+            "legendario": discord.Color.from_rgb(255, 215, 0),
+            "maestro": discord.Color.from_rgb(255, 20, 147)
+        }
+        
         embed = discord.Embed(
             title=f"🏪 Tienda — Los Ezquisos",
             color=discord.Color.green()
         )
         embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-        embed.description = f"Usa `/buy item_name` para comprar.\n📄 Página {self.current_page + 1}/{self.total_pages}"
+        embed.description = f"📄 Página {self.current_page + 1}/{self.total_pages}\n💡 Usa `/buy <nombre>` para comprar"
+        
+        rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
         
         for it in chunk:
+            emoji = rarity_emoji.get(it['rarity'], "❓")
             embed.add_field(
-                name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
-                value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
+                name=f"{emoji} {it['name']}",
+                value=f"💰 `{it['price']}` | {it['rarity'].upper()}\n{it['effect']}",
                 inline=False
             )
+        embed.set_footer(text="¡Mejora tu arsenal en la tienda!")
         return embed
     
     @ui.button(label="◀ Anterior", style=discord.ButtonStyle.blurple)

@@ -198,6 +198,13 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
    - **Pet Egg Prices**: -20-30% (Huevo Raro 2500→1800, Épico 10000→7000)
    - **Special Items**: More affordable (Bebida Vida 8000→5500, Poción Furia 3500→2500)
 
+6. **Visual Improvements - Embed Design** ✨:
+   - **Profile Command**: Color dinámico según rango (Novato gris, Básico azul, Avanzado púrpura, Supremo oro), mostrar vidas, trabajo actual, inventario con rarezas
+   - **Inventory Command**: Emojis de rareza por item (⚪🔵🟣🟠🔶), barras de durabilidad visuales (▰▱), formato mejorado
+   - **Work Command**: Resultado con embed verde/rojo, ganancia en código monoespaciado, footer con info de cooldown
+   - **Fight Command**: Victoria con embed dorado y emojis (🏆), derrota con embed rojo oscuro, recompensas formateadas con códigos, mostrar bonus de mascota
+   - **Shop Command**: Emojis de rareza para cada item (⚪🔵🟣🟠🔶), precio en código, descripción clara, footer motivacional, navegación mejorada
+
 ### Previous Session (Nov 21, 2025)
 1. **Fixed Explore Errors**: Corrected `remove_item()` function calls - changed from 2 arguments to 1 argument (item_id only)
 2. **Updated Help System**: Completely rewrote `/ayuda` command with 6 interactive sections covering 14 bosses, combat mechanics, items, chests, and admin tools

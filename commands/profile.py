@@ -20,13 +20,36 @@ class ProfileCog(commands.Cog):
     async def _profile_send(self, user, send_fn, author_ctx):
         u = await get_user(user.id)
         inv = await get_inventory(user.id)
-        embed = discord.Embed(title=f"Perfil — {user.name}", color=discord.Color.blurple())
+        
+        # Colorear según rango
+        rank_colors = {
+            "Novato": discord.Color.from_rgb(128, 128, 128),
+            "Enfermo Básico": discord.Color.from_rgb(0, 128, 255),
+            "Enfermo Avanzado": discord.Color.from_rgb(128, 0, 255),
+            "Enfermo Supremo": discord.Color.from_rgb(255, 215, 0)
+        }
+        color = rank_colors.get(u['rango'], discord.Color.blurple())
+        
+        embed = discord.Embed(
+            title=f"👤 {user.name}",
+            description=f"**Rango:** {u['rango']} | **Vidas:** ❤️ {u.get('vidas', 3)}",
+            color=color
+        )
         embed.set_thumbnail(url=user.display_avatar.url)
-        embed.add_field(name="Dinero", value=f"{u['dinero']} 💰", inline=True)
-        embed.add_field(name="Rango", value=u['rango'], inline=True)
-        embed.add_field(name="Experiencia", value=f"{u['experiencia']} XP", inline=True)
+        
+        embed.add_field(name="💰 Dinero", value=f"```{u['dinero']:,}```", inline=True)
+        embed.add_field(name="⭐ Experiencia", value=f"```{u['experiencia']:,}```", inline=True)
+        embed.add_field(name="💼 Trabajo", value=f"```{u['trabajo']}```", inline=True)
+        
         if inv:
-            embed.add_field(name="Inventario (ej)", value=", ".join(i["item"] for i in inv[:6]), inline=False)
+            inv_text = "\n".join(f"• {i['item']} ({i['rareza']})" for i in inv[:5])
+            if len(inv) > 5:
+                inv_text += f"\n... y {len(inv) - 5} más"
+            embed.add_field(name=f"📦 Inventario ({len(inv)}/3)", value=inv_text, inline=False)
+        else:
+            embed.add_field(name="📦 Inventario", value="Vacío", inline=False)
+        
+        embed.set_footer(text="Usa /inventario para ver todos los detalles")
         await send_fn(embed=embed)
 
 async def setup(bot):

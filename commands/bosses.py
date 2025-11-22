@@ -331,15 +331,19 @@ class BossesCog(commands.Cog):
             if await club_has_upgrade(user_id, "Sala de Meditación"):
                 xp_reward = int(xp_reward * 1.30)  # +30% XP
             await add_experiencia(user_id, xp_reward)
-            embed = discord.Embed(title="✅ ¡VICTORIA!", color=discord.Color.green())
-            embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
+            embed = discord.Embed(title="🏆 ¡VICTORIA!", color=discord.Color.gold())
+            embed.add_field(name="⚔️ Enemigo derrotado", value=f"```{boss['name']}```", inline=False)
             
             # Mostrar recompensa con bonus
             if pet_bonus > 1.0:
-                bonus_text = f" (+{int((pet_bonus-1)*100)}% por mascota)"
+                bonus_text = f"\n✨ (+{int((pet_bonus-1)*100)}% por mascota)"
             else:
                 bonus_text = ""
-            embed.add_field(name="Recompensa", value=f"💰 {dinero_final} dinero{bonus_text} | ⭐ {xp_reward} XP", inline=False)
+            embed.add_field(
+                name="🎁 Recompensas",
+                value=f"💰 ```{dinero_final:,}``` dinero{bonus_text}\n⭐ ```{xp_reward}``` XP",
+                inline=False
+            )
             
             # Recompensa: arma única del boss (con probabilidades según tipo)
             boss_weapon = BOSS_WEAPONS.get(boss_name)
@@ -376,10 +380,10 @@ class BossesCog(commands.Cog):
                 except:
                     pass
         else:
-            embed = discord.Embed(title="❌ DERROTA", color=discord.Color.greyple())
-            embed.add_field(name=f"{boss['name']} te derrotó", value=f"Tu HP: {player_hp}", inline=False)
+            embed = discord.Embed(title="💀 DERROTA", color=discord.Color.dark_red())
+            embed.add_field(name="⚔️ Te derrotó", value=f"```{boss['name']}```", inline=False)
             lost_money = random.randint(10, 50)
-            embed.add_field(name="Perdiste", value=f"💰 {lost_money} dinero", inline=False)
+            embed.add_field(name="💸 Pérdida", value=f"```-{lost_money} dinero```", inline=False)
         
         embed.add_field(name="Eventos", value="\n".join(fight_log[-5:]) or "...", inline=False)
         await interaction.followup.send(embed=embed)
