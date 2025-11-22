@@ -1,13 +1,68 @@
 # commands/shop.py
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ui
 from typing import Optional
 
 from db import (
     get_shop, get_shop_item, add_money, add_item_to_user,
     update_rank, get_user, add_shop_item, get_inventory, create_pet, get_pet, remove_item
 )
+
+class ShopPaginationView(ui.View):
+    """Vista interactiva para navegar entre páginas de la tienda"""
+    def __init__(self, items: list, user_id: int, timeout: int = 300):
+        super().__init__(timeout=timeout)
+        self.items = items
+        self.user_id = user_id
+        self.current_page = 0
+        self.chunk_size = 24
+        self.total_pages = (len(items) + self.chunk_size - 1) // self.chunk_size
+        
+    def get_embed(self) -> discord.Embed:
+        """Genera el embed para la página actual"""
+        start_idx = self.current_page * self.chunk_size
+        end_idx = start_idx + self.chunk_size
+        chunk = self.items[start_idx:end_idx]
+        
+        embed = discord.Embed(
+            title=f"🏪 Tienda — Los Ezquisos",
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
+        embed.description = f"Usa `/buy item_name` para comprar.\n📄 Página {self.current_page + 1}/{self.total_pages}"
+        
+        for it in chunk:
+            embed.add_field(
+                name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
+                value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
+                inline=False
+            )
+        return embed
+    
+    @ui.button(label="◀ Anterior", style=discord.ButtonStyle.blurple)
+    async def anterior_button(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ No puedes usar esto.", ephemeral=True)
+            return
+        
+        if self.current_page > 0:
+            self.current_page -= 1
+            await interaction.response.edit_message(embed=self.get_embed(), view=self)
+        else:
+            await interaction.response.send_message("Ya estás en la primera página.", ephemeral=True)
+    
+    @ui.button(label="Siguiente ▶", style=discord.ButtonStyle.blurple)
+    async def siguiente_button(self, interaction: discord.Interaction, button: ui.Button):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ No puedes usar esto.", ephemeral=True)
+            return
+        
+        if self.current_page < self.total_pages - 1:
+            self.current_page += 1
+            await interaction.response.edit_message(embed=self.get_embed(), view=self)
+        else:
+            await interaction.response.send_message("Ya estás en la última página.", ephemeral=True)
 
 
 # ==================== AUTOCOMPLETE ====================
@@ -60,27 +115,10 @@ class ShopCog(commands.Cog):
         if not items:
             return await ctx.send("La tienda está vacía por ahora.")
         
-        # Dividir en chunks de 24 items para evitar límite de 25 campos
-        chunk_size = 24
-        for chunk_idx in range(0, len(items), chunk_size):
-            chunk = items[chunk_idx:chunk_idx + chunk_size]
-            page_num = (chunk_idx // chunk_size) + 1
-            total_pages = (len(items) + chunk_size - 1) // chunk_size
-            
-            embed = discord.Embed(
-                title=f"🏪 Tienda — Los Ezquisos (Página {page_num}/{total_pages})",
-                color=discord.Color.green()
-            )
-            embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-            embed.description = "Usa `!buy Nombre exacto` para comprar. También disponibles como `/buy`."
-            
-            for it in chunk:
-                embed.add_field(
-                    name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
-                    value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
-                    inline=False
-                )
-            await ctx.send(embed=embed)
+        view = ShopPaginationView(items, ctx.author.id)
+        embed = view.get_embed()
+        embed.description = "Usa `!buy Nombre exacto` para comprar.\n" + embed.description
+        await ctx.send(embed=embed, view=view)
 
     # --------- Slash: ver tienda ----------
     @app_commands.command(name="shop", description="Ver la tienda")
@@ -90,27 +128,9 @@ class ShopCog(commands.Cog):
         if not items:
             return await interaction.followup.send("La tienda está vacía por ahora.", ephemeral=True)
         
-        # Dividir en chunks de 24 items para evitar límite de 25 campos
-        chunk_size = 24
-        for chunk_idx in range(0, len(items), chunk_size):
-            chunk = items[chunk_idx:chunk_idx + chunk_size]
-            page_num = (chunk_idx // chunk_size) + 1
-            total_pages = (len(items) + chunk_size - 1) // chunk_size
-            
-            embed = discord.Embed(
-                title=f"🏪 Tienda — Los Ezquisos (Página {page_num}/{total_pages})",
-                color=discord.Color.green()
-            )
-            embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-            embed.description = "Usa `/buy item_name` para comprar."
-            
-            for it in chunk:
-                embed.add_field(
-                    name=f"{it['name']} — {it['price']}💰 ({it['rarity']})",
-                    value=f"**Tipo:** {it['type']} — **Descripción:** {it['effect']}",
-                    inline=False
-                )
-            await interaction.followup.send(embed=embed)
+        view = ShopPaginationView(items, interaction.user.id)
+        embed = view.get_embed()
+        await interaction.followup.send(embed=embed, view=view)
 
     # --------- Prefix: comprar ----------
     @commands.command(name="buy")
