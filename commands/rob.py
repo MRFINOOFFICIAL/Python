@@ -140,7 +140,8 @@ class ChooseWeaponView(View):
         # Disable buttons on timeout
         for child in self.children:
             try:
-                child.disabled = True
+                if hasattr(child, 'disabled'):
+                    setattr(child, 'disabled', True)
             except Exception:
                 pass
         # try to edit the original message to indicate timeout

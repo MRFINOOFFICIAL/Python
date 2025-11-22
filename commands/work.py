@@ -210,7 +210,7 @@ class ChooseDifficultyView(discord.ui.View):
         try:
             for child in self.children:
                 if hasattr(child, 'disabled'):
-                    child.disabled = True
+                    setattr(child, 'disabled', True)
         except Exception:
             pass
         # try to edit original message if available

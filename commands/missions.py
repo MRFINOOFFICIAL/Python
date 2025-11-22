@@ -25,14 +25,19 @@ class MissionsCog(commands.Cog):
             await init_daily_mission(interaction.user.id, tipo, obj, reward)
             mission = await get_daily_mission(interaction.user.id)
         
+        if not mission:
+            await interaction.followup.send("❌ Error creando misión.")
+            return
+        
+        mission_type = mission.get("tipo", "trabajar")
         embed = discord.Embed(
             title="📋 Misión Diaria",
-            description=self.missions_types[mission["tipo"]][0],
+            description=self.missions_types.get(mission_type, ("Error", 0, 0))[0],
             color=discord.Color.blue()
         )
-        embed.add_field(name="Progreso", value=f"{mission['progreso']}/{mission['objetivo']}", inline=False)
-        embed.add_field(name="Recompensa", value=f"{mission['recompensa']}💰", inline=False)
-        embed.add_field(name="Estado", value="✅ Completada" if mission['completado'] else "⏳ En progreso", inline=False)
+        embed.add_field(name="Progreso", value=f"{mission.get('progreso', 0)}/{mission.get('objetivo', 0)}", inline=False)
+        embed.add_field(name="Recompensa", value=f"{mission.get('recompensa', 0)}💰", inline=False)
+        embed.add_field(name="Estado", value="✅ Completada" if mission.get('completado') else "⏳ En progreso", inline=False)
         
         await interaction.followup.send(embed=embed)
 

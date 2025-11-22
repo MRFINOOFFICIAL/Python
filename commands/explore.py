@@ -160,7 +160,7 @@ class ReplaceView(View):
         try:
             for child in self.children:
                 if hasattr(child, 'disabled'):
-                    child.disabled = True
+                    setattr(child, 'disabled', True)
         except Exception:
             pass
         if self.message:
@@ -190,6 +190,15 @@ class ChestOpenView(View):
                 await interaction.response.send_message("❌ Solo quien encontró el cofre puede abrirlo.", ephemeral=True)
                 return
             self.opened = True
+    
+    async def on_timeout(self) -> None:
+        """Desactiva botones cuando expira el timeout"""
+        try:
+            for child in self.children:
+                if hasattr(child, 'disabled'):
+                    setattr(child, 'disabled', True)
+        except Exception:
+            pass
             await interaction.response.defer()
             self.stop()
 
