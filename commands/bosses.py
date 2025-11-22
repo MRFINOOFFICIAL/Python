@@ -10,7 +10,7 @@ from db import (
     set_event_channel, remove_event_channel, get_event_channels, get_all_active_bosses,
     set_equipped_item, get_equipped_item, set_fight_cooldown, get_fight_cooldown,
     add_money, get_user, add_item_to_user, get_inventory,
-    remove_item, get_shop_item, add_experiencia, club_has_upgrade
+    remove_item, get_shop_item, add_experiencia, club_has_upgrade, get_pet_bonus_multiplier, add_pet_xp
 )
 from bosses import (
     get_random_boss, resolve_player_attack, resolve_boss_attack, get_boss_reward,
@@ -316,7 +316,16 @@ class BossesCog(commands.Cog):
         if boss_hp <= 0:
             from bosses import BOSS_WEAPONS
             reward = await get_boss_reward(boss)
-            await add_money(user_id, reward["dinero"])
+            
+            # Aplicar bonificador de mascota
+            dinero_base = reward["dinero"]
+            pet_bonus = await get_pet_bonus_multiplier(user_id)
+            dinero_final = int(dinero_base * pet_bonus)
+            await add_money(user_id, dinero_final)
+            
+            # Dar XP a mascota
+            await add_pet_xp(user_id, 25)
+            
             # Agregar XP por victoria
             xp_reward = 150
             if await club_has_upgrade(user_id, "Sala de Meditación"):
@@ -324,7 +333,13 @@ class BossesCog(commands.Cog):
             await add_experiencia(user_id, xp_reward)
             embed = discord.Embed(title="✅ ¡VICTORIA!", color=discord.Color.green())
             embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
-            embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero | ⭐ {xp_reward} XP", inline=False)
+            
+            # Mostrar recompensa con bonus
+            if pet_bonus > 1.0:
+                bonus_text = f" (+{int((pet_bonus-1)*100)}% por mascota)"
+            else:
+                bonus_text = ""
+            embed.add_field(name="Recompensa", value=f"💰 {dinero_final} dinero{bonus_text} | ⭐ {xp_reward} XP", inline=False)
             
             # Recompensa: arma única del boss (con probabilidades según tipo)
             boss_weapon = BOSS_WEAPONS.get(boss_name)
