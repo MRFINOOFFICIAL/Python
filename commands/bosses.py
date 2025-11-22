@@ -279,6 +279,12 @@ class BossesCog(commands.Cog):
                         else:
                             player_hp = min(100, player_hp + 25)
                             fight_log.append(f"📦 ¡Usaste item! +25 HP!")
+                        
+                        # Solo consumibles se gastan (salud, buffs, shields, etc)
+                        # Armas y herramientas son reutilizables
+                        is_consumible = item_type in ["consumible", "consumible_damage", "consumible_buff", "consumible_shield", "salud"]
+                        if is_consumible:
+                            await remove_item(item_id)
                 except Exception as e:
                     print(f"Error usando item: {e}")
                     fight_log.append(f"❌ Error al usar item")
