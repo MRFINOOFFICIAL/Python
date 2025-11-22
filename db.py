@@ -15,7 +15,7 @@ async def init_db():
             experiencia INTEGER DEFAULT 0,
             rango TEXT DEFAULT 'Novato',
             trabajo TEXT DEFAULT 'Desempleado',
-            vidas INTEGER DEFAULT 1
+            vidas INTEGER DEFAULT 3
         )
         """)
         await db.execute("""
@@ -40,7 +40,7 @@ async def init_db():
         except aiosqlite.OperationalError:
             pass
         try:
-            await db.execute("ALTER TABLE users ADD COLUMN vidas INTEGER DEFAULT 1")
+            await db.execute("ALTER TABLE users ADD COLUMN vidas INTEGER DEFAULT 3")
         except aiosqlite.OperationalError:
             pass
 
@@ -201,7 +201,7 @@ async def get_user(user_id):
         cur = await db.execute("SELECT * FROM users WHERE user_id = ?", (str(user_id),))
         row = await cur.fetchone()
         if row:
-            return {"user_id": row[0], "dinero": row[1], "experiencia": row[2], "rango": row[3], "trabajo": row[4], "vidas": row[5] if len(row) > 5 else 1}
+            return {"user_id": row[0], "dinero": row[1], "experiencia": row[2], "rango": row[3], "trabajo": row[4], "vidas": row[5] if len(row) > 5 else 3}
         return None
 
 async def add_money(user_id, amount):
@@ -210,7 +210,7 @@ async def add_money(user_id, amount):
         if user:
             await db.execute("UPDATE users SET dinero = dinero + ? WHERE user_id = ?", (amount, str(user_id)))
         else:
-            await db.execute("INSERT INTO users(user_id, dinero, vidas) VALUES (?, ?, ?)", (str(user_id), amount, 1))
+            await db.execute("INSERT INTO users(user_id, dinero, vidas) VALUES (?, ?, ?)", (str(user_id), amount, 3))
         await db.commit()
 
 async def get_money(user_id):
@@ -255,7 +255,7 @@ async def add_lives(user_id, amount: int):
         if user:
             await db.execute("UPDATE users SET vidas = vidas + ? WHERE user_id = ?", (amount, str(user_id)))
         else:
-            await db.execute("INSERT INTO users(user_id, vidas) VALUES (?, ?)", (str(user_id), max(1, amount)))
+            await db.execute("INSERT INTO users(user_id, vidas) VALUES (?, ?)", (str(user_id), max(3, amount)))
         await db.commit()
 
 async def set_lives(user_id, lives: int):
@@ -271,7 +271,7 @@ async def set_lives(user_id, lives: int):
 async def get_lives(user_id):
     """Obtener vidas del usuario"""
     user = await get_user(user_id)
-    return user["vidas"] if user and "vidas" in user else 1
+    return user["vidas"] if user and "vidas" in user else 3
 
 async def reset_user_progress(user_id):
     """Resetear el progreso de un usuario: dinero, experiencia, trabajo, inventario"""
@@ -280,8 +280,8 @@ async def reset_user_progress(user_id):
         await db.execute("UPDATE users SET dinero = 0, experiencia = 0, trabajo = 'Desempleado' WHERE user_id = ?", (str(user_id),))
         # Eliminar todo el inventario
         await db.execute("DELETE FROM inventory WHERE user_id = ?", (str(user_id),))
-        # Resetear vidas a 1
-        await db.execute("UPDATE users SET vidas = 1 WHERE user_id = ?", (str(user_id),))
+        # Resetear vidas a 3
+        await db.execute("UPDATE users SET vidas = 3 WHERE user_id = ?", (str(user_id),))
         await db.commit()
 
 # ---------- INVENTARIO ----------

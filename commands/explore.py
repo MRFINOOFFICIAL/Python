@@ -372,7 +372,7 @@ class ExploreCog(commands.Cog):
                 await send_fn(content=f"💀 ¡Encontraste un peligro! Perdiste una vida. Te quedan: **{lives - 1}** vidas.")
             else:
                 await reset_user_progress(user.id)
-                await send_fn(content=f"💀 ¡HAS MUERTO EN LA EXPLORACIÓN! 💀\n\n😢 Perdiste TODO tu progreso:\n- Dinero: **0💰**\n- Experiencia: **0xp**\n- Inventario: **vacío**\n- Vidas: **1** (reseteadas)\n\n📖 Compra **Bebida de la Vida** (8000💰) en la tienda para obtener más vidas y no perderlo todo.")
+                await send_fn(content=f"💀 ¡HAS MUERTO EN LA EXPLORACIÓN! 💀\n\n😢 Perdiste TODO tu progreso:\n- Dinero: **0💰**\n- Experiencia: **0xp**\n- Inventario: **vacío**\n- Vidas: **3** (reseteadas)\n\n📖 Compra **Bebida de la Vida** (8000💰) en la tienda para obtener más vidas y no perderlo todo.")
             return
         
         item = random.choices(LOOT_TABLE, weights=WEIGHTS, k=1)[0]
