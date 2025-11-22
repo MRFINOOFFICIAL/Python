@@ -44,18 +44,8 @@ DEFAULT_ITEMS = [
     ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
     ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
     ("Bebida de la Vida", 8000, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
-    # Huevos de mascotas
-    ("Huevo de Chihuahua", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
-    ("Huevo de Gato", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
-    ("Huevo de Perro", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
-    ("Huevo de Loro", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
-    ("Huevo de Conejo", 2500, "huevo_mascota", "Eclosiona en una mascota rara. Gana XP rápidamente.", "raro"),
-    ("Huevo de Hamster", 2500, "huevo_mascota", "Eclosiona en una mascota rara. Gana XP rápidamente.", "raro"),
-    ("Huevo de Dragón", 10000, "huevo_mascota", "Eclosiona en una mascota épica. Poderosa bonificación en dinero.", "epico"),
-    ("Huevo de Fenix", 10000, "huevo_mascota", "Eclosiona en una mascota épica. Poderosa bonificación en XP.", "epico"),
-    ("Huevo de Saviteto", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
-    ("Huevo de Finopeluche", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
-    ("Huevo de Mechones", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
+    # Huevo de mascota
+    ("Huevo Común", 500, "huevo_mascota", "Eclosiona en una mascota aleatoria. La rareza depende de la suerte.", "comun"),
 ]
 
 # ----------------- Shop Cog -----------------

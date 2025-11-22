@@ -170,39 +170,61 @@ class ItemsCog(commands.Cog):
         item_name = item['item'].lower()
         
         # Efectos especiales de HUEVOS DE MASCOTAS
-        if "huevo de" in item_name:
+        if "huevo" in item_name:
             import asyncio
+            import random
             existing_pet = await get_pet(user_id)
             if existing_pet:
                 await send_fn("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
                 return
             
-            # Extraer nombre y rareza
-            pet_name = item_name.replace("huevo de ", "").strip()
-            rareza = item['rareza']
+            # Mascotas posibles con probabilidades
+            MASCOTAS_POOL = [
+                # Comunes (40% probabilidad cada una = 10% total)
+                ("Chihuahua", "común", 3),
+                ("Gato", "común", 3),
+                ("Perro", "común", 3),
+                ("Loro", "común", 3),
+                # Raras (20% probabilidad cada una = 10% total)
+                ("Conejo", "raro", 6),
+                ("Hamster", "raro", 6),
+                # Épicas (15% probabilidad cada una = 7.5% total)
+                ("Dragón", "épico", 10),
+                ("Fenix", "épico", 10),
+                # Legendarias (5% probabilidad cada una = 1.67% total)
+                ("Saviteto", "legendario", 15),
+                ("Finopeluche", "legendario", 15),
+                ("Mechones", "legendario", 15),
+            ]
             
-            # Tiempos de eclosión según rareza
-            times = {
-                "comun": (3, "⏳ El huevo brilla suavemente..."),
-                "raro": (6, "✨ El huevo empieza a brillar más intensamente..."),
-                "epico": (10, "🌟 El huevo está RADIANTE..."),
-                "legendario": (15, "⚡ El huevo EXPLOTA en energía pura...")
+            # Pesos: 4 comunes (10% c/u), 2 raras (15% c/u), 2 épicas (15% c/u), 3 legendarias (5% c/u)
+            pesos = [10, 10, 10, 10, 15, 15, 15, 15, 5, 5, 5]
+            pet_name, rareza, duration = random.choices(MASCOTAS_POOL, weights=pesos, k=1)[0]
+            
+            # Mensajes de eclosión según rareza
+            messages = {
+                "común": "⏳ El huevo brilla suavemente...",
+                "raro": "✨ El huevo empieza a brillar más intensamente...",
+                "épico": "🌟 El huevo está RADIANTE...",
+                "legendario": "⚡ El huevo EXPLOTA en energía pura..."
             }
             
-            duration, msg = times.get(rareza, (5, "⏳ El huevo se está abriendo..."))
+            msg = messages.get(rareza, "⏳ El huevo se está abriendo...")
             
             # Animación de eclosión
             await send_fn(f"🥚 {msg}")
             await asyncio.sleep(duration)
             
             # Crear mascota
-            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
-            await create_pet(user_id, pet_name, rareza_map.get(rareza, "común"))
+            await create_pet(user_id, pet_name, rareza)
             
             # Remover el huevo
             await remove_item(item['id'])
             
-            await send_fn(f"🐾 ¡¡¡HA ECLOSIONADO !!! 🐾\n✨ ¡Tu **{pet_name.capitalize()}** ha nacido! ✨\n\nUsa `/mi-mascota` para verlo en acción.")
+            # Mensaje especial según rareza
+            emoji_rarezas = {"común": "🐾", "raro": "⭐", "épico": "✨", "legendario": "⚡"}
+            emoji = emoji_rarezas.get(rareza, "🐾")
+            await send_fn(f"{emoji} ¡¡¡HA ECLOSIONADO !!! {emoji}\n✨ ¡Tu **{pet_name}** ({rareza.upper()}) ha nacido! ✨\n\nUsa `/mi-mascota` para verlo en acción.")
             return
         
         # Efectos especiales de items
