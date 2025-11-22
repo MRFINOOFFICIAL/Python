@@ -57,8 +57,28 @@ class MiningCog(commands.Cog):
         
         inv = await get_inventory(user.id)
         
+        # Verificar si tiene picos mejorados
+        has_epic_pick = any(item["item"].lower() == "pico épico" for item in inv)
+        has_rare_pick = any(item["item"].lower() == "pico mejorado" for item in inv)
+        
+        # Ajustar pesos según herramientas
+        weights = list(MINING_WEIGHTS)  # Copiar pesos originales
+        
+        if has_epic_pick:
+            # +50% probabilidad para épico/legendario
+            weights[8] = int(weights[8] * 1.5)  # Gema de rubí
+            weights[9] = int(weights[9] * 1.5)  # Zafiro puro
+            weights[10] = int(weights[10] * 1.5)  # Ópalo místico
+            weights[11] = int(weights[11] * 1.5)  # Meteorito antiguo
+        elif has_rare_pick:
+            # +30% probabilidad para raro/épico
+            weights[5] = int(weights[5] * 1.3)  # Esmeralda cruda
+            weights[6] = int(weights[6] * 1.3)  # Diamante sin tallar
+            weights[7] = int(weights[7] * 1.3)  # Cristal de ámbar
+            weights[8] = int(weights[8] * 1.3)  # Gema de rubí
+        
         # Seleccionar mineral aleatorio
-        item = random.choices(MINING_LOOT, weights=MINING_WEIGHTS, k=1)[0]
+        item = random.choices(MINING_LOOT, weights=weights, k=1)[0]
         name, rarity, usos = item
         
         # Si hay espacio en el inventario
@@ -69,9 +89,16 @@ class MiningCog(commands.Cog):
             
             rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
             
+            # Mostrar bonus de herramienta si la tiene
+            tool_bonus = ""
+            if has_epic_pick:
+                tool_bonus = "\n✨ **Pico Épico** activado (+50% loot épico/legendario)"
+            elif has_rare_pick:
+                tool_bonus = "\n✨ **Pico Mejorado** activado (+30% loot raro/épico)"
+            
             embed = discord.Embed(
                 title=f"{rarity_emoji.get(rarity, '')} ⛏️ Minería",
-                description=f"{user.mention}, extrajiste **{name}** ({rarity})!",
+                description=f"{user.mention}, extrajiste **{name}** ({rarity})!{tool_bonus}",
                 color=discord.Color.dark_gray()
             )
             embed.set_footer(text="Sigue minando para encontrar gemas raras.")

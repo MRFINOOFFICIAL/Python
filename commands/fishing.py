@@ -57,8 +57,28 @@ class FishingCog(commands.Cog):
         
         inv = await get_inventory(user.id)
         
+        # Verificar si tiene cañas mejoradas
+        has_epic_rod = any(item["item"].lower() == "caña épica" for item in inv)
+        has_rare_rod = any(item["item"].lower() == "caña mejorada" for item in inv)
+        
+        # Ajustar pesos según herramientas
+        weights = list(FISHING_WEIGHTS)  # Copiar pesos originales
+        
+        if has_epic_rod:
+            # +50% probabilidad para épico/legendario
+            weights[8] = int(weights[8] * 1.5)  # Pez espada
+            weights[9] = int(weights[9] * 1.5)  # Perla de agua dulce
+            weights[10] = int(weights[10] * 1.5)  # Leviatán pequeño
+            weights[11] = int(weights[11] * 1.5)  # Sirena petrificada
+        elif has_rare_rod:
+            # +30% probabilidad para raro/épico
+            weights[5] = int(weights[5] * 1.3)  # Pez dorado
+            weights[6] = int(weights[6] * 1.3)  # Coral rojo
+            weights[7] = int(weights[7] * 1.3)  # Caracol antiguo
+            weights[8] = int(weights[8] * 1.3)  # Pez espada
+        
         # Seleccionar criatura marina aleatoria
-        item = random.choices(FISHING_LOOT, weights=FISHING_WEIGHTS, k=1)[0]
+        item = random.choices(FISHING_LOOT, weights=weights, k=1)[0]
         name, rarity, usos = item
         
         # Si hay espacio en el inventario
@@ -69,9 +89,16 @@ class FishingCog(commands.Cog):
             
             rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
             
+            # Mostrar bonus de herramienta si la tiene
+            tool_bonus = ""
+            if has_epic_rod:
+                tool_bonus = "\n✨ **Caña Épica** activada (+50% loot épico/legendario)"
+            elif has_rare_rod:
+                tool_bonus = "\n✨ **Caña Mejorada** activada (+30% loot raro/épico)"
+            
             embed = discord.Embed(
                 title=f"{rarity_emoji.get(rarity, '')} 🎣 Pesca",
-                description=f"{user.mention}, atrapaste **{name}** ({rarity})!",
+                description=f"{user.mention}, atrapaste **{name}** ({rarity})!{tool_bonus}",
                 color=discord.Color.blue()
             )
             embed.set_footer(text="Sigue pescando para encontrar criaturas raras.")

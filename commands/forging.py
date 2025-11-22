@@ -58,6 +58,18 @@ WEAPONS_RECIPES = {
             "materials": [("Cristal de ámbar", 3), ("Caracol antiguo", 1)],
             "description": "Espada que brilla con energía cósmica"
         },
+        {
+            "name": "Pico Mejorado",
+            "materials": [("Esmeralda cruda", 1), ("Mineral de hierro", 3)],
+            "description": "⛏️ Pico mejorado que aumenta 30% de probabilidad de loot raro/épico en minería",
+            "tool_type": "mining"
+        },
+        {
+            "name": "Caña Mejorada",
+            "materials": [("Pez dorado", 1), ("Coral rojo", 2)],
+            "description": "🎣 Caña mejorada que aumenta 30% de probabilidad de loot raro/épico en pesca",
+            "tool_type": "fishing"
+        },
     ],
     "epico": [
         {
@@ -69,6 +81,18 @@ WEAPONS_RECIPES = {
             "name": "Katana de Musashi Miyamoto",
             "materials": [("Zafiro puro", 3), ("Pez espada", 1)],
             "description": "Katana maestra del legendario Musashi"
+        },
+        {
+            "name": "Pico Épico",
+            "materials": [("Gema de rubí", 2), ("Diamante sin tallar", 1)],
+            "description": "⛏️ Pico épico que aumenta 50% de probabilidad de loot épico/legendario en minería",
+            "tool_type": "mining"
+        },
+        {
+            "name": "Caña Épica",
+            "materials": [("Pez espada", 2), ("Perla de agua dulce", 1)],
+            "description": "🎣 Caña épica que aumenta 50% de probabilidad de loot épico/legendario en pesca",
+            "tool_type": "fishing"
         },
     ],
     "legendario": [
@@ -211,8 +235,18 @@ class ForgingCog(commands.Cog):
                     await remove_item(item["id"])
                     consumed += 1
         
-        # Agregar arma forjada
-        await add_item_to_user(user_id, weapon_name, rareza=rareza, usos=1, durabilidad=100, categoria="arma_forjada", poder=45)
+        # Determinar categoría según el tipo de herramienta
+        categoria = "arma_forjada"
+        poder = 45
+        if weapon_data.get("tool_type") == "mining":
+            categoria = "pico_mejorado"
+            poder = 30
+        elif weapon_data.get("tool_type") == "fishing":
+            categoria = "caña_mejorada"
+            poder = 30
+        
+        # Agregar arma forjada o herramienta
+        await add_item_to_user(user_id, weapon_name, rareza=rareza, usos=1, durabilidad=100, categoria=categoria, poder=poder)
         
         rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠"}
         
