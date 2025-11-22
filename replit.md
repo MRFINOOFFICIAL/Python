@@ -169,7 +169,7 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
 ## Recent Changes (Session Nov 22, 2025)
 
 ### Session Summary
-**Completed Advanced Features Implementation Phase:**
+**Completed Advanced Features Implementation + Game Balance Pass:**
 
 1. **Fixed Import Error**: Added missing `import asyncio` in commands/work.py that was blocking /work command
 2. **Updated /ayuda Help System**: 
@@ -189,6 +189,14 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
    - **Trading System**: `/ofrecer-trade @user item_tuyo item_suyo` - Item exchanges
    - **Market**: `/vender-item <id> <precio>` and `/mercado` - Player marketplace
    - **Duels**: `/desafiar @user cantidad` - 1v1 PvP for money
+
+5. **Game Balance Adjustments** ⚖️:
+   - **Job Salaries**: +20-25% increase (Camillero 120→150, Director 12000→15000)
+   - **Shop Prices**: -20-30% reduction (más accesible, Huevo Legendario 50000→35000)
+   - **Boss Rewards**: +10-30% increase (Mini-Boss dinero rango, Especial bosses 20-30% boost)
+   - **Rob Rewards**: +150% increase (20-300 → 50-600) making PvP more viable
+   - **Pet Egg Prices**: -20-30% (Huevo Raro 2500→1800, Épico 10000→7000)
+   - **Special Items**: More affordable (Bebida Vida 8000→5500, Poción Furia 3500→2500)
 
 ### Previous Session (Nov 21, 2025)
 1. **Fixed Explore Errors**: Corrected `remove_item()` function calls - changed from 2 arguments to 1 argument (item_id only)

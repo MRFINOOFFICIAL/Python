@@ -84,26 +84,26 @@ async def shop_items_autocomplete(interaction: discord.Interaction, current: str
 # ----------------- Default shop items to insert -----------------
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
-    ("Paquete de peluches fino", 10000, "consumible", "Recupera 50 HP en combate o vende por 5000💰", "epico"),
-    ("x2 de dinero de mecha", 1200, "consumible_buff", "Duplica dinero ganado en el trabajo durante 1 hora", "epico"),
-    ("Danza de Saviteto", 5000, "consumible_buff", "Aumenta tu daño en 50% en el próximo ataque", "raro"),
-    ("Poción de Furia", 3500, "consumible_damage", "Inflige 60 de daño directo al jefe", "epico"),
-    ("Escudo Mágico", 2800, "consumible_shield", "Te protege del próximo ataque enemigo", "raro"),
+    ("Paquete de peluches fino", 8000, "consumible", "Recupera 50 HP en combate o vende por 4000💰", "epico"),
+    ("x2 de dinero de mecha", 900, "consumible_buff", "Duplica dinero ganado en el trabajo durante 1 hora", "epico"),
+    ("Danza de Saviteto", 3500, "consumible_buff", "Aumenta tu daño en 50% en el próximo ataque", "raro"),
+    ("Poción de Furia", 2500, "consumible_damage", "Inflige 60 de daño directo al jefe", "epico"),
+    ("Escudo Mágico", 1800, "consumible_shield", "Te protege del próximo ataque enemigo", "raro"),
     # 7 adicionales solicitadas
-    ("Bastón de Staff", 9500, "arma", "Aumenta el poder en robos y minijuegos relacionados.", "raro"),
-    ("Teléfono", 300, "herramienta", "Útil para minijuegos y algunas interacciones.", "comun"),
-    ("Chihuahua", 900, "mascota", "Mascota que puede ofrecer pequeñas bonificaciones pasivas.", "raro"),
-    ("Mecha Enojado", 1800, "arma", "Arma poderosa con alto poder en robos.", "epico"),
-    ("Linterna", 150, "herramienta", "Permite encontrar objetos más raros al explorar.", "comun"),
-    ("Llave Maestra", 2200, "herramienta", "Aumenta posibilidades de saqueo exitoso y desbloquea cofres.", "epico"),
-    ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
-    ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
-    ("Bebida de la Vida", 8000, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
-    # Huevos de mascotas por rareza
-    ("Huevo Común", 500, "huevo_mascota", "Alta probabilidad de mascota común (Chihuahua, Gato, Perro, Loro)", "comun"),
-    ("Huevo Raro", 2500, "huevo_mascota", "Probabilidad aumentada de mascota rara (Conejo, Hamster)", "raro"),
-    ("Huevo Épico", 10000, "huevo_mascota", "Probabilidad aumentada de mascota épica (Dragón, Fenix)", "epico"),
-    ("Huevo Legendario", 50000, "huevo_mascota", "Máxima probabilidad de mascota legendaria (Saviteto, Finopeluche, Mechones)", "legendario"),
+    ("Bastón de Staff", 6500, "arma", "Aumenta el poder en robos y minijuegos relacionados.", "raro"),
+    ("Teléfono", 200, "herramienta", "Útil para minijuegos y algunas interacciones.", "comun"),
+    ("Chihuahua", 600, "mascota", "Mascota que puede ofrecer pequeñas bonificaciones pasivas.", "raro"),
+    ("Mecha Enojado", 1200, "arma", "Arma poderosa con alto poder en robos.", "epico"),
+    ("Linterna", 100, "herramienta", "Permite encontrar objetos más raros al explorar.", "comun"),
+    ("Llave Maestra", 1500, "herramienta", "Aumenta posibilidades de saqueo exitoso y desbloquea cofres.", "epico"),
+    ("Kit de reparación", 200, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
+    ("Nektar Antiguo", 3500, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
+    ("Bebida de la Vida", 5500, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
+    # Huevos de mascotas por rareza - más accesibles
+    ("Huevo Común", 400, "huevo_mascota", "Alta probabilidad de mascota común (Chihuahua, Gato, Perro, Loro)", "comun"),
+    ("Huevo Raro", 1800, "huevo_mascota", "Probabilidad aumentada de mascota rara (Conejo, Hamster)", "raro"),
+    ("Huevo Épico", 7000, "huevo_mascota", "Probabilidad aumentada de mascota épica (Dragón, Fenix)", "epico"),
+    ("Huevo Legendario", 35000, "huevo_mascota", "Máxima probabilidad de mascota legendaria (Saviteto, Finopeluche, Mechones)", "legendario"),
 ]
 
 # ----------------- Shop Cog -----------------

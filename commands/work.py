@@ -11,14 +11,14 @@ import time
 
 # ---------------- Tabla de salarios y minijuegos ----------------
 JOBS = {
-    "Camillero": {"pay": 120, "games": ["dados", "pregunta"]},
-    "Asistente del Psiquiatra": {"pay": 200, "games": ["dados", "pregunta"]},
-    "Analista de Crisis": {"pay": 500, "games": ["pregunta", "dados"]},
-    "Guardia Sedante": {"pay": 750, "games": ["dados", "pregunta"]},
-    "Supervisor Psiquiátrico": {"pay": 1500, "games": ["dados", "pregunta"]},
-    "Jefe de Terapia de Choque": {"pay": 3000, "games": ["dados", "pregunta"]},
-    "Jefe del Distrito del Psicólogo": {"pay": 7000, "games": ["dados", "pregunta"]},
-    "Director del Sanatorio": {"pay": 12000, "games": ["dados", "pregunta"]}
+    "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
+    "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
+    "Analista de Crisis": {"pay": 600, "games": ["pregunta", "dados"]},
+    "Guardia Sedante": {"pay": 900, "games": ["dados", "pregunta"]},
+    "Supervisor Psiquiátrico": {"pay": 1800, "games": ["dados", "pregunta"]},
+    "Jefe de Terapia de Choque": {"pay": 3500, "games": ["dados", "pregunta"]},
+    "Jefe del Distrito del Psicólogo": {"pay": 8000, "games": ["dados", "pregunta"]},
+    "Director del Sanatorio": {"pay": 15000, "games": ["dados", "pregunta"]}
 }
 
 # ---------------- Preguntas ----------------

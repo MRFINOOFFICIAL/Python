@@ -180,7 +180,7 @@ class RobCog(commands.Cog):
         success = random.randint(1, 100) <= base_chance
 
         if success:
-            steal_amount = random.randint(20, min(300, target["dinero"] // 2))
+            steal_amount = random.randint(50, min(600, target["dinero"] // 2))
             await add_money(user_id, steal_amount)
             await add_money(target_member.id, -steal_amount)
             # Actualizar progreso de misión "robar"
