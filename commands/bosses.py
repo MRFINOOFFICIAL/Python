@@ -279,8 +279,6 @@ class BossesCog(commands.Cog):
                         else:
                             player_hp = min(100, player_hp + 25)
                             fight_log.append(f"📦 ¡Usaste item! +25 HP!")
-                        
-                        await remove_item(item_id)
                 except Exception as e:
                     print(f"Error usando item: {e}")
                     fight_log.append(f"❌ Error al usar item")
