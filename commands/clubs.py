@@ -193,9 +193,9 @@ class ClubsCog(commands.Cog):
         
         await interaction.followup.send(f"✅ Saliste de **{club['nombre']}**")
 
-    @app_commands.command(name="depositar-club", description="Depositar dinero a tu club (solo líder y oficiales)")
+    @app_commands.command(name="depositar-club", description="Depositar dinero a tu club")
     async def deposit_club(self, interaction: discord.Interaction, cantidad: int):
-        """Depositar dinero al club - Solo líder y oficiales"""
+        """Depositar dinero al club - Todos los miembros pueden depositar"""
         await interaction.response.defer()
         
         if cantidad <= 0:
@@ -205,21 +205,6 @@ class ClubsCog(commands.Cog):
         club = await self.get_user_club(interaction.user.id)
         if not club:
             await interaction.followup.send("❌ No estás en un club.")
-            return
-        
-        # Verificar si es líder o oficial
-        is_leader = club["lider"] == str(interaction.user.id)
-        
-        async with aiosqlite.connect(DB) as db:
-            cur = await db.execute(
-                "SELECT rango FROM club_members WHERE club_id = ? AND user_id = ?",
-                (club["id"], str(interaction.user.id))
-            )
-            row = await cur.fetchone()
-            is_official = row and row[0] in ["oficial", "oficial+"]
-        
-        if not is_leader and not is_official:
-            await interaction.followup.send("❌ Solo el líder u oficiales pueden depositar dinero al club.\n💡 Pídele al líder que te haga oficial: `/promover-miembro`")
             return
         
         from db import get_money, add_money
@@ -233,8 +218,7 @@ class ClubsCog(commands.Cog):
             await db.execute("UPDATE clubs SET dinero = dinero + ? WHERE id = ?", (cantidad, club["id"]))
             await db.commit()
         
-        rango_text = "Líder" if is_leader else "Oficial"
-        await interaction.followup.send(f"✅ [{rango_text}] Depositaste {cantidad}💰 a **{club['nombre']}**")
+        await interaction.followup.send(f"✅ Depositaste {cantidad}💰 a **{club['nombre']}**")
 
     @app_commands.command(name="retirar-club", description="Retirar dinero del club (solo líder)")
     async def withdraw_club(self, interaction: discord.Interaction, cantidad: int):
