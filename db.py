@@ -222,6 +222,20 @@ async def init_db():
             last_duel TIMESTAMP
         )
         """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS mining_cooldowns (
+            user_id TEXT PRIMARY KEY,
+            last_mine TIMESTAMP
+        )
+        """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS fishing_cooldowns (
+            user_id TEXT PRIMARY KEY,
+            last_fish TIMESTAMP
+        )
+        """)
 
         await db.commit()
 
@@ -476,6 +490,50 @@ async def get_duel_cooldown(user_id):
     """Get the last duel time for a user"""
     async with aiosqlite.connect(DB) as db:
         cur = await db.execute("SELECT last_duel FROM duel_cooldowns WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
+# ---------- MINING COOLDOWN (30 seconds) ----------
+
+async def set_mining_cooldown(user_id):
+    """Set mining cooldown for a user (30 seconds)"""
+    from datetime import timedelta
+    async with aiosqlite.connect(DB) as db:
+        cooldown_expiry = datetime.now() + timedelta(seconds=30)
+        await db.execute(
+            "INSERT OR REPLACE INTO mining_cooldowns(user_id, last_mine) VALUES (?, ?)",
+            (str(user_id), cooldown_expiry.isoformat())
+        )
+        await db.commit()
+
+async def get_mining_cooldown(user_id):
+    """Get the last mining time for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_mine FROM mining_cooldowns WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
+# ---------- FISHING COOLDOWN (40 seconds) ----------
+
+async def set_fishing_cooldown(user_id):
+    """Set fishing cooldown for a user (40 seconds)"""
+    from datetime import timedelta
+    async with aiosqlite.connect(DB) as db:
+        cooldown_expiry = datetime.now() + timedelta(seconds=40)
+        await db.execute(
+            "INSERT OR REPLACE INTO fishing_cooldowns(user_id, last_fish) VALUES (?, ?)",
+            (str(user_id), cooldown_expiry.isoformat())
+        )
+        await db.commit()
+
+async def get_fishing_cooldown(user_id):
+    """Get the last fishing time for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_fish FROM fishing_cooldowns WHERE user_id = ?", (str(user_id),))
         row = await cur.fetchone()
         if row and row[0]:
             return datetime.fromisoformat(row[0])

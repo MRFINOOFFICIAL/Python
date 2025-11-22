@@ -213,6 +213,15 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
    - **Duel** (`/desafiar`): 1 minuto
    - Todas las tablas de cooldown creadas en base de datos (rob_cooldowns, explore_cooldowns, duel_cooldowns)
 
+8. **New Gathering & Crafting Systems** ⛏️🎣🔨:
+   - **Mining** (`/minar`): 30 segundos cooldown - Extract minerals and crystals (Comunes hasta Maestro)
+   - **Fishing** (`/pescar`): 40 segundos cooldown - Catch aquatic creatures (Comunes hasta Maestro)
+   - **Forging** (`/forjar`): Craft unique weapons from different rarities:
+     - **Comunes** (500-600💰): Espada Leimma, Espada Gato, Bastón de Anciano, Daga Ratera, Espada Pez, Hélice
+     - **Raras** (2000-2500💰): Espada de Finno, Kratos Espada, Espada de Energía Halo
+     - **Épicas** (8000-9000💰): Bate Golpeador, Katana de Musashi
+     - **Legendaria** (25000💰): Dragón Slayer
+
 ### Previous Session (Nov 21, 2025)
 1. **Fixed Explore Errors**: Corrected `remove_item()` function calls - changed from 2 arguments to 1 argument (item_id only)
 2. **Updated Help System**: Completely rewrote `/ayuda` command with 6 interactive sections covering 14 bosses, combat mechanics, items, chests, and admin tools
