@@ -497,7 +497,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="🐕 Mascotas con XP (Sistema completo)",
-            value="**Las mascotas ganan XP automáticamente:**\n• `/comprar-mascota` — Obtén huevos en tienda\n• `/use Huevo` — Eclosiona la mascota (rareza afecta tiempo)\n• `/mi-mascota` — Ver stats de tu mascota\n• Ganan XP en trabajos (+15 XP) y bosses (+25 XP)\n• Cada 100 XP = +1 NIVEL\n• Bonus progresivo: Nivel 1 = +5%, Nivel 10 = +50%, Nivel 20 = +100%\n• **Bonus se aplica a dinero y XP automáticamente**",
+            value="**Las mascotas ganan XP automáticamente:**\n• `/buy Huevo [tipo]` — Obtén huevos en tienda (Común, Raro, Épico, Legendario)\n• `/use Huevo` — Eclosiona la mascota (rareza afecta tiempo)\n• `/mi-mascota` — Ver stats de tu mascota\n• `/cambiar-mascota` — Cambiar a otra mascota\n• Ganan XP en trabajos (+15 XP) y bosses (+25 XP)\n• Cada 100 XP = +1 NIVEL\n• Bonus progresivo: Nivel 1 = +5%, Nivel 10 = +50%, Nivel 20 = +100%\n• **Bonus se aplica a dinero y XP automáticamente**",
             inline=False
         )
         embed.add_field(

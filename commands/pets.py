@@ -1,6 +1,6 @@
 """
 Sistema de mascotas con XP progresivo.
-Comandos: /mi-mascota, /mascotas-disponibles, /comprar-mascota, /cambiar-mascota
+Comandos: /mi-mascota, /mascotas-disponibles, /cambiar-mascota
 """
 import discord
 from discord.ext import commands
@@ -54,7 +54,7 @@ class PetsCog(commands.Cog):
         if not pet:
             embed = discord.Embed(
                 title="🐾 Sin Mascota",
-                description="No tienes mascota. Usa `/comprar-mascota` para obtener una.",
+                description="No tienes mascota. Compra un huevo de mascota en `/shop` y úsalo con `/use` para eclosionarlo.",
                 color=discord.Color.blue()
             )
             await interaction.followup.send(embed=embed)
@@ -112,39 +112,6 @@ class PetsCog(commands.Cog):
         
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="comprar-mascota", description="Comprar una mascota")
-    @app_commands.autocomplete(nombre=mascota_autocomplete)
-    async def buy_pet(self, interaction: discord.Interaction, nombre: str):
-        """Comprar mascota"""
-        await interaction.response.defer()
-        
-        nombre = nombre.lower()
-        if nombre not in MASCOTAS:
-            await interaction.followup.send("❌ Mascota no encontrada.")
-            return
-        
-        pet = await get_pet(interaction.user.id)
-        if pet:
-            await interaction.followup.send("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
-            return
-        
-        data = MASCOTAS[nombre]
-        dinero = await get_money(interaction.user.id)
-        
-        if dinero < data["precio"]:
-            await interaction.followup.send(f"❌ No tienes suficiente dinero. Necesitas {data['precio']}💰")
-            return
-        
-        await add_money(interaction.user.id, -data["precio"])
-        await create_pet(interaction.user.id, nombre, data["rareza"])
-        
-        embed = discord.Embed(
-            title="✅ Mascota Comprada",
-            description=f"{data['emojis']} Ahora tienes un **{nombre}**!\n\nGanará XP con trabajos y exploración.",
-            color=discord.Color.green()
-        )
-        await interaction.followup.send(embed=embed)
-
     @app_commands.command(name="cambiar-mascota", description="Cambiar a otra mascota")
     @app_commands.autocomplete(nombre=mascota_autocomplete)
     async def change_pet(self, interaction: discord.Interaction, nombre: str):
@@ -158,7 +125,7 @@ class PetsCog(commands.Cog):
         
         pet = await get_pet(interaction.user.id)
         if not pet:
-            await interaction.followup.send("❌ No tienes mascota. Usa `/comprar-mascota` primero.")
+            await interaction.followup.send("❌ No tienes mascota. Compra un huevo de mascota en `/shop` y úsalo con `/use`.")
             return
         
         data = MASCOTAS[nombre]
