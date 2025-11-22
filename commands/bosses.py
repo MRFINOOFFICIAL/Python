@@ -326,11 +326,25 @@ class BossesCog(commands.Cog):
             embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
             embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero | ⭐ {xp_reward} XP", inline=False)
             
-            # Recompensa: arma única del boss
+            # Recompensa: arma única del boss (con probabilidades según tipo)
             boss_weapon = BOSS_WEAPONS.get(boss_name)
-            if boss_weapon:
+            boss_type = boss.get("type", "Mini-Boss")
+            
+            # Probabilidad de obtener el arma especial
+            weapon_chance = 0.0
+            if boss_type == "Mini-Boss":
+                weapon_chance = 0.30  # 30% para mini bosses
+            elif boss_type == "Boss":
+                weapon_chance = 0.10  # 10% para bosses
+            elif boss_type == "Especial":
+                weapon_chance = 1.0   # 100% para bosses especiales
+            
+            if boss_weapon and random.random() < weapon_chance:
                 await add_item_to_user(user_id, boss_weapon, rareza="maestro", usos=1, durabilidad=100, categoria="arma", poder=55)
                 embed.add_field(name="⚔️ ARMA ESPECIAL", value=f"**{boss_weapon}** (maestro - +20% cofres al explorar)", inline=False)
+            elif boss_weapon:
+                # No consiguió el arma, pero se lo notificamos
+                embed.add_field(name="⚔️ Arma especial", value=f"Fallaste: {boss_weapon} no se obtuvo (probabilidad de {int(weapon_chance*100)}%)", inline=False)
             
             # Recompensa adicional: items normales
             if reward["item"]:
