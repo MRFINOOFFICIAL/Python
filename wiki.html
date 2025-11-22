@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 Economía Bot - Manual del Hospital Psiquiátrico</title>
+    <title>🏥 Hospital Psiquiátrico - Guía Completa</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             min-height: 100vh;
         }
         
-        /* Sidebar */
         .sidebar {
             width: 280px;
             background: linear-gradient(180deg, #0f2818 0%, #1a4a35 100%);
@@ -86,7 +85,6 @@
             border-color: #22c55e;
         }
         
-        /* Main Content */
         .main {
             margin-left: 280px;
             flex: 1;
@@ -274,6 +272,157 @@
             margin: 15px 0;
         }
         
+        .boss-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .boss-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .boss-card.mini {
+            border-color: #4ade80;
+        }
+        
+        .boss-card.boss {
+            border-color: #ffc107;
+        }
+        
+        .boss-card.especial {
+            border-color: #ff6b6b;
+        }
+        
+        .boss-card h4 {
+            color: #0f2818;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+        
+        .boss-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95em;
+        }
+        
+        .boss-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .boss-stat strong {
+            color: #0f2818;
+        }
+        
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .pet-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .pet-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+        
+        .pet-name {
+            font-weight: bold;
+            color: #0f2818;
+            margin-bottom: 5px;
+        }
+        
+        .pet-rarity {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .pet-price {
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .item-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            color: #0f2818;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+        
+        .item-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .item-effect {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 8px;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .cmd-card {
+            background: white;
+            border-left: 4px solid #4ade80;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .cmd-name {
+            font-weight: bold;
+            color: #0f2818;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+        }
+        
+        .cmd-desc {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
         footer {
             background: #0f2818;
             color: white;
@@ -288,7 +437,6 @@
             opacity: 0.9;
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 position: relative;
@@ -326,186 +474,334 @@
         <!-- SIDEBAR -->
         <div class="sidebar">
             <h1>🏥 HOSPITAL</h1>
-            <p>Sistema de Economía Psiquiátrica</p>
+            <p>Guía Completa RPG</p>
             
             <div class="sidebar-nav">
-                <button class="sidebar-btn active" onclick="showSection('inicio')">🏠 Admisión</button>
-                <button class="sidebar-btn" onclick="showSection('comandos')">⚡ Tratamientos</button>
-                <button class="sidebar-btn" onclick="showSection('sistema')">📋 Protocolos</button>
-                <button class="sidebar-btn" onclick="showSection('items')">💊 Medicinas</button>
-                <button class="sidebar-btn" onclick="showSection('sociedad')">👥 Sala Común</button>
+                <button class="sidebar-btn active" onclick="showSection('inicio')">🏠 Inicio</button>
+                <button class="sidebar-btn" onclick="showSection('comandos')">⚡ Comandos</button>
+                <button class="sidebar-btn" onclick="showSection('sistema')">📋 Sistema</button>
+                <button class="sidebar-btn" onclick="showSection('items')">💊 Items</button>
+                <button class="sidebar-btn" onclick="showSection('sociedad')">👥 Social</button>
+                <button class="sidebar-btn" onclick="showSection('bosses')">⚔️ Jefes</button>
+                <button class="sidebar-btn" onclick="showSection('mascotas')">🐾 Mascotas</button>
+                <button class="sidebar-btn" onclick="showSection('tienda')">🏪 Tienda</button>
             </div>
         </div>
         
         <!-- MAIN CONTENT -->
         <div class="main">
             <header>
-                <h2>🏥 Manual del Hospital Psiquiátrico</h2>
-                <p>Bienvenido a tu nuevo tratamiento en la Clínica de Economía Mental</p>
+                <h2>🏥 Guía Completa del Hospital Psiquiátrico</h2>
+                <p>Todo lo que necesitas saber para dominar el sistema de economía mental</p>
             </header>
             
             <div class="content">
                 <!-- INICIO -->
                 <div id="inicio" class="section active">
-                    <h2>🏠 Admisión al Hospital</h2>
+                    <h2>🏠 Bienvenido al Hospital</h2>
                     
                     <div class="intro-text">
-                        <strong>¡Bienvenido, paciente!</strong> Acabas de ingresar al sistema de Economía Mental del Hospital Psiquiátrico. 
-                        Aquí ganarás dinero mediante tratamientos, exploración de la mente, combates terapéuticos contra tus miedos internos, 
-                        y construcción de relaciones sociales saludables. Tu objetivo es lograr la sanidad total.
+                        <strong>¡Bienvenido, paciente!</strong> Esta es tu guía completa para entender cada aspecto del Hospital Psiquiátrico. 
+                        Aquí encontrarás información sobre todos los comandos, items, mascotas, jefes y más. ¡Que disfrutes tu experiencia terapéutica!
                     </div>
                     
                     <h3>📊 Estadísticas del Hospital</h3>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="number">51</div>
-                            <div class="label">Tratamientos Disponibles</div>
+                            <div class="label">Comandos</div>
                         </div>
                         <div class="stat-card">
                             <div class="number">14</div>
-                            <div class="label">Traumas Tratables</div>
+                            <div class="label">Jefes</div>
                         </div>
                         <div class="stat-card">
-                            <div class="number">200+</div>
-                            <div class="label">Medicinas</div>
+                            <div class="number">19</div>
+                            <div class="label">Items Tienda</div>
                         </div>
                         <div class="stat-card">
-                            <div class="number">∞</div>
-                            <div class="label">Recuperación</div>
-                        </div>
-                    </div>
-                    
-                    <h3>✨ Servicios Disponibles</h3>
-                    <div class="features">
-                        <div class="feature-card">
-                            <h4>💼 Terapia Ocupacional</h4>
-                            <p>Realiza trabajos en el hospital para ganar dinero y recuperarte emocionalmente.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>🧠 Terapia Cognitiva</h4>
-                            <p>Enfrenta 14 traumas internos diferentes en combates terapéuticos estratégicos.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>🎒 Terapia de Aceptación</h4>
-                            <p>Recolecta y gestiona tus propiedades sin límites en el inventario personal.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>🏢 Terapia Grupal</h4>
-                            <p>Únete a grupos de apoyo (clubs) y comparte recursos con otros pacientes.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>🐾 Terapia Animal</h4>
-                            <p>Colecciona mascotas de soporte emocional con progresión personalizada.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>🔧 Terapia Artesanal</h4>
-                            <p>Practica minería, pesca y forja como actividades terapéuticas.</p>
+                            <div class="number">11</div>
+                            <div class="label">Mascotas</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- COMANDOS -->
                 <div id="comandos" class="section">
-                    <h2>⚡ Tratamientos Disponibles</h2>
+                    <h2>⚡ Lista Completa de Comandos (51)</h2>
                     
-                    <h3>👤 Historial & Evaluación</h3>
-                    <div class="command">
-                        <strong>/profile</strong>
-                        <div class="command-desc">Ver tu historial médico, nivel de recuperación, dinero y diagnóstico actual</div>
-                    </div>
-                    <div class="command">
-                        <strong>/inventario</strong>
-                        <div class="command-desc">Ver todas tus medicinas y posesiones personales con clasificación de rareza</div>
-                    </div>
-                    
-                    <h3>💼 Terapia Ocupacional</h3>
-                    <div class="command">
-                        <strong>/work</strong>
-                        <div class="command-desc">Realiza sesiones de terapia laboral y gana dinero (receso 10 min)</div>
-                    </div>
-                    <div class="command">
-                        <strong>/jobs</strong>
-                        <div class="command-desc">Ver empleos disponibles en el hospital</div>
-                    </div>
-                    <div class="command">
-                        <strong>/shop</strong>
-                        <div class="command-desc">Tienda del hospital - Medicinas, mascotas de apoyo y consumibles</div>
+                    <h3>👤 Perfil & Inventario</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/profile</div>
+                            <div class="cmd-desc">Ver perfil, nivel y dinero actual</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/inventario</div>
+                            <div class="cmd-desc">Ver todos tus items con rareza</div>
+                        </div>
                     </div>
                     
-                    <h3>🧠 Terapia Cognitiva</h3>
-                    <div class="command">
-                        <strong>/explore</strong>
-                        <div class="command-desc">Explora tu mente subconsciente en busca de tesoros reprimidos (receso 25 seg)</div>
-                    </div>
-                    <div class="command">
-                        <strong>/fight</strong>
-                        <div class="command-desc">Enfrenta tus traumas internos en combates terapéuticos (receso 2 min)</div>
-                    </div>
-                    <div class="command">
-                        <strong>/rob @paciente</strong>
-                        <div class="command-desc">Terapia de confrontación paciente-paciente (receso 5 min)</div>
+                    <h3>💼 Trabajos & Economía</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/work</div>
+                            <div class="cmd-desc">Trabaja (cooldown 10 min)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/jobs</div>
+                            <div class="cmd-desc">Ver trabajos disponibles</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/apply</div>
+                            <div class="cmd-desc">Aplicar a un trabajo</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/setjob</div>
+                            <div class="cmd-desc">Cambiar trabajo actual</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/shop</div>
+                            <div class="cmd-desc">Comprar items</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/buy</div>
+                            <div class="cmd-desc">Comprar item específico</div>
+                        </div>
                     </div>
                     
-                    <h3>👥 Terapia Grupal</h3>
-                    <div class="command">
-                        <strong>/crear-club</strong>
-                        <div class="command-desc">Forma un grupo de apoyo (máx 10 pacientes)</div>
+                    <h3>⚔️ Combate & Exploración</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/explore</div>
+                            <div class="cmd-desc">Explorar la mente (cooldown 25 seg)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/fight</div>
+                            <div class="cmd-desc">Pelear contra jefe (cooldown 2 min)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/bossinfo</div>
+                            <div class="cmd-desc">Info del jefe activo</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/rob</div>
+                            <div class="cmd-desc">Robar a otro usuario (cooldown 5 min)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/equip</div>
+                            <div class="cmd-desc">Equipar un arma</div>
+                        </div>
                     </div>
-                    <div class="command">
-                        <strong>/leaderboard</strong>
-                        <div class="command-desc">Ranking de recuperación económica y progreso mental</div>
+                    
+                    <h3>📦 Items & Equipamiento</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/use</div>
+                            <div class="cmd-desc">Usar un item consumible</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/repair</div>
+                            <div class="cmd-desc">Reparar durabilidad de item</div>
+                        </div>
                     </div>
-                    <div class="command">
-                        <strong>/desafiar @paciente</strong>
-                        <div class="command-desc">Competencia terapéutica por dinero</div>
+                    
+                    <h3>⛏️ Recolección & Crafting</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/minar</div>
+                            <div class="cmd-desc">Minar minerales (cooldown 30 seg)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/pescar</div>
+                            <div class="cmd-desc">Pescar (cooldown 40 seg)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/forjar</div>
+                            <div class="cmd-desc">Forjar armas únicas</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🐾 Mascotas</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mi-mascota</div>
+                            <div class="cmd-desc">Ver mascota activa</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mis-mascotas</div>
+                            <div class="cmd-desc">Ver todas tus mascotas</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mascotas-disponibles</div>
+                            <div class="cmd-desc">Mascotas disponibles</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🏆 Social & Ranking</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/leaderboard</div>
+                            <div class="cmd-desc">Ranking de dinero/XP</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/misiones</div>
+                            <div class="cmd-desc">Ver misiones diarias</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/completar-mision</div>
+                            <div class="cmd-desc">Completar misión</div>
+                        </div>
+                    </div>
+                    
+                    <h3>📦 Trading & Mercado</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/ofrecer-trade</div>
+                            <div class="cmd-desc">Proponer intercambio</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mis-trades</div>
+                            <div class="cmd-desc">Ver trades pendientes</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/vender-item</div>
+                            <div class="cmd-desc">Vender item al mercado</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mercado</div>
+                            <div class="cmd-desc">Ver items en venta</div>
+                        </div>
+                    </div>
+                    
+                    <h3>⚔️ Duelos</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/desafiar</div>
+                            <div class="cmd-desc">Desafiar a duel por dinero</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/mis-duelos</div>
+                            <div class="cmd-desc">Ver desafíos pendientes</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/aceptar-duel</div>
+                            <div class="cmd-desc">Aceptar un desafío</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🏢 Clubs & Gremios</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/crear-club</div>
+                            <div class="cmd-desc">Crear nuevo club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/unirse-club</div>
+                            <div class="cmd-desc">Unirse a un club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/club-info</div>
+                            <div class="cmd-desc">Info de tu club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/salir-club</div>
+                            <div class="cmd-desc">Salir del club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/depositar-club</div>
+                            <div class="cmd-desc">Donar dinero al club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/retirar-club</div>
+                            <div class="cmd-desc">Retirar dinero (líder)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/expulsar-miembro</div>
+                            <div class="cmd-desc">Expulsar miembro</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/promover-miembro</div>
+                            <div class="cmd-desc">Promover a oficial</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/transferir-liderazgo</div>
+                            <div class="cmd-desc">Transferir liderazgo</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/clubs</div>
+                            <div class="cmd-desc">Ver todos los clubs</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/stats-club</div>
+                            <div class="cmd-desc">Estadísticas del club</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/upgrades-club</div>
+                            <div class="cmd-desc">Ver upgrades disponibles</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/comprar-upgrade-club</div>
+                            <div class="cmd-desc">Comprar upgrade</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🛠️ Administración</h3>
+                    <div class="commands-grid">
+                        <div class="cmd-card">
+                            <div class="cmd-name">/addmoney</div>
+                            <div class="cmd-desc">Añadir dinero (admin)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/spawnboss</div>
+                            <div class="cmd-desc">Spawnar jefe (admin)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/resetcooldown</div>
+                            <div class="cmd-desc">Reset cooldown (admin)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/setchannel</div>
+                            <div class="cmd-desc">Configurar canal (admin)</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/getchannel</div>
+                            <div class="cmd-desc">Ver canal configurado</div>
+                        </div>
+                        <div class="cmd-card">
+                            <div class="cmd-name">/ayuda</div>
+                            <div class="cmd-desc">Ver guía interactiva</div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- SISTEMA -->
                 <div id="sistema" class="section">
-                    <h2>📋 Protocolos Médicos</h2>
+                    <h2>📋 Protocolos del Sistema</h2>
                     
-                    <h3>💚 Sistema de Vidas (Salud Mental)</h3>
+                    <h3>💚 Sistema de Vidas</h3>
                     <div class="highlight">
-                        Comienzas con <strong>3 vidas psicológicas</strong>. Si pierdes todas, sufres un <strong>colapso mental total</strong> 
-                        (pierdes todo: dinero, medicinas, progreso). Recupera vidas ganando experiencia en terapia o usando medicinas especiales.
+                        <strong>3 vidas iniciales.</strong> Si pierdes todas → Colapso mental completo (pierdes TODO: dinero, items, progreso).
+                        Recupera vidas con XP o medicinas especiales.
                     </div>
                     
                     <h3>🏆 Diagnósticos de Progresión</h3>
                     <div class="command">
-                        <strong>Novato</strong>
-                        <div class="command-desc">Ingreso reciente - 0 XP - En evaluación inicial</div>
+                        <strong>Novato (0 XP)</strong> - Ingreso reciente
                     </div>
                     <div class="command">
-                        <strong>Enfermo Básico</strong>
-                        <div class="command-desc">500 XP - Mostrando signos de mejora</div>
+                        <strong>Enfermo Básico (500 XP)</strong> - Mostrando mejora
                     </div>
                     <div class="command">
-                        <strong>Enfermo Avanzado</strong>
-                        <div class="command-desc">1500 XP - Terapia profunda en curso</div>
+                        <strong>Enfermo Avanzado (1500 XP)</strong> - Terapia profunda
                     </div>
                     <div class="command">
-                        <strong>Enfermo Supremo</strong>
-                        <div class="command-desc">3000 XP - ¡Alta médica completada!</div>
+                        <strong>Enfermo Supremo (3000 XP)</strong> - ¡Alta completada!
                     </div>
                     
-                    <h3>⭐ Clasificación de Medicinas</h3>
+                    <h3>⭐ Clasificación de Rareza</h3>
                     <div class="highlight">
-                        Las medicinas se clasifican por potencia: <strong>⚪ Común</strong> → 🔵 Raro → 🟣 Épico → 🟠 Legendario → 🔶 Maestro
-                    </div>
-                    
-                    <h3>💰 Puestos de Trabajo Terapéutico</h3>
-                    <div class="command">
-                        <strong>Camillero: 150💰/sesión</strong>
-                        <div class="command-desc">Apoyo básico al hospital</div>
-                    </div>
-                    <div class="command">
-                        <strong>Médico: 3000💰/sesión</strong>
-                        <div class="command-desc">Profesional con experiencia</div>
-                    </div>
-                    <div class="command">
-                        <strong>Director: 15000💰/sesión</strong>
-                        <div class="command-desc">¡Máxima responsabilidad!</div>
+                        ⚪ Común → 🔵 Raro → 🟣 Épico → 🟠 Legendario → 🔶 Maestro
                     </div>
                 </div>
                 
@@ -513,121 +809,562 @@
                 <div id="items" class="section">
                     <h2>💊 Medicinas & Equipamiento</h2>
                     
-                    <h3>🔨 Instrumentos Terapéuticos (Reutilizables)</h3>
-                    <div class="highlight">
-                        Los instrumentos se pueden usar infinitamente en sesiones. Son herramientas duraderas para tu recuperación.
-                    </div>
-                    <div class="command">
-                        <strong>Fragmento Omega</strong>
-                        <div class="command-desc">💎 Legendario - Sistema de 2 turnos: preparación → ataque terapéutico de 120 daño</div>
-                    </div>
-                    <div class="command">
-                        <strong>Dragón Slayer</strong>
-                        <div class="command-desc">🔶 Maestro - +50% efectividad contra traumas mayores</div>
-                    </div>
-                    
-                    <h3>💊 Medicinas Consumibles (De una sola dosis)</h3>
-                    <div class="highlight">
-                        Úsalas durante combates terapéuticos - se gastan después de una sesión. ¡Usa sabiamente!
-                    </div>
-                    <div class="command">
-                        <strong>Bebida de Furia</strong>
-                        <div class="command-desc">+30% agresividad terapéutica por 1 turno</div>
-                    </div>
-                    <div class="command">
-                        <strong>Escudo Mágico</strong>
-                        <div class="command-desc">Reduce trauma recibido en 50% por 1 turno</div>
+                    <h3>🔨 Instrumentos Reutilizables</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Fragmento Omega</div>
+                            <div class="item-info">💎 Legendario</div>
+                            <div class="item-effect">Sistema 2-turno: prepara → 120 daño</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Dragón Slayer</div>
+                            <div class="item-info">🔶 Maestro</div>
+                            <div class="item-effect">+50% vs traumas mayores</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Núcleo Energético</div>
+                            <div class="item-info">⚡ Épico</div>
+                            <div class="item-effect">80% precisión, 50 daño, 30% crítico</div>
+                        </div>
                     </div>
                     
-                    <h3>🐾 Mascotas de Apoyo Emocional</h3>
-                    <div class="highlight">
-                        Puedes tener múltiples mascotas de apoyo. Cada una crece contigo y mejora tus resultados terapéuticos.
-                    </div>
-                    <div class="command">
-                        <strong>/mis-mascotas</strong>
-                        <div class="command-desc">Ver tu equipo completo de animales de terapia</div>
-                    </div>
-                    <div class="command">
-                        <strong>/mi-mascota</strong>
-                        <div class="command-desc">Ver mascota activa principal</div>
-                    </div>
-                    <p style="margin-top: 15px;">Las mascotas ganan XP en cada sesión, suben de nivel cada 100 XP y ofrecen bonificadores progresivos (hasta +100%).</p>
-                    
-                    <h3>🔨 Artesanía Terapéutica</h3>
-                    <div class="command">
-                        <strong>/minar</strong>
-                        <div class="command-desc">Excavación de minerales internos (meditación 30 seg)</div>
-                    </div>
-                    <div class="command">
-                        <strong>/pescar</strong>
-                        <div class="command-desc">Pesca emocional de sentimientos reprimidos (contemplación 40 seg)</div>
-                    </div>
-                    <div class="command">
-                        <strong>/forjar</strong>
-                        <div class="command-desc">Crea armas terapéuticas únicas a partir de recursos recolectados</div>
+                    <h3>💊 Medicinas Consumibles</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Bebida de Furia</div>
+                            <div class="item-info">🟣 Épico | 2500💰</div>
+                            <div class="item-effect">+30% daño por 1 turno</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Escudo Mágico</div>
+                            <div class="item-info">🔵 Raro | 1800💰</div>
+                            <div class="item-effect">Reduce daño -50% por 1 turno</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Nektar Antiguo</div>
+                            <div class="item-info">🟠 Legendario | 3500💰</div>
+                            <div class="item-effect">Restaura 100 HP (máximo)</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Bebida de la Vida</div>
+                            <div class="item-info">🔶 Maestro | 5500💰</div>
+                            <div class="item-effect">Te da 1 vida extra</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Poción de Furia</div>
+                            <div class="item-info">🟣 Épico | 2500💰</div>
+                            <div class="item-effect">+30% daño próximo turno</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Danza de Saviteto</div>
+                            <div class="item-info">🔵 Raro | 3500💰</div>
+                            <div class="item-effect">+50% daño próximo ataque</div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- SOCIAL -->
                 <div id="sociedad" class="section">
-                    <h2>👥 Sala Común (Interacción Social)</h2>
+                    <h2>👥 Sistema Social</h2>
                     
-                    <h3>🏢 Grupos de Apoyo (Clubs)</h3>
-                    <div class="highlight">
-                        Únete a un grupo para compañerismo y beneficios terapéuticos comunes.
+                    <h3>🏢 Beneficios de Club</h3>
+                    <div class="command">
+                        <strong>🏫 Aula de Entrenamiento (5000💰)</strong>
+                        <div class="command-desc">+25% dinero en trabajos</div>
                     </div>
                     <div class="command">
-                        <strong>Beneficios de Grupo:</strong>
-                        <div class="command-desc">
-                            🏫 Aula: +25% dinero en trabajo<br>
-                            🧘 Meditación: +30% progreso mental<br>
-                            ⚔️ Armería: +15% efectividad<br>
-                            📚 Biblioteca: +20% éxito emocional
+                        <strong>🧘 Sala de Meditación (8000💰)</strong>
+                        <div class="command-desc">+30% XP por victoria</div>
+                    </div>
+                    <div class="command">
+                        <strong>⚔️ Armería Mejorada (10000💰)</strong>
+                        <div class="command-desc">+15% daño en combate</div>
+                    </div>
+                    <div class="command">
+                        <strong>📚 Biblioteca Antigua (6000💰)</strong>
+                        <div class="command-desc">+20% éxito en minijuegos</div>
+                    </div>
+                    
+                    <h3>💰 Regla de Tesorería</h3>
+                    <div class="alert-box">
+                        <strong>⚠️ TODOS pueden depositar.</strong> SOLO el líder puede retirar dinero del club.
+                    </div>
+                </div>
+                
+                <!-- BOSSES -->
+                <div id="bosses" class="section">
+                    <h2>⚔️ Almanaque de Jefes (14 Total)</h2>
+                    
+                    <h3>Mini-Bosses (5) 🟢</h3>
+                    <div class="boss-grid">
+                        <div class="boss-card mini">
+                            <h4>🎭 Goblin Capitán</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>80</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>8</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔵 Raro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>150-300💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>ID Falso</span>
+                            </div>
+                        </div>
+                        <div class="boss-card mini">
+                            <h4>🪓 Orco Guerrero</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>100</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>10</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔵 Raro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>200-350💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Bastón Staff</span>
+                            </div>
+                        </div>
+                        <div class="boss-card mini">
+                            <h4>🧙 Bruja del Bosque</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>70</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>12</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟣 Épico</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>250-400💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Núcleo Energético</span>
+                            </div>
+                        </div>
+                        <div class="boss-card mini">
+                            <h4>🤖 Mecha Enojado</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>120</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>15</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟣 Épico</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>350-600💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Fragmento Omega</span>
+                            </div>
+                        </div>
+                        <div class="boss-card mini">
+                            <h4>✨ Savi Forma Teto</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>150</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>18</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟣 Épico</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>450-750💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Fragmento Omega</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <h3>💰 Tesorería Grupal</h3>
-                    <div class="alert-box">
-                        <strong>⚠️ Regla de Tesorería:</strong> TODOS los miembros pueden donar dinero al fondo común. 
-                        Solo el líder del grupo puede retirar fondos para comprar beneficios colectivos.
+                    <h3>Bosses Principales (4) 🟡</h3>
+                    <div class="boss-grid">
+                        <div class="boss-card boss">
+                            <h4>🐉 Dragón Antiguo</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>300</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>20</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟠 Legendario</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>1200-2500💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Llave Maestra</span>
+                            </div>
+                        </div>
+                        <div class="boss-card boss">
+                            <h4>💀 Rey Esqueleto</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>250</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>18</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟣 Épico</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>1000-1800💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Fragmento Omega</span>
+                            </div>
+                        </div>
+                        <div class="boss-card boss">
+                            <h4>😈 Demonio Oscuro</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>280</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>22</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟠 Legendario</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>1400-3000💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Llave Maestra</span>
+                            </div>
+                        </div>
+                        <div class="boss-card boss">
+                            <h4>👑 Savi Forma Final</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>350</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>28</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🟠 Legendario</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>2300-4200💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Fragmento Omega</span>
+                            </div>
+                        </div>
                     </div>
                     
-                    <h3>📊 Leaderboards (Rankings de Recuperación)</h3>
-                    <div class="command">
-                        <strong>/leaderboard dinero</strong>
-                        <div class="command-desc">Top 10 pacientes con mejor recuperación financiera</div>
+                    <h3>Jefes Especiales (5) 🔴</h3>
+                    <div class="boss-grid">
+                        <div class="boss-card especial">
+                            <h4>🧠 Psicólogo Loco</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>350</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>25</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔶 Maestro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>3500-6000💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Cordura Rota</span>
+                            </div>
+                        </div>
+                        <div class="boss-card especial">
+                            <h4>👨‍⚕️ Médico Misterioso</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>320</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>28</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔶 Maestro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>3000-5500💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Bisturí Misterioso</span>
+                            </div>
+                        </div>
+                        <div class="boss-card especial">
+                            <h4>⚕️ Enfermera de Hierro</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>400</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>30</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔶 Maestro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>4500-7000💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Jeringa Hierro</span>
+                            </div>
+                        </div>
+                        <div class="boss-card especial">
+                            <h4>🎩 Director del Caos</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>500</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>35</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔶 Maestro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>6000-10000💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Cetro Caos</span>
+                            </div>
+                        </div>
+                        <div class="boss-card especial">
+                            <h4>✨ Fino</h4>
+                            <div class="boss-stat">
+                                <strong>HP:</strong> <span>600</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Ataque:</strong> <span>40</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Rareza:</strong> <span>🔶 Maestro</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Dinero:</strong> <span>9000-15000💰</span>
+                            </div>
+                            <div class="boss-stat">
+                                <strong>Items:</strong> <span>Espada Fino</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="command">
-                        <strong>/leaderboard experiencia</strong>
-                        <div class="command-desc">Top 10 pacientes con más progreso mental</div>
+                </div>
+                
+                <!-- MASCOTAS -->
+                <div id="mascotas" class="section">
+                    <h2>🐾 Mascotas (11 Total)</h2>
+                    
+                    <h3>⚪ Mascotas Comunes (500💰)</h3>
+                    <div class="pet-grid">
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐕</div>
+                            <div class="pet-name">Chihuahua</div>
+                            <div class="pet-rarity">⚪ Común | Poder: 5</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐱</div>
+                            <div class="pet-name">Gato</div>
+                            <div class="pet-rarity">⚪ Común | Poder: 5</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐶</div>
+                            <div class="pet-name">Perro</div>
+                            <div class="pet-rarity">⚪ Común | Poder: 5</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">🦜</div>
+                            <div class="pet-name">Loro</div>
+                            <div class="pet-rarity">⚪ Común | Poder: 5</div>
+                        </div>
                     </div>
                     
-                    <h3>⚔️ Competencia Terapéutica & Trading</h3>
-                    <div class="command">
-                        <strong>/desafiar @paciente cantidad</strong>
-                        <div class="command-desc">Apuesta terapéutica - ¡El ganador gana dinero de recuperación!</div>
-                    </div>
-                    <div class="command">
-                        <strong>/ofrecer-trade @paciente</strong>
-                        <div class="command-desc">Intercambio de medicinas entre pacientes</div>
+                    <h3>🔵 Mascotas Raras (2500💰)</h3>
+                    <div class="pet-grid">
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐰</div>
+                            <div class="pet-name">Conejo</div>
+                            <div class="pet-rarity">🔵 Raro | Poder: 12</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐹</div>
+                            <div class="pet-name">Hamster</div>
+                            <div class="pet-rarity">🔵 Raro | Poder: 12</div>
+                        </div>
                     </div>
                     
-                    <h3>📦 Mercado de Medicinas</h3>
-                    <div class="command">
-                        <strong>/vender-item id precio</strong>
-                        <div class="command-desc">Vende medicinas a otros pacientes en el mercado hospitalario</div>
+                    <h3>🟣 Mascotas Épicas (10000💰)</h3>
+                    <div class="pet-grid">
+                        <div class="pet-card">
+                            <div class="pet-emoji">🐉</div>
+                            <div class="pet-name">Dragón</div>
+                            <div class="pet-rarity">🟣 Épico | Poder: 25</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">🔥</div>
+                            <div class="pet-name">Fénix</div>
+                            <div class="pet-rarity">🟣 Épico | Poder: 25</div>
+                        </div>
                     </div>
-                    <div class="command">
-                        <strong>/mercado</strong>
-                        <div class="command-desc">Ver medicinas disponibles en el mercado comunitario</div>
+                    
+                    <h3>🟠 Mascotas Legendarias (50000💰)</h3>
+                    <div class="pet-grid">
+                        <div class="pet-card">
+                            <div class="pet-emoji">✨</div>
+                            <div class="pet-name">Saviteto</div>
+                            <div class="pet-rarity">🟠 Legendario | Poder: 50</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">💎</div>
+                            <div class="pet-name">Finopeluche</div>
+                            <div class="pet-rarity">🟠 Legendario | Poder: 50</div>
+                        </div>
+                        <div class="pet-card">
+                            <div class="pet-emoji">👑</div>
+                            <div class="pet-name">Mechones</div>
+                            <div class="pet-rarity">🟠 Legendario | Poder: 50</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🐾 Sistema de Mascotas</h3>
+                    <div class="highlight">
+                        • Colecciona múltiples mascotas del mismo tipo<br>
+                        • Cada mascota gana XP en combate<br>
+                        • 100 XP = 1 Nivel<br>
+                        • Bonificadores progresivos hasta +100%<br>
+                        • /mis-mascotas para cambiar mascota activa
+                    </div>
+                </div>
+                
+                <!-- TIENDA -->
+                <div id="tienda" class="section">
+                    <h2>🏪 Tienda (19 Items)</h2>
+                    
+                    <h3>⚪ Items Comunes</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Teléfono</div>
+                            <div class="item-info">⚪ Común | 200💰</div>
+                            <div class="item-effect">Útil para minijuegos</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Linterna</div>
+                            <div class="item-info">⚪ Común | 100💰</div>
+                            <div class="item-effect">Encuentra objetos más raros</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Kit de Reparación</div>
+                            <div class="item-info">⚪ Común | 200💰</div>
+                            <div class="item-effect">Restaura durabilidad de items</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Huevo Común</div>
+                            <div class="item-info">⚪ Común | 400💰</div>
+                            <div class="item-effect">Mascota común garantizada</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔵 Items Raros</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Chihuahua</div>
+                            <div class="item-info">🔵 Raro | 600💰</div>
+                            <div class="item-effect">Mascota de combate</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Escudo Mágico</div>
+                            <div class="item-info">🔵 Raro | 1800💰</div>
+                            <div class="item-effect">Protección en combate</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Bastón de Staff</div>
+                            <div class="item-info">🔵 Raro | 6500💰</div>
+                            <div class="item-effect">Poder en robos</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Danza de Saviteto</div>
+                            <div class="item-info">🔵 Raro | 3500💰</div>
+                            <div class="item-effect">+50% daño próximo ataque</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Huevo Raro</div>
+                            <div class="item-info">🔵 Raro | 1800💰</div>
+                            <div class="item-effect">Mascota rara aumentada</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🟣 Items Épicos</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Paquete Peluches Fino</div>
+                            <div class="item-info">🟣 Épico | 8000💰</div>
+                            <div class="item-effect">Recupera 50 HP</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">x2 Dinero Mecha</div>
+                            <div class="item-info">🟣 Épico | 900💰</div>
+                            <div class="item-effect">Dobla dinero trabajo 1 hora</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Poción de Furia</div>
+                            <div class="item-info">🟣 Épico | 2500💰</div>
+                            <div class="item-effect">+30% daño en combate</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Mecha Enojado</div>
+                            <div class="item-info">🟣 Épico | 1200💰</div>
+                            <div class="item-effect">Arma poderosa de robos</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Llave Maestra</div>
+                            <div class="item-info">🟣 Épico | 1500💰</div>
+                            <div class="item-effect">Desbloquea cofres</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Huevo Épico</div>
+                            <div class="item-info">🟣 Épico | 7000💰</div>
+                            <div class="item-effect">Mascota épica aumentada</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🟠 Items Legendarios</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Nektar Antiguo</div>
+                            <div class="item-info">🟠 Legendario | 3500💰</div>
+                            <div class="item-effect">Restaura 100 HP (máximo)</div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-name">Huevo Legendario</div>
+                            <div class="item-info">🟠 Legendario | 35000💰</div>
+                            <div class="item-effect">Mascota legendaria garantizada</div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔶 Items Maestro</h3>
+                    <div class="item-grid">
+                        <div class="item-card">
+                            <div class="item-name">Bebida de la Vida</div>
+                            <div class="item-info">🔶 Maestro | 5500💰</div>
+                            <div class="item-effect">Te da 1 vida extra</div>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <footer>
-                <p>🏥 <strong>Hospital Psiquiátrico - Sistema de Recuperación Económica</strong></p>
-                <p>Tu salud mental es nuestra prioridad. ¡Comienza tu camino hacia la recuperación total! 💚</p>
-                <p style="margin-top: 10px; font-size: 0.9em;">Desarrollado por especialistas en gamificación psicosocial</p>
+                <p>🏥 <strong>Hospital Psiquiátrico - Guía Completa de Recuperación</strong></p>
+                <p>Todo lo que necesitas saber para dominar el sistema económico mental</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">51 Comandos | 14 Jefes | 11 Mascotas | 19 Items Tienda</p>
             </footer>
         </div>
     </div>
