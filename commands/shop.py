@@ -6,7 +6,7 @@ from typing import Optional
 
 from db import (
     get_shop, get_shop_item, add_money, add_item_to_user,
-    update_rank, get_user, add_shop_item, get_inventory
+    update_rank, get_user, add_shop_item, get_inventory, create_pet, get_pet, remove_item
 )
 
 
@@ -44,6 +44,18 @@ DEFAULT_ITEMS = [
     ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
     ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
     ("Bebida de la Vida", 8000, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
+    # Huevos de mascotas
+    ("Huevo de Chihuahua", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
+    ("Huevo de Gato", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
+    ("Huevo de Perro", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
+    ("Huevo de Loro", 500, "huevo_mascota", "Eclosiona en una mascota común. Gana XP con trabajos y exploración.", "comun"),
+    ("Huevo de Conejo", 2500, "huevo_mascota", "Eclosiona en una mascota rara. Gana XP rápidamente.", "raro"),
+    ("Huevo de Hamster", 2500, "huevo_mascota", "Eclosiona en una mascota rara. Gana XP rápidamente.", "raro"),
+    ("Huevo de Dragón", 10000, "huevo_mascota", "Eclosiona en una mascota épica. Poderosa bonificación en dinero.", "epico"),
+    ("Huevo de Fenix", 10000, "huevo_mascota", "Eclosiona en una mascota épica. Poderosa bonificación en XP.", "epico"),
+    ("Huevo de Saviteto", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
+    ("Huevo de Finopeluche", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
+    ("Huevo de Mechones", 50000, "huevo_mascota", "Eclosiona en una mascota legendaria. La más rara y poderosa.", "legendario"),
 ]
 
 # ----------------- Shop Cog -----------------
@@ -96,6 +108,20 @@ class ShopCog(commands.Cog):
             return await ctx.send("❌ No existe ese item (usa el nombre exacto).")
         if user["dinero"] < item["price"]:
             return await ctx.send("❌ No tienes dinero suficiente.")
+        
+        # Manejar huevos de mascotas especialmente
+        if item["type"] == "huevo_mascota":
+            existing_pet = await get_pet(ctx.author.id)
+            if existing_pet:
+                return await ctx.send("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
+            
+            await add_money(ctx.author.id, -item["price"])
+            # Extraer nombre de mascota del nombre del huevo (ej: "Huevo de Dragón" -> "dragón")
+            pet_name = item["name"].replace("Huevo de ", "").lower()
+            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
+            await create_pet(ctx.author.id, pet_name, rareza_map.get(item["rarity"], "común"))
+            return await ctx.send(f"🥚 ¡Tu **{pet_name}** ha eclosionado! 🐾\n✅ Compraste **{item['name']}** por {item['price']}💰\n\nMira tu mascota con `/mi-mascota`")
+        
         await add_money(ctx.author.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(ctx.author.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
@@ -113,6 +139,20 @@ class ShopCog(commands.Cog):
             return await interaction.followup.send("❌ No existe ese item (usa el nombre exacto).", ephemeral=True)
         if user["dinero"] < item["price"]:
             return await interaction.followup.send("❌ No tienes dinero suficiente.", ephemeral=True)
+        
+        # Manejar huevos de mascotas especialmente
+        if item["type"] == "huevo_mascota":
+            existing_pet = await get_pet(interaction.user.id)
+            if existing_pet:
+                return await interaction.followup.send("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.", ephemeral=True)
+            
+            await add_money(interaction.user.id, -item["price"])
+            # Extraer nombre de mascota del nombre del huevo (ej: "Huevo de Dragón" -> "dragón")
+            pet_name = item["name"].replace("Huevo de ", "").lower()
+            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
+            await create_pet(interaction.user.id, pet_name, rareza_map.get(item["rarity"], "común"))
+            return await interaction.followup.send(f"🥚 ¡Tu **{pet_name}** ha eclosionado! 🐾\n✅ Compraste **{item['name']}** por {item['price']}💰\n\nMira tu mascota con `/mi-mascota`")
+        
         await add_money(interaction.user.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
