@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress, update_mission_progress
+from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress, update_mission_progress, add_pet_xp
 import random
 from typing import Tuple, List, Optional
 from cache import set_buff, get_buff, clear_buff
@@ -344,6 +344,7 @@ class ExploreCog(commands.Cog):
             categoria = stats.get("categoria", "desconocido")
             poder = stats.get("poder", 0)
             await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
+            await add_pet_xp(user.id, 10)
             added_names.append(f"{name} ({rarity})")
 
             # Efectos especiales
@@ -385,6 +386,7 @@ class ExploreCog(commands.Cog):
         # Si hay espacio en el inventario
         if len(inv) < 3:
             await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
+            await add_pet_xp(user.id, 10)
             # Actualizar progreso de misión "explorar"
             await update_mission_progress(user.id)
             
@@ -426,6 +428,7 @@ class ExploreCog(commands.Cog):
                     return
                 await remove_item(item_id)
                 await add_item_to_user(interaction.user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
+                await add_pet_xp(interaction.user.id, 10)
                 await interaction.response.edit_message(content=f"✅ Reemplazaste **{item_name}** con **{name}**!", embed=None, view=None)
             
             btn.callback = cb
