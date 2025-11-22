@@ -396,59 +396,30 @@ class ExploreCog(commands.Cog):
         categoria = stats.get("categoria", "desconocido")
         poder = stats.get("poder", 0)
 
-        # Si hay espacio en el inventario
-        if len(inv) < 3:
-            await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
-            await add_pet_xp(user.id, 10)
-            # Actualizar progreso de misión "explorar"
-            await update_mission_progress(user.id)
-            
-            embed = discord.Embed(
-                title=f"{RARITY_EMOJI.get(rarity, '')} 🌲 Exploración",
-                description=f"{user.mention} encontraste **{name}** ({rarity})!",
-                color=discord.Color.teal()
-            )
-            embed.set_footer(text="Sigue explorando para encontrar objetos raros y cofres.")
-            
-            # Efectos especiales
-            if key == "linterna":
-                set_buff(user.id, "linterna_boost_until", asyncio.get_event_loop().time() + 3600 * 24)
-                embed.add_field(name="Uso especial", value="🪄 La Linterna aumenta tus probabilidades de cofres/objetos raros durante 24h.", inline=False)
-            elif key == "telefono":
-                set_buff(user.id, "telefono_extra_time", 6)
-                embed.add_field(name="Uso especial", value="📱 Teléfono: +6s en la próxima pregunta de trabajo.", inline=False)
-            elif key == "chihuahua":
-                embed.add_field(name="Mascota", value="🐶 Chihuahua: te acompaña y te dio una moneda de compañía.", inline=False)
-            
-            await send_fn(embed=embed)
-            return
-
-        # Inventario lleno - ofrecer reemplazar
+        # Agregar item al inventario
+        await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
+        await add_pet_xp(user.id, 10)
+        # Actualizar progreso de misión "explorar"
+        await update_mission_progress(user.id)
+        
         embed = discord.Embed(
-            title="⚠️ Inventario lleno",
-            description=f"{user.mention}, encontraste **{name}** ({rarity}). Selecciona un objeto para reemplazarlo:",
-            color=discord.Color.orange()
+            title=f"{RARITY_EMOJI.get(rarity, '')} 🌲 Exploración",
+            description=f"{user.mention} encontraste **{name}** ({rarity})!",
+            color=discord.Color.teal()
         )
+        embed.set_footer(text="Sigue explorando para encontrar objetos raros y cofres.")
         
-        view = ReplaceView(user.id, (name, rarity, usos))
+        # Efectos especiales
+        if key == "linterna":
+            set_buff(user.id, "linterna_boost_until", asyncio.get_event_loop().time() + 3600 * 24)
+            embed.add_field(name="Uso especial", value="🪄 La Linterna aumenta tus probabilidades de cofres/objetos raros durante 24h.", inline=False)
+        elif key == "telefono":
+            set_buff(user.id, "telefono_extra_time", 6)
+            embed.add_field(name="Uso especial", value="📱 Teléfono: +6s en la próxima pregunta de trabajo.", inline=False)
+        elif key == "chihuahua":
+            embed.add_field(name="Mascota", value="🐶 Chihuahua: te acompaña y te dio una moneda de compañía.", inline=False)
         
-        for i in inv:
-            btn = Button(label=i["item"][:80], style=discord.ButtonStyle.danger)
-            
-            async def cb(interaction: discord.Interaction, item_id=i["id"], item_name=i["item"]):
-                if interaction.user.id != user.id:
-                    await interaction.response.send_message("❌ Solo quien encontró el objeto puede reemplazar.", ephemeral=True)
-                    return
-                await remove_item(item_id)
-                await add_item_to_user(interaction.user.id, name, rarity, usos=usos, durabilidad=100, categoria=categoria, poder=poder)
-                await add_pet_xp(interaction.user.id, 10)
-                await interaction.response.edit_message(content=f"✅ Reemplazaste **{item_name}** con **{name}**!", embed=None, view=None)
-            
-            btn.callback = cb
-            view.add_item(btn)
-
-        sent = await send_fn(embed=embed, view=view)
-        view.message = sent if isinstance(sent, discord.Message) else None
+        await send_fn(embed=embed)
 
 
 # ==================== SETUP ====================

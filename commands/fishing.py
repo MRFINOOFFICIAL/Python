@@ -84,35 +84,27 @@ class FishingCog(commands.Cog):
         item = random.choices(FISHING_LOOT, weights=weights, k=1)[0]
         name, rarity, usos = item
         
-        # Si hay espacio en el inventario
-        if len(inv) < 3:
-            await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria="marino", poder=5)
-            await add_pet_xp(user.id, 8)
-            await update_mission_progress(user.id)
-            
-            rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
-            
-            # Mostrar bonus de herramienta si la tiene
-            tool_bonus = ""
-            if has_epic_rod:
-                tool_bonus = "\n✨ **Caña Épica** activada (+50% loot épico/legendario)"
-            elif has_rare_rod:
-                tool_bonus = "\n✨ **Caña Mejorada** activada (+30% loot raro/épico)"
-            
-            embed = discord.Embed(
-                title=f"{rarity_emoji.get(rarity, '')} 🎣 Pesca",
-                description=f"{user.mention}, atrapaste **{name}** ({rarity})!{tool_bonus}",
-                color=discord.Color.blue()
-            )
-            embed.set_footer(text="Sigue pescando para encontrar criaturas raras.")
-            await send_fn(embed=embed)
-        else:
-            embed = discord.Embed(
-                title="⚠️ Inventario lleno",
-                description=f"Atrapaste **{name}** ({rarity}) pero tu inventario está lleno.\n\nUsa `/inventario` para ver tus items.",
-                color=discord.Color.orange()
-            )
-            await send_fn(embed=embed)
+        # Agregar criatura marina al inventario
+        await add_item_to_user(user.id, name, rarity, usos=usos, durabilidad=100, categoria="marino", poder=5)
+        await add_pet_xp(user.id, 8)
+        await update_mission_progress(user.id)
+        
+        rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
+        
+        # Mostrar bonus de herramienta si la tiene
+        tool_bonus = ""
+        if has_epic_rod:
+            tool_bonus = "\n✨ **Caña Épica** activada (+50% loot épico/legendario)"
+        elif has_rare_rod:
+            tool_bonus = "\n✨ **Caña Mejorada** activada (+30% loot raro/épico)"
+        
+        embed = discord.Embed(
+            title=f"{rarity_emoji.get(rarity, '')} 🎣 Pesca",
+            description=f"{user.mention}, atrapaste **{name}** ({rarity})!{tool_bonus}",
+            color=discord.Color.blue()
+        )
+        embed.set_footer(text="Sigue pescando para encontrar criaturas raras.")
+        await send_fn(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(FishingCog(bot))

@@ -233,7 +233,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="Inventario",
-            value="Máximo **3 items** en el inventario.\n• Si encuentras un item con inventario lleno, puedes reemplazar uno.\n• Usa `/inventario` para ver tu inventario completo con detalles.\n• Usa `/use` para usar items directamente.\n• Usa `/repair` para reparar items dañados con Kit de reparación.",
+            value="**Sin límite** de items en el inventario.\n• Puedes acumular todos los items que desees.\n• Usa `/inventario` para ver tu inventario completo con detalles.\n• Usa `/use` para usar items directamente.\n• Usa `/repair` para reparar items dañados con Kit de reparación.",
             inline=False
         )
         embed.add_field(
