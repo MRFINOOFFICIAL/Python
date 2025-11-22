@@ -109,23 +109,14 @@ class ShopCog(commands.Cog):
         if user["dinero"] < item["price"]:
             return await ctx.send("❌ No tienes dinero suficiente.")
         
-        # Manejar huevos de mascotas especialmente
-        if item["type"] == "huevo_mascota":
-            existing_pet = await get_pet(ctx.author.id)
-            if existing_pet:
-                return await ctx.send("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
-            
-            await add_money(ctx.author.id, -item["price"])
-            # Extraer nombre de mascota del nombre del huevo (ej: "Huevo de Dragón" -> "dragón")
-            pet_name = item["name"].replace("Huevo de ", "").lower()
-            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
-            await create_pet(ctx.author.id, pet_name, rareza_map.get(item["rarity"], "común"))
-            return await ctx.send(f"🥚 ¡Tu **{pet_name}** ha eclosionado! 🐾\n✅ Compraste **{item['name']}** por {item['price']}💰\n\nMira tu mascota con `/mi-mascota`")
-        
         await add_money(ctx.author.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(ctx.author.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
-        await ctx.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
+        
+        if item["type"] == "huevo_mascota":
+            await ctx.send(f"🥚 ✅ Compraste **{item['name']}** por {item['price']}💰\n\n👉 Usa `/use` para eclosionar el huevo. El tiempo depende de su rareza.")
+        else:
+            await ctx.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
     # --------- Slash: comprar ----------
     @app_commands.command(name="buy", description="Comprar un item de la tienda")
@@ -140,23 +131,14 @@ class ShopCog(commands.Cog):
         if user["dinero"] < item["price"]:
             return await interaction.followup.send("❌ No tienes dinero suficiente.", ephemeral=True)
         
-        # Manejar huevos de mascotas especialmente
-        if item["type"] == "huevo_mascota":
-            existing_pet = await get_pet(interaction.user.id)
-            if existing_pet:
-                return await interaction.followup.send("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.", ephemeral=True)
-            
-            await add_money(interaction.user.id, -item["price"])
-            # Extraer nombre de mascota del nombre del huevo (ej: "Huevo de Dragón" -> "dragón")
-            pet_name = item["name"].replace("Huevo de ", "").lower()
-            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
-            await create_pet(interaction.user.id, pet_name, rareza_map.get(item["rarity"], "común"))
-            return await interaction.followup.send(f"🥚 ¡Tu **{pet_name}** ha eclosionado! 🐾\n✅ Compraste **{item['name']}** por {item['price']}💰\n\nMira tu mascota con `/mi-mascota`")
-        
         await add_money(interaction.user.id, -item["price"])
         # add to inventory con categoría del shop (type)
         await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
-        await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
+        
+        if item["type"] == "huevo_mascota":
+            await interaction.followup.send(f"🥚 ✅ Compraste **{item['name']}** por {item['price']}💰\n\n👉 Usa `/use` para eclosionar el huevo. El tiempo depende de su rareza.")
+        else:
+            await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
 
    
 

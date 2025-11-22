@@ -6,7 +6,7 @@ Comandos: /inventario, !inventario, /use, !use
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
-from db import get_inventory, remove_item, add_money, update_rank, repair_item, add_lives
+from db import get_inventory, remove_item, add_money, update_rank, repair_item, add_lives, create_pet, get_pet
 from typing import Optional
 
 
@@ -168,6 +168,42 @@ class ItemsCog(commands.Cog):
             return
         
         item_name = item['item'].lower()
+        
+        # Efectos especiales de HUEVOS DE MASCOTAS
+        if "huevo de" in item_name:
+            import asyncio
+            existing_pet = await get_pet(user_id)
+            if existing_pet:
+                await send_fn("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
+                return
+            
+            # Extraer nombre y rareza
+            pet_name = item_name.replace("huevo de ", "").strip()
+            rareza = item['rareza']
+            
+            # Tiempos de eclosión según rareza
+            times = {
+                "comun": (3, "⏳ El huevo brilla suavemente..."),
+                "raro": (6, "✨ El huevo empieza a brillar más intensamente..."),
+                "epico": (10, "🌟 El huevo está RADIANTE..."),
+                "legendario": (15, "⚡ El huevo EXPLOTA en energía pura...")
+            }
+            
+            duration, msg = times.get(rareza, (5, "⏳ El huevo se está abriendo..."))
+            
+            # Animación de eclosión
+            await send_fn(f"🥚 {msg}")
+            await asyncio.sleep(duration)
+            
+            # Crear mascota
+            rareza_map = {"comun": "común", "raro": "raro", "epico": "épico", "legendario": "legendario"}
+            await create_pet(user_id, pet_name, rareza_map.get(rareza, "común"))
+            
+            # Remover el huevo
+            await remove_item(item['id'])
+            
+            await send_fn(f"🐾 ¡¡¡HA ECLOSIONADO !!! 🐾\n✨ ¡Tu **{pet_name.capitalize()}** ha nacido! ✨\n\nUsa `/mi-mascota` para verlo en acción.")
+            return
         
         # Efectos especiales de items
         if "bebida de la vida" in item_name:
