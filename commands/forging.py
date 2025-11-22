@@ -135,7 +135,7 @@ class ForgingCog(commands.Cog):
         """Formatea los requisitos de materiales"""
         return "\n".join([f"• {amount}x {material}" for material, amount in materials])
 
-    @app_commands.command(name="forjar", description="🔨 Forja armas únicas con materiales minados/pescados")
+    @app_commands.command(name="forjar", description="🔨 Forja Terapéutica - Crea armas de sanación")
     @app_commands.describe(rareza="Rareza del arma: comun, raro, epico, legendario")
     async def forge(self, interaction: discord.Interaction, rareza: str):
         """Forjar armas únicas usando materiales de minería y pesca"""

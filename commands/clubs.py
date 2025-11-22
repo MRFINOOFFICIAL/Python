@@ -79,7 +79,7 @@ class ClubsCog(commands.Cog):
                 return {"id": row[0], "nombre": row[1], "lider": row[2], "dinero": row[3], "miembros_max": row[4]}
             return None
 
-    @app_commands.command(name="crear-club", description="Crear un nuevo club")
+    @app_commands.command(name="crear-club", description="🏢 Crear Grupo de Apoyo - Funda tu comunidad de recuperación")
     async def create_club(self, interaction: discord.Interaction, nombre: str):
         """Crear un nuevo club"""
         await interaction.response.defer()
@@ -309,7 +309,7 @@ class ClubsCog(commands.Cog):
         
         await interaction.followup.send(f"✅ Promoviste a {usuario.mention} a oficial.")
 
-    @app_commands.command(name="clubs", description="Ver lista de todos los clubs")
+    @app_commands.command(name="clubs", description="🏢 Lista de Grupos de Apoyo del Sanatorio")
     async def list_clubs(self, interaction: discord.Interaction):
         """Listar todos los clubs"""
         await interaction.response.defer()

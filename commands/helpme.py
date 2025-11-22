@@ -555,26 +555,26 @@ class HelpCog(commands.Cog):
 
     @commands.command(name="ayuda")
     async def ayuda_prefix(self, ctx):
-        """Comando de prefijo: !ayuda"""
+        """Comando de prefijo: !ayuda - Manual del Sanatorio"""
         embed = discord.Embed(
-            title="📜 Menú de Ayuda — Los Ezquisos",
-            description="Guía completa del bot. Usa el menú para navegar entre secciones.",
-            color=discord.Color.dark_teal()
+            title="🏥 Manual del Sanatorio Psiquiátrico",
+            description="Guía completa de recuperación mental. Usa el menú para explorar el sanatorio.",
+            color=discord.Color.from_rgb(74, 222, 128)
         )
-        embed.set_footer(text="Sistema RPG de economía hospitalaria.")
+        embed.set_footer(text="🏥 Tu salud mental es nuestra prioridad")
         view = HelpAlmanacView(ctx.author.id)
         await ctx.send(embed=embed, view=view)
 
-    @app_commands.command(name="ayuda", description="📜 Muestra la ayuda del bot (menú interactivo)")
+    @app_commands.command(name="ayuda", description="🏥 Manual del Sanatorio - Guía Completa del Psicólogo")
     async def ayuda_slash(self, interaction: discord.Interaction):
-        """Comando slash: /ayuda"""
+        """Comando slash: /ayuda - Manual del Sanatorio"""
         await interaction.response.defer()
         embed = discord.Embed(
-            title="📜 Menú de Ayuda — Los Ezquisos",
-            description="Guía completa del bot. Usa el menú para navegar entre secciones.",
-            color=discord.Color.dark_teal()
+            title="🏥 Manual del Sanatorio Psiquiátrico",
+            description="Guía completa de recuperación mental. Usa el menú para explorar el sanatorio.",
+            color=discord.Color.from_rgb(74, 222, 128)
         )
-        embed.set_footer(text="Sistema RPG de economía hospitalaria.")
+        embed.set_footer(text="🏥 Tu salud mental es nuestra prioridad")
         view = HelpAlmanacView(interaction.user.id)
         await interaction.followup.send(embed=embed, view=view)
 

@@ -8,17 +8,17 @@ from discord import app_commands, ui
 from db import get_pet, get_all_pets, create_pet, get_pet_level, get_pet_xp_total, get_money, add_money, set_active_pet
 
 MASCOTAS = {
-    "chihuahua": {"rareza": "común", "emojis": "🐕", "precio": 500, "poder": 5},
-    "gato": {"rareza": "común", "emojis": "🐱", "precio": 500, "poder": 5},
-    "perro": {"rareza": "común", "emojis": "🐶", "precio": 500, "poder": 5},
-    "loro": {"rareza": "común", "emojis": "🦜", "precio": 500, "poder": 5},
-    "conejo": {"rareza": "raro", "emojis": "🐰", "precio": 2500, "poder": 12},
-    "hamster": {"rareza": "raro", "emojis": "🐹", "precio": 2500, "poder": 12},
-    "dragón": {"rareza": "épico", "emojis": "🐉", "precio": 10000, "poder": 25},
-    "fenix": {"rareza": "épico", "emojis": "🔥", "precio": 10000, "poder": 25},
-    "saviteto": {"rareza": "legendario", "emojis": "✨", "precio": 50000, "poder": 50},
-    "finopeluche": {"rareza": "legendario", "emojis": "💎", "precio": 50000, "poder": 50},
-    "mechones": {"rareza": "legendario", "emojis": "👑", "precio": 50000, "poder": 50},
+    "chihuahua": {"rareza": "común", "emojis": "🐕", "precio": 500, "poder": 5, "desc": "Compañero leal de apoyo emocional"},
+    "gato": {"rareza": "común", "emojis": "🐱", "precio": 500, "poder": 5, "desc": "Felino sanador del alma"},
+    "perro": {"rareza": "común", "emojis": "🐶", "precio": 500, "poder": 5, "desc": "Perro de servicio psicológico"},
+    "loro": {"rareza": "común", "emojis": "🦜", "precio": 500, "poder": 5, "desc": "Ave parlante que escucha tus traumas"},
+    "conejo": {"rareza": "raro", "emojis": "🐰", "precio": 2500, "poder": 12, "desc": "Conejo saltador de alegría"},
+    "hamster": {"rareza": "raro", "emojis": "🐹", "precio": 2500, "poder": 12, "desc": "Pequeño roedor de esperanza"},
+    "dragón": {"rareza": "épico", "emojis": "🐉", "precio": 10000, "poder": 25, "desc": "Dragón sanador de fuego interior"},
+    "fenix": {"rareza": "épico", "emojis": "🔥", "precio": 10000, "poder": 25, "desc": "Ave del renacimiento emocional"},
+    "saviteto": {"rareza": "legendario", "emojis": "✨", "precio": 50000, "poder": 50, "desc": "Ser mítico de sanación absoluta"},
+    "finopeluche": {"rareza": "legendario", "emojis": "💎", "precio": 50000, "poder": 50, "desc": "Peluche mágico de la verdad final"},
+    "mechones": {"rareza": "legendario", "emojis": "👑", "precio": 50000, "poder": 50, "desc": "Rey de la recuperación mental"},
 }
 
 BONUS_POR_NIVEL = {

@@ -7,18 +7,19 @@ class LeaderboardCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="leaderboard", description="Ver rankings de jugadores")
+    @app_commands.command(name="leaderboard", description="🏆 Rankings del Sanatorio - Mejores Pacientes")
     @app_commands.choices(stat=[
-        app_commands.Choice(name="💰 Dinero", value="dinero"),
-        app_commands.Choice(name="⭐ Experiencia", value="experiencia"),
+        app_commands.Choice(name="💚 Recuperación Mental", value="dinero"),
+        app_commands.Choice(name="🧠 Progreso Terapéutico", value="experiencia"),
     ])
     async def leaderboard(self, interaction: discord.Interaction, stat: str = "dinero"):
         await interaction.response.defer()
         leaders = await get_leaderboard(interaction.guild_id, stat, 10)
         
+        stat_name = "Recuperación Mental" if stat == "dinero" else "Progreso Terapéutico"
         embed = discord.Embed(
-            title=f"🏆 Leaderboard - {stat.capitalize()}",
-            description="Top 10 jugadores",
+            title=f"🏆 Rankings del Sanatorio - {stat_name}",
+            description="Top 10 mejores pacientes en recuperación",
             color=discord.Color.gold()
         )
         

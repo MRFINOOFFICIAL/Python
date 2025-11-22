@@ -12,7 +12,7 @@ class ProfileCog(commands.Cog):
     async def profile_prefix(self, ctx):
         await self._profile_send(user=ctx.author, send_fn=lambda **kw: ctx.send(**kw), author_ctx=ctx)
 
-    @app_commands.command(name="profile", description="Muestra tu perfil")
+    @app_commands.command(name="profile", description="👤 Perfil del Paciente - Ver tu expediente médico")
     async def profile_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         await self._profile_send(user=interaction.user, send_fn=lambda **kw: interaction.followup.send(**kw), author_ctx=interaction)
@@ -31,15 +31,15 @@ class ProfileCog(commands.Cog):
         color = rank_colors.get(u['rango'], discord.Color.blurple())
         
         embed = discord.Embed(
-            title=f"👤 {user.name}",
-            description=f"**Rango:** {u['rango']} | **Vidas:** ❤️ {u.get('vidas', 3)}",
+            title=f"📋 Expediente de {user.name}",
+            description=f"**Diagnóstico:** {u['rango']} | **Estado Vital:** ❤️ {u.get('vidas', 3)} vidas",
             color=color
         )
         embed.set_thumbnail(url=user.display_avatar.url)
         
-        embed.add_field(name="💰 Dinero", value=f"```{u['dinero']:,}```", inline=True)
-        embed.add_field(name="⭐ Experiencia", value=f"```{u['experiencia']:,}```", inline=True)
-        embed.add_field(name="💼 Trabajo", value=f"```{u['trabajo']}```", inline=True)
+        embed.add_field(name="💚 Recuperación Mental", value=f"```{u['dinero']:,}```", inline=True)
+        embed.add_field(name="🧠 Progreso Terapéutico", value=f"```{u['experiencia']:,}```", inline=True)
+        embed.add_field(name="🏥 Rol Actual", value=f"```{u['trabajo']}```", inline=True)
         
         if inv:
             inv_text = "\n".join(f"• {i['item']} ({i['rareza']})" for i in inv[:5])
@@ -49,7 +49,7 @@ class ProfileCog(commands.Cog):
         else:
             embed.add_field(name="📦 Inventario", value="Vacío", inline=False)
         
-        embed.set_footer(text="Usa /inventario para ver todos los detalles")
+        embed.set_footer(text="📋 Usa /inventario para ver medicinas y equipamiento completo")
         await send_fn(embed=embed)
 
 async def setup(bot):

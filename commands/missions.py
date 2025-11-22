@@ -8,12 +8,12 @@ class MissionsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.missions_types = {
-            "trabajar": ("Completa 5 trabajos", 5, 500),
-            "explorar": ("Explora 3 veces", 3, 400),
-            "robar": ("Roba 2 veces exitosamente", 2, 600),
+            "trabajar": ("Completa 5 sesiones de terapia ocupacional", 5, 500),
+            "explorar": ("Explora 3 veces el subconsciente", 3, 400),
+            "robar": ("Gana 2 confrontaciones terapéuticas", 2, 600),
         }
 
-    @app_commands.command(name="misiones", description="Ver tu misión diaria")
+    @app_commands.command(name="misiones", description="📋 Misiones Diarias del Sanatorio")
     async def missions(self, interaction: discord.Interaction):
         await interaction.response.defer()
         mission = await get_daily_mission(interaction.user.id)

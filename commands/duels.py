@@ -22,7 +22,7 @@ class DuelsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="desafiar", description="Desafiar a un jugador a duelo por dinero")
+    @app_commands.command(name="desafiar", description="⚔️ Duelo Psicológico - Confronta por recuperación")
     @app_commands.autocomplete(cantidad=cantidad_sugerida_autocomplete)
     async def challenge(self, interaction: discord.Interaction, usuario: discord.User, cantidad: int):
         from datetime import datetime

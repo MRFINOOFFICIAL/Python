@@ -36,7 +36,7 @@ class FishingCog(commands.Cog):
         """Comando prefix: pescar"""
         await self._do_fish(ctx.author, send_fn=lambda **kw: ctx.send(**kw))
 
-    @app_commands.command(name="pescar", description="🎣 Pesca objetos acuáticos")
+    @app_commands.command(name="pescar", description="🎣 Buceo en el Inconsciente - Pesca traumas sumergidos")
     async def fish_slash(self, interaction: discord.Interaction):
         """Comando slash: pescar"""
         from datetime import datetime, timedelta

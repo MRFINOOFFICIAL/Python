@@ -36,7 +36,7 @@ class MiningCog(commands.Cog):
         """Comando prefix: minar minerales"""
         await self._do_mine(ctx.author, send_fn=lambda **kw: ctx.send(**kw))
 
-    @app_commands.command(name="minar", description="⛏️ Mina minerales y cristales")
+    @app_commands.command(name="minar", description="⛏️ Excava Traumas - Busca cristales de sanación")
     async def mine_slash(self, interaction: discord.Interaction):
         """Comando slash: minar"""
         from datetime import datetime, timedelta

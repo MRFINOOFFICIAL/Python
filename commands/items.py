@@ -247,19 +247,19 @@ class ItemsCog(commands.Cog):
         # Efectos especiales de items
         if "bebida de la vida" in item_name:
             await add_lives(user_id, 1)
-            await send_fn("🍷 **Bebida de la Vida usado** — ¡Has ganado una vida extra! 💚")
+            await send_fn("💊 **Bebida de Vida Eterna administrada** — ¡Has recuperado una vida psicológica! 💚")
         elif "kit de reparación" in item_name:
-            await send_fn("🔧 **Kit de Reparación usado** — Este item repararía durabilidad (próxima versión)")
+            await send_fn("🔧 **Kit de Reparación Emocional usado** — Instrumentos terapéuticos restaurados")
         elif "botella de sedante" in item_name:
-            await send_fn("💤 **Sedante usado** — Te sientes relajado...")
+            await send_fn("💤 **Sedante Mental usado** — Sientes calma profunda...")
         elif "teléfono" in item_name:
-            await send_fn("📱 **Teléfono usado** — Llamaste a alguien... poco útil aquí")
+            await send_fn("📞 **Teléfono de Emergencia activado** — Contactaste con el sanatorio")
         elif "linterna" in item_name:
-            await send_fn("🔦 **Linterna encendida** — ¡Qué iluminante!")
-        elif "chihuahua" in item_name:
-            await send_fn("🐕 **Chihuahua activado** — Tu pequeño amiguito te acompaña")
+            await send_fn("🔦 **Linterna Mental encendida** — ¡Tus traumas se iluminan!")
+        elif "chihuahua" in item_name or "animal de apoyo" in item_name:
+            await send_fn("🐕 **Animal de Apoyo activado** — Tu compañero emocional te acompaña")
         elif "caja de cerillas" in item_name or "cerillas" in item_name:
-            await send_fn("🔥 **Cerillas encendidas** — ¡Fuego! 🔥")
+            await send_fn("🔥 **Catarsis encendida** — ¡Libera tu fuego interno! 🔥")
         else:
             await send_fn(f"✅ **{item['item']} usado** — Efecto especial aplicado")
         
@@ -270,14 +270,14 @@ class ItemsCog(commands.Cog):
     
     @commands.command(name="inventario")
     async def inventario_prefix(self, ctx):
-        """!inventario - Ver tu inventario completo"""
+        """!inventario - 📦 Botiquín Médico Completo"""
         async def send_fn(*args, **kwargs):
             return await ctx.send(*args, **kwargs)
         await self._inventario_send(ctx.author.id, send_fn)
 
-    @app_commands.command(name="inventario", description="Ver tu inventario completo")
+    @app_commands.command(name="inventario", description="📦 Botiquín Médico - Ve tus medicinas y equipamiento")
     async def inventario_slash(self, interaction: discord.Interaction):
-        """Ver inventario completo"""
+        """Ver botiquín médico completo"""
         await interaction.response.defer()
         async def send_fn(*args, **kwargs):
             return await interaction.followup.send(*args, **kwargs)
@@ -287,12 +287,12 @@ class ItemsCog(commands.Cog):
     
     @commands.command(name="use")
     async def use_prefix(self, ctx):
-        """!use - Usar un item de tu inventario"""
+        """!use - 💊 Consumir Medicina del Botiquín"""
         async def send_fn(*args, **kwargs):
             return await ctx.send(*args, **kwargs)
         await self._use_send(ctx.author.id, send_fn)
 
-    @app_commands.command(name="use", description="Usar un item de tu inventario")
+    @app_commands.command(name="use", description="💊 Administrar Medicina - Usa un medicamento del botiquín")
     @app_commands.autocomplete(item_name=use_item_autocomplete)
     async def use_slash(self, interaction: discord.Interaction, item_name: Optional[str] = None):
         """Usar un item del inventario"""

@@ -40,15 +40,15 @@ class BJView(discord.ui.View):
         self.uid = uid
 
         # Buttons: Hit, Stand, Double
-        btn_hit = discord.ui.Button(label="Hit", style=discord.ButtonStyle.primary)
+        btn_hit = discord.ui.Button(label="🎴 Otra Carta", style=discord.ButtonStyle.primary)
         btn_hit.callback = self._cb_hit
         self.add_item(btn_hit)
 
-        btn_stand = discord.ui.Button(label="Stand", style=discord.ButtonStyle.secondary)
+        btn_stand = discord.ui.Button(label="✋ Parar", style=discord.ButtonStyle.secondary)
         btn_stand.callback = self._cb_stand
         self.add_item(btn_stand)
 
-        btn_double = discord.ui.Button(label="Double", style=discord.ButtonStyle.danger)
+        btn_double = discord.ui.Button(label="💰 Duplicar", style=discord.ButtonStyle.danger)
         btn_double.callback = self._cb_double
         self.add_item(btn_double)
 
