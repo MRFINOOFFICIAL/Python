@@ -5,7 +5,7 @@ Sistema de minería para encontrar minerales y objetos.
 import discord
 from discord.ext import commands
 from discord import app_commands
-from db import add_item_to_user, get_inventory, add_pet_xp, update_mission_progress, set_mining_cooldown, get_mining_cooldown
+from db import add_item_to_user, get_inventory, add_pet_xp, update_mission_progress, set_mining_cooldown, get_mining_cooldown, initialize_user_tools
 from datetime import datetime
 import random
 
@@ -54,6 +54,9 @@ class MiningCog(commands.Cog):
     async def _do_mine(self, user, send_fn):
         """Lógica de minería"""
         await set_mining_cooldown(user.id)
+        
+        # Inicializar herramientas si es la primera vez
+        await initialize_user_tools(user.id)
         
         inv = await get_inventory(user.id)
         

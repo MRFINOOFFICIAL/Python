@@ -5,7 +5,7 @@ Sistema de forja para crear armas únicas usando objetos de minería y pesca.
 import discord
 from discord.ext import commands
 from discord import app_commands
-from db import add_item_to_user, get_inventory, remove_item
+from db import add_item_to_user, get_inventory, remove_item, replace_tool
 from typing import Optional, List, Tuple
 
 # Armas por rareza con sus requisitos
@@ -238,12 +238,20 @@ class ForgingCog(commands.Cog):
         # Determinar categoría según el tipo de herramienta
         categoria = "arma_forjada"
         poder = 45
+        tool_type = None
+        
         if weapon_data.get("tool_type") == "mining":
             categoria = "pico_mejorado"
             poder = 30
+            tool_type = "mining"
+            # Reemplazar pico anterior
+            await replace_tool(user_id, "mining")
         elif weapon_data.get("tool_type") == "fishing":
             categoria = "caña_mejorada"
             poder = 30
+            tool_type = "fishing"
+            # Reemplazar caña anterior
+            await replace_tool(user_id, "fishing")
         
         # Agregar arma forjada o herramienta
         await add_item_to_user(user_id, weapon_name, rareza=rareza, usos=1, durabilidad=100, categoria=categoria, poder=poder)

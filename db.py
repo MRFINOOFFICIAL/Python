@@ -964,3 +964,35 @@ async def get_pet_bonus_multiplier(user_id):
             return BONUS_POR_NIVEL[level]
     
     return 1.0
+
+# ---------- HERRAMIENTAS ----------
+
+async def initialize_user_tools(user_id):
+    """Inicializar al usuario con pico normal y caña normal"""
+    inv = await get_inventory(user_id)
+    
+    # Verificar si ya tiene herramientas
+    has_pick = any(item["item"].lower() in ["pico normal", "pico mejorado", "pico épico"] for item in inv)
+    has_rod = any(item["item"].lower() in ["caña normal", "caña mejorada", "caña épica"] for item in inv)
+    
+    if not has_pick:
+        await add_item_to_user(user_id, "Pico Normal", rareza="comun", usos=1, durabilidad=100, categoria="pico_normal", poder=5)
+    
+    if not has_rod:
+        await add_item_to_user(user_id, "Caña Normal", rareza="comun", usos=1, durabilidad=100, categoria="caña_normal", poder=5)
+
+async def replace_tool(user_id, new_tool_type: str):
+    """Reemplazar herramienta antigua con nueva (pico o caña)"""
+    inv = await get_inventory(user_id)
+    
+    if new_tool_type == "mining":
+        # Eliminar cualquier pico anterior (normal, mejorado, épico)
+        old_picks = [item for item in inv if item["item"].lower() in ["pico normal", "pico mejorado", "pico épico"]]
+        for pick in old_picks:
+            await remove_item(pick["id"])
+    
+    elif new_tool_type == "fishing":
+        # Eliminar cualquier caña anterior (normal, mejorada, épica)
+        old_rods = [item for item in inv if item["item"].lower() in ["caña normal", "caña mejorada", "caña épica"]]
+        for rod in old_rods:
+            await remove_item(rod["id"])
