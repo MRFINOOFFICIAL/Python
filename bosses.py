@@ -80,7 +80,7 @@ WEAPON_STATS = {
     "Paquete de peluches fino": {"hit_chance": 0.55, "damage": 10, "crit_chance": 0.25},
     "x2 de dinero de mecha": {"hit_chance": 0.5, "damage": 5, "crit_chance": 0.1},
     "Danza de Saviteto": {"hit_chance": 0.7, "damage": 12, "crit_chance": 0.35},
-    "Kit de reparación": {"hit_chance": 0.3, "damage": 1, "crit_chance": 0.05},
+    "Kit de reparación": {"hit_chance": 0.0, "damage": 0, "crit_chance": 0.0},  # No es arma de combate
     "Savi Forma Teto": {"hit_chance": 0.75, "damage": 35, "crit_chance": 0.3},
     "Savi Forma Final": {"hit_chance": 0.8, "damage": 50, "crit_chance": 0.4},
     "Fino": {"hit_chance": 0.95, "damage": 70, "crit_chance": 0.5},

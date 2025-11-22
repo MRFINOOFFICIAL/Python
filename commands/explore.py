@@ -117,7 +117,7 @@ ITEM_STATS = {
     "placa de identificación": {"categoria": "accesorio", "poder": 7},
     "cable usb": {"categoria": "tecnologia", "poder": 9},
     "garrafa de aceite": {"categoria": "quimicos", "poder": 10},
-    "guitarra rota": {"categoria": "arma", "poder": 12},
+    "guitarra rota": {"categoria": "arma", "poder": 20},  # Raro, debe tener más poder
     # Armas especiales de bosses
     "espada del goblin": {"categoria": "arma", "poder": 42},
     "hacha del orco": {"categoria": "arma", "poder": 44},

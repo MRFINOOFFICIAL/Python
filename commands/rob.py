@@ -34,7 +34,7 @@ ITEM_STATS = {
     "poción de furia": {"categoria": "consumible", "poder": 18},
     "escudo mágico": {"categoria": "consumible", "poder": 10},
     "nektar antiguo": {"categoria": "consumible", "poder": 8},
-    "kit de reparación": {"categoria": "consumible", "poder": 3},
+    "kit de reparación": {"categoria": "consumible", "poder": 0},  # No es arma de combate
     # Items adicionales de explore
     "botiquín": {"categoria": "salud", "poder": 2},
     "traje ritual": {"categoria": "ropa", "poder": 35},
@@ -48,7 +48,7 @@ ITEM_STATS = {
     "placa de identificación": {"categoria": "accesorio", "poder": 7},
     "cable usb": {"categoria": "tecnologia", "poder": 9},
     "garrafa de aceite": {"categoria": "quimicos", "poder": 10},
-    "guitarra rota": {"categoria": "arma", "poder": 12},
+    "guitarra rota": {"categoria": "arma", "poder": 20},  # Raro, más poder que comunes
 }
 
 # Sincronizar con explore.py
