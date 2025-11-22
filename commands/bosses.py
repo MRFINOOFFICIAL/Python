@@ -394,7 +394,7 @@ class BossesCog(commands.Cog):
 
     @commands.command(name="fight")
     async def fight_prefix(self, ctx):
-        """!fight - Pelea contra el jefe activo"""
+        """!fight - 🧠 Sesión de Confrontación Traumática"""
         class DummyInteraction:
             def __init__(self, ctx):
                 self.ctx = ctx
@@ -417,26 +417,26 @@ class BossesCog(commands.Cog):
         dummy = DummyInteraction(ctx)
         await self._fight_internal(ctx.author.id, ctx.guild.id, dummy)
 
-    @app_commands.command(name="fight", description="Pelea contra el jefe activo")
+    @app_commands.command(name="fight", description="🧠 Confrontación Traumática - Enfrenta el trauma activo")
     async def fight_slash(self, interaction: discord.Interaction):
-        """Fight the active boss"""
+        """Participa en confrontación traumática"""
         await interaction.response.defer()
         await self._fight_internal(interaction.user.id, interaction.guild_id, interaction)
 
     @commands.command(name="bossinfo")
     async def bossinfo_prefix(self, ctx):
-        """!bossinfo - Ver información del jefe activo"""
+        """!bossinfo - 📊 Ver información del trauma activo"""
         guild_id = ctx.guild.id
         active_bosses = await get_all_active_bosses(guild_id)
         
         if not active_bosses:
-            return await ctx.send("❌ No hay jefe activo.")
+            return await ctx.send("❌ No hay trauma activo en el sanatorio.")
         
         boss_data = active_bosses[0]
         boss = get_boss_by_name(boss_data.get("boss_name"))
         
         if not boss:
-            return await ctx.send("❌ Jefe no encontrado.")
+            return await ctx.send("❌ Trauma no encontrado en registros.")
         
         embed = discord.Embed(title=f"📊 {boss.get('name', 'Unknown')}", color=discord.Color.yellow())
         embed.add_field(name="Tipo", value=boss.get("type", "?"), inline=True)
@@ -446,20 +446,20 @@ class BossesCog(commands.Cog):
         
         await ctx.send(embed=embed)
 
-    @app_commands.command(name="bossinfo", description="Ver información del jefe activo")
+    @app_commands.command(name="bossinfo", description="📊 Información del Trauma Activo")
     async def bossinfo_slash(self, interaction: discord.Interaction):
-        """Get info about the active boss"""
+        """Obtén información del trauma activo"""
         guild_id = interaction.guild_id
         active_bosses = await get_all_active_bosses(guild_id)
         
         if not active_bosses:
-            return await interaction.response.send_message("❌ No hay jefe activo.", ephemeral=True)
+            return await interaction.response.send_message("❌ No hay trauma activo en el sanatorio.", ephemeral=True)
         
         boss_data = active_bosses[0]
         boss = get_boss_by_name(boss_data.get("boss_name"))
         
         if not boss:
-            return await interaction.response.send_message("❌ Jefe no encontrado.", ephemeral=True)
+            return await interaction.response.send_message("❌ Trauma no encontrado en registros.", ephemeral=True)
         
         embed = discord.Embed(title=f"📊 {boss.get('name', 'Unknown')}", color=discord.Color.yellow())
         embed.add_field(name="HP Actual", value=f"{boss_data.get('current_hp', '?')} / {boss_data.get('max_hp', '?')}", inline=True)

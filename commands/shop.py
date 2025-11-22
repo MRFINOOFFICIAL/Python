@@ -34,11 +34,11 @@ class ShopPaginationView(ui.View):
         }
         
         embed = discord.Embed(
-            title=f"🏪 Tienda — Los Ezquisos",
-            color=discord.Color.green()
+            title=f"🏥 Farmacia Clínica de Recuperación",
+            color=discord.Color.from_rgb(74, 222, 128)
         )
         embed.set_thumbnail(url="https://i.imgur.com/2yaf2wb.png")
-        embed.description = f"📄 Página {self.current_page + 1}/{self.total_pages}\n💡 Usa `/buy <nombre>` para comprar"
+        embed.description = f"📄 Catálogo {self.current_page + 1}/{self.total_pages}\n💊 Usa `/buy <nombre>` para adquirir medicina"
         
         rarity_emoji = {"comun": "⚪", "raro": "🔵", "epico": "🟣", "legendario": "🟠", "maestro": "🔶"}
         
@@ -49,7 +49,7 @@ class ShopPaginationView(ui.View):
                 value=f"💰 `{it['price']}` | {it['rarity'].upper()}\n{it['effect']}",
                 inline=False
             )
-        embed.set_footer(text="¡Mejora tu arsenal en la tienda!")
+        embed.set_footer(text="🏥 Tu salud mental es nuestra prioridad - Farmacia Clínica")
         return embed
     
     @ui.button(label="◀ Anterior", style=discord.ButtonStyle.blurple)
@@ -96,26 +96,25 @@ async def shop_items_autocomplete(interaction: discord.Interaction, current: str
 # ----------------- Default shop items to insert -----------------
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
-    ("Paquete de peluches fino", 8000, "consumible", "Recupera 50 HP en combate o vende por 4000💰", "epico"),
-    ("x2 de dinero de mecha", 900, "consumible_buff", "Duplica dinero ganado en el trabajo durante 1 hora", "epico"),
-    ("Danza de Saviteto", 3500, "consumible_buff", "Aumenta tu daño en 50% en el próximo ataque", "raro"),
-    ("Poción de Furia", 2500, "consumible_damage", "Inflige 60 de daño directo al jefe", "epico"),
-    ("Escudo Mágico", 1800, "consumible_shield", "Te protege del próximo ataque enemigo", "raro"),
-    # 7 adicionales solicitadas
-    ("Bastón de Staff", 6500, "arma", "Aumenta el poder en robos y minijuegos relacionados.", "raro"),
-    ("Teléfono", 200, "herramienta", "Útil para minijuegos y algunas interacciones.", "comun"),
-    ("Chihuahua", 600, "mascota", "Mascota que puede ofrecer pequeñas bonificaciones pasivas.", "raro"),
-    ("Mecha Enojado", 1200, "arma", "Arma poderosa con alto poder en robos.", "epico"),
-    ("Linterna", 100, "herramienta", "Permite encontrar objetos más raros al explorar.", "comun"),
-    ("Llave Maestra", 1500, "herramienta", "Aumenta posibilidades de saqueo exitoso y desbloquea cofres.", "epico"),
-    ("Kit de reparación", 200, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
-    ("Nektar Antiguo", 3500, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
-    ("Bebida de la Vida", 5500, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
-    # Huevos de mascotas por rareza - más accesibles
-    ("Huevo Común", 400, "huevo_mascota", "Alta probabilidad de mascota común (Chihuahua, Gato, Perro, Loro)", "comun"),
-    ("Huevo Raro", 1800, "huevo_mascota", "Probabilidad aumentada de mascota rara (Conejo, Hamster)", "raro"),
-    ("Huevo Épico", 7000, "huevo_mascota", "Probabilidad aumentada de mascota épica (Dragón, Fenix)", "epico"),
-    ("Huevo Legendario", 35000, "huevo_mascota", "Máxima probabilidad de mascota legendaria (Saviteto, Finopeluche, Mechones)", "legendario"),
+    ("Paquete de Peluches Terapéutico", 8000, "consumible", "Recupera 50 HP mental en sesión o vende por 4000💰", "epico"),
+    ("Doblador de Recuperación Económica", 900, "consumible_buff", "Dobla ganancias de terapia ocupacional 1 hora", "epico"),
+    ("Danza Emocional de Paz", 3500, "consumible_buff", "Aumenta potencia psicológica +50% próximo ataque", "raro"),
+    ("Poción de Furia Controlada", 2500, "consumible_damage", "Libera 60 puntos de catarsis directa", "epico"),
+    ("Escudo Mental Psíquico", 1800, "consumible_shield", "Protección emocional total próximo turno", "raro"),
+    ("Bastón de Poder Mental", 6500, "arma", "Potencia psicológica en confrontaciones terapéuticas", "raro"),
+    ("Teléfono de Emergencia", 200, "herramienta", "Contacto en crisis emocionales agudas", "comun"),
+    ("Animal de Apoyo Chihuahua", 600, "mascota", "Compañía emocional con bonificaciones pasivas", "raro"),
+    ("Síndrome de Mecha Armado", 1200, "arma", "Potencia máxima en confrontaciones", "epico"),
+    ("Linterna Mental", 100, "herramienta", "Revela traumas ocultos en exploración subconsciente", "comun"),
+    ("Llave Maestra Psíquica", 1500, "herramienta", "Desbloquea potenciales ocultos y traumas", "epico"),
+    ("Kit de Reparación Emocional", 200, "consumible", "Restaura instrumentos terapéuticos dañados", "comun"),
+    ("Néctar Antiguo de Sanación", 3500, "consumible", "Restaura 100 HP mental - máxima potencia", "legendario"),
+    ("Bebida de Vida Eterna", 5500, "consumible_life", "Regenera 1 vida psicológica completa", "maestro"),
+    # Huevos de animales de soporte por rareza
+    ("Huevo Mascota Ordinaria", 400, "huevo_mascota", "Animal de soporte común (Perro, Gato, Loro, Chihuahua)", "comun"),
+    ("Huevo Mascota Especializada", 1800, "huevo_mascota", "Animal de soporte mejorado (Conejo, Hamster)", "raro"),
+    ("Huevo Mascota Avanzada", 7000, "huevo_mascota", "Animal de soporte avanzado (Dragón, Fénix)", "epico"),
+    ("Huevo Legendario Supremo", 35000, "huevo_mascota", "Animal legendario garantizado (Saviteto, Finopeluche, Mechones)", "legendario"),
 ]
 
 # ----------------- Shop Cog -----------------
@@ -128,20 +127,20 @@ class ShopCog(commands.Cog):
     async def shop_prefix(self, ctx):
         items = await get_shop()
         if not items:
-            return await ctx.send("La tienda está vacía por ahora.")
+            return await ctx.send("🏪 La farmacia clínica está cerrada por mantenimiento.")
         
         view = ShopPaginationView(items, ctx.author.id)
         embed = view.get_embed()
-        embed.description = "Usa `!buy Nombre exacto` para comprar.\n" + embed.description
+        embed.description = "📋 Usa `!buy Nombre exacto` para adquirir medicina.\n" + embed.description
         await ctx.send(embed=embed, view=view)
 
     # --------- Slash: ver tienda ----------
-    @app_commands.command(name="shop", description="Ver la tienda")
+    @app_commands.command(name="shop", description="🏪 Farmacia Clínica - Medicinas y Recursos")
     async def shop_slash(self, interaction: discord.Interaction):
         await interaction.response.defer()
         items = await get_shop()
         if not items:
-            return await interaction.followup.send("La tienda está vacía por ahora.", ephemeral=True)
+            return await interaction.followup.send("🏪 La farmacia clínica está cerrada por mantenimiento.", ephemeral=True)
         
         view = ShopPaginationView(items, interaction.user.id)
         embed = view.get_embed()

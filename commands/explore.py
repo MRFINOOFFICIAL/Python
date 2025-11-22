@@ -247,7 +247,7 @@ class ChestOpenView(View):
             pass
         if self.message:
             try:
-                await self.message.edit(content="⌛ Tiempo terminado. Cofre perdido.", view=self)
+                await self.message.edit(content="⌛ La exploración fue interrumpida. Trauma perdido.", view=self)
             except Exception:
                 pass
 
@@ -263,12 +263,12 @@ class ExploreCog(commands.Cog):
     @commands.command(name="explore")
     @commands.cooldown(1, 25, commands.BucketType.user)
     async def explore_prefix(self, ctx):
-        """Comando prefix: explorar"""
+        """Comando prefix: 🧠 Exploración del Subconsciente"""
         await self._do_explore(ctx.author, send_fn=lambda **kw: ctx.send(**kw), author_ctx=ctx)
 
-    @app_commands.command(name="explore", description="🌲 Explora y encuentra objetos y cofres")
+    @app_commands.command(name="explore", description="🧠 Exploración del Subconsciente - Descubre traumas ocultos")
     async def explore_slash(self, interaction: discord.Interaction):
-        """Comando slash: explorar"""
+        """Comando slash: exploración del subconsciente"""
         from db import get_explore_cooldown
         from datetime import datetime, timedelta
         

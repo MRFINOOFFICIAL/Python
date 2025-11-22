@@ -357,29 +357,29 @@ class WorkCog(commands.Cog):
         # Mejorar embed visual
         color = discord.Color.green() if result > 0 else discord.Color.red()
         embed = discord.Embed(
-            title=f"💼 {job}",
-            description=f"**Resultado:** {msg_text}",
+            title=f"🏥 {job}",
+            description=f"**Resultado Terapéutico:** {msg_text}",
             color=color
         )
         
         if result > 0:
-            embed.add_field(name="💰 Ganancia", value=f"```{result:,} dinero```", inline=False)
+            embed.add_field(name="💚 Mejora Psicológica", value=f"```+{result:,} recuperación```", inline=False)
         else:
-            embed.add_field(name="❌ Resultado", value="```Perdiste el minijuego```", inline=False)
+            embed.add_field(name="❌ Sesión No Completada", value="```Fallaste el ejercicio terapéutico```", inline=False)
         
-        embed.set_footer(text=f"⏳ Próximo trabajo en 10 minutos")
+        embed.set_footer(text=f"⏳ Próxima terapia en 10 minutos")
         await send_fn(embed=embed)
 
     @commands.command(name="work")
     async def work_prefix(self, ctx):
-        """!work - Trabajar en tu empleo actual"""
+        """!work - 🏥 Terapia Ocupacional"""
         async def send_fn(*args, **kwargs):
             return await ctx.send(*args, **kwargs)
         await self._work_internal(ctx.author.id, ctx.guild.id, send_fn, self.bot)
 
-    @app_commands.command(name="work", description="Trabajar en tu empleo actual")
+    @app_commands.command(name="work", description="🏥 Terapia Ocupacional - Trabaja en tu rol actual")
     async def work_slash(self, interaction: discord.Interaction):
-        """Work in your current job"""
+        """Participa en terapia ocupacional"""
         await interaction.response.defer()
         async def send_fn(*args, **kwargs):
             return await interaction.followup.send(*args, **kwargs)

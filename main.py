@@ -10,12 +10,12 @@ from keep_alive import keep_alive
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("discord")
 
-print(">>> Bot iniciando...")
+print("🏥 >>> SANATORIO PSIQUIÁTRICO - Bot iniciando...")
 keep_alive()
 
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # para evitar sincronizar múltiples veces
 _tree_synced = False
@@ -24,35 +24,35 @@ _tree_synced = False
 async def on_ready():
     global _tree_synced
     if bot.user:
-        print(f"Bot listo: {bot.user} (ID: {bot.user.id})")
+        print(f"🏥 Sanatorio listo: {bot.user} (ID: {bot.user.id})")
     await init_db()
     if not _tree_synced:
         try:
             synced = await bot.tree.sync()
-            print(f"Slash commands sincronizados: {len(synced)}")
+            print(f"✅ Sesiones terapéuticas sincronizadas: {len(synced)}")
             for cmd in synced:
                 print(f"  ✓ {cmd.name}")
         except Exception as e:
-            print("Error al sincronizar slash commands:", e)
+            print("❌ Error al sincronizar sesiones:", e)
         _tree_synced = True
 
 @bot.event
 async def on_app_command_error(interaction: discord.Interaction, error: Exception):
     """Manejar errores de comandos slash"""
     if isinstance(error, discord.app_commands.CommandNotFound):
-        await interaction.response.send_message("❌ Comando no encontrado.", ephemeral=True)
+        await interaction.response.send_message("🧠 Esa sesión terapéutica no existe en el sanatorio.", ephemeral=True)
     elif "deprecated" in str(error).lower() or "obsoleto" in str(error).lower():
-        print(f"⚠️ Comando obsoleto detectado: {interaction.command.name if interaction.command else 'unknown'}")
-        print("⚠️ Resincronizando comandos globales...")
+        print(f"⚠️ Protocolo terapéutico obsoleto: {interaction.command.name if interaction.command else 'unknown'}")
+        print("⚠️ Resincronizando sesiones terapéuticas...")
         try:
             synced = await bot.tree.sync()
-            print(f"✅ Comandos resincronizados: {len(synced)}")
-            await interaction.response.send_message("✅ Comandos actualizados. Intenta de nuevo.", ephemeral=True)
+            print(f"✅ Protocolos resincronizados: {len(synced)}")
+            await interaction.response.send_message("✅ Protocolos actualizados. Intenta la sesión de nuevo.", ephemeral=True)
         except Exception as e:
             print(f"Error al resincronizar: {e}")
-            await interaction.response.send_message("⚠️ Error al actualizar comandos. Intenta en unos momentos.", ephemeral=True)
+            await interaction.response.send_message("⚠️ Error al actualizar protocolos. Intenta más tarde.", ephemeral=True)
     else:
-        await interaction.response.send_message(f"❌ Error: {error}", ephemeral=True)
+        await interaction.response.send_message(f"🏥 Error en sesión terapéutica: {error}", ephemeral=True)
 
 @bot.event
 async def on_guild_join(guild):
@@ -68,20 +68,20 @@ async def on_guild_join(guild):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         try:
-            await ctx.send("❌ Comando no encontrado.")
+            await ctx.send("🧠 Esa sesión terapéutica no existe en el sanatorio.")
         except Exception:
             pass
     elif isinstance(error, commands.CommandOnCooldown):
         try:
-            await ctx.send(f"⏳ Comando en cooldown. Espera {round(error.retry_after,1)}s.")
+            await ctx.send(f"⏳ La sesión está en proceso. Espera {round(error.retry_after,1)}s.")
         except Exception:
             pass
     else:
         try:
-            await ctx.send(f"❌ Ocurrió un error: {error}")
+            await ctx.send(f"🏥 Error en sesión terapéutica: {error}")
         except Exception:
             pass
-        logger.exception("Error en comando:")
+        logger.exception("Error en sesión:")
 
 async def main():
     async with bot:
@@ -125,8 +125,9 @@ async def main():
 
         TOKEN = os.environ.get("DISCORD_TOKEN")
         if not TOKEN:
-            print("ERROR: No hay DISCORD_TOKEN en variables de entorno.")
+            print("❌ ERROR: No hay DISCORD_TOKEN en variables de entorno.")
             return
+        print("🏥 Conectando al sanatorio psiquiátrico...")
         await bot.start(TOKEN)
 
 if __name__ == "__main__":

@@ -230,8 +230,8 @@ class RobCog(commands.Cog):
     async def rob_prefix(self, ctx, member: discord.Member):
         await self._start_rob_flow(ctx, ctx.author, member, is_interaction=False)
 
-    @app_commands.command(name="rob", description="Robar a otro usuario (requiere mencionar)")
-    @app_commands.describe(member="Usuario a robar")
+    @app_commands.command(name="rob", description="⚔️ Confrontación Terapéutica - Enfrenta a otro usuario")
+    @app_commands.describe(member="Usuario a confrontar")
     async def rob_slash(self, interaction: discord.Interaction, member: discord.Member):
         from datetime import datetime
         
@@ -249,14 +249,14 @@ class RobCog(commands.Cog):
         # preliminary checks
         if member.id == user.id:
             if is_interaction:
-                return await ctx_or_interaction.followup.send("No puedes robarte a ti mismo.")
-            return await ctx_or_interaction.send("No puedes robarte a ti mismo.")
+                return await ctx_or_interaction.followup.send("🧠 No puedes confrontarte a ti mismo.")
+            return await ctx_or_interaction.send("🧠 No puedes confrontarte a ti mismo.")
 
         target = await get_user(member.id)
         if not target or target.get("dinero", 0) < 50:
             if is_interaction:
-                return await ctx_or_interaction.followup.send("Esa persona no tiene suficiente dinero.")
-            return await ctx_or_interaction.send("Esa persona no tiene suficiente dinero.")
+                return await ctx_or_interaction.followup.send("💚 Esa persona no tiene suficiente recuperación.")
+            return await ctx_or_interaction.send("💚 Esa persona no tiene suficiente recuperación.")
 
         inv = await get_inventory(user.id)
 
