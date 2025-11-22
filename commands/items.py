@@ -178,27 +178,38 @@ class ItemsCog(commands.Cog):
                 await send_fn("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
                 return
             
-            # Mascotas posibles con probabilidades
+            # Mascotas posibles con probabilidades según tipo de huevo
             MASCOTAS_POOL = [
-                # Comunes (40% probabilidad cada una = 10% total)
                 ("Chihuahua", "común", 3),
                 ("Gato", "común", 3),
                 ("Perro", "común", 3),
                 ("Loro", "común", 3),
-                # Raras (20% probabilidad cada una = 10% total)
                 ("Conejo", "raro", 6),
                 ("Hamster", "raro", 6),
-                # Épicas (15% probabilidad cada una = 7.5% total)
                 ("Dragón", "épico", 10),
                 ("Fenix", "épico", 10),
-                # Legendarias (5% probabilidad cada una = 1.67% total)
                 ("Saviteto", "legendario", 15),
                 ("Finopeluche", "legendario", 15),
                 ("Mechones", "legendario", 15),
             ]
             
-            # Pesos: 4 comunes (10% c/u), 2 raras (15% c/u), 2 épicas (15% c/u), 3 legendarias (5% c/u)
-            pesos = [10, 10, 10, 10, 15, 15, 15, 15, 5, 5, 5]
+            # Pesos según tipo de huevo
+            if "común" in item_name.lower():
+                # Huevo Común: 70% comunes, 20% raras, 10% épicas
+                pesos = [20, 20, 20, 10, 5, 5, 2, 2, 1, 1, 1]
+            elif "raro" in item_name.lower():
+                # Huevo Raro: 30% comunes, 50% raras, 15% épicas, 5% legendarias
+                pesos = [10, 10, 10, 0, 20, 20, 5, 5, 1, 1, 1]
+            elif "épico" in item_name.lower():
+                # Huevo Épico: 10% comunes, 25% raras, 55% épicas, 10% legendarias
+                pesos = [3, 3, 3, 1, 8, 8, 20, 20, 3, 3, 3]
+            elif "legendario" in item_name.lower():
+                # Huevo Legendario: 5% comunes, 10% raras, 20% épicas, 65% legendarias
+                pesos = [2, 2, 2, 0, 3, 3, 7, 7, 25, 25, 25]
+            else:
+                # Default: equilibrado
+                pesos = [10, 10, 10, 10, 15, 15, 15, 15, 5, 5, 5]
+            
             pet_name, rareza, duration = random.choices(MASCOTAS_POOL, weights=pesos, k=1)[0]
             
             # Mensajes de eclosión según rareza

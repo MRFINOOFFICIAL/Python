@@ -99,8 +99,11 @@ DEFAULT_ITEMS = [
     ("Kit de reparación", 250, "consumible", "Restaura durabilidad de un item del inventario.", "comun"),
     ("Nektar Antiguo", 4200, "consumible", "Recupera 100 HP en combate - poder completo", "legendario"),
     ("Bebida de la Vida", 8000, "consumible_life", "Te da una vida extra. Úsala con /use", "maestro"),
-    # Huevo de mascota
-    ("Huevo Común", 500, "huevo_mascota", "Eclosiona en una mascota aleatoria. La rareza depende de la suerte.", "comun"),
+    # Huevos de mascotas por rareza
+    ("Huevo Común", 500, "huevo_mascota", "Alta probabilidad de mascota común (Chihuahua, Gato, Perro, Loro)", "comun"),
+    ("Huevo Raro", 2500, "huevo_mascota", "Probabilidad aumentada de mascota rara (Conejo, Hamster)", "raro"),
+    ("Huevo Épico", 10000, "huevo_mascota", "Probabilidad aumentada de mascota épica (Dragón, Fenix)", "epico"),
+    ("Huevo Legendario", 50000, "huevo_mascota", "Máxima probabilidad de mascota legendaria (Saviteto, Finopeluche, Mechones)", "legendario"),
 ]
 
 # ----------------- Shop Cog -----------------
