@@ -2,7 +2,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from discord.ui import Button, View
+from discord.ui import Button, View, Select, select
 from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress, get_rob_cooldown, set_rob_cooldown
 import random
 from typing import Optional
@@ -96,32 +96,63 @@ def weapon_power_from_rareza(rareza: Optional[str]):
         return 40
     return 1
 
-class ChooseWeaponView(View):
+class ChooseWeaponSelectView(View):
     def __init__(self, user_id: int, items: list, timeout: int = 30):
         super().__init__(timeout=timeout)
         self.user_id = int(user_id)
         self.items = items  # list of inventory dicts
         self.result = None  # will hold chosen item dict or None for no-weapon
-        # build buttons
-        for it in items:
-            label = (it["item"][:80])  # button label limit safe
-            btn = Button(label=label, style=discord.ButtonStyle.secondary)
-            # bind callback with default args to avoid late-binding
-            async def _cb(interaction: discord.Interaction, item_id=it["id"], item_name=it["item"]):
-                # only allow the owner
-                if interaction.user.id != self.user_id:
+        
+        # Crear Select con los items (máximo 25)
+        class WeaponSelect(Select):
+            def __init__(self, items_list):
+                options = []
+                for it in items_list[:25]:  # Discord limita a 25 opciones
+                    poder = it.get("poder", 0)
+                    rareza = it.get("rareza", "?")
+                    option_label = f"{it['item'][:50]}"
+                    option_desc = f"Rareza: {rareza} | Poder: {poder}"
+                    options.append(
+                        discord.SelectOption(
+                            label=option_label,
+                            value=str(it["id"]),
+                            description=option_desc[:100],
+                            emoji="⚔️"
+                        )
+                    )
+                
+                super().__init__(
+                    placeholder="Elige un objeto para el robo...",
+                    min_values=1,
+                    max_values=1,
+                    options=options
+                )
+                self.parent_view = None
+            
+            async def callback(self, interaction: discord.Interaction):
+                if interaction.user.id != self.parent_view.user_id:
                     await interaction.response.send_message("❌ Solo quien inició la acción puede elegir.", ephemeral=True)
                     return
-                # set result
-                self.result = {"id": item_id, "item": item_name}
-                # edit message with placeholder (actual logic handled outside)
-                await interaction.response.edit_message(content=f"Seleccionado: **{item_name}**. Procesando...", view=None, embed=None)
-                # stop the view so on_timeout won't try to edit again
-                self.stop()
-            btn.callback = _cb
-            self.add_item(btn)
-
-        # add "sin arma" button
+                
+                # Encontrar el item por ID
+                chosen_id = int(self.values[0])
+                chosen_item = next((it for it in self.parent_view.items if it["id"] == chosen_id), None)
+                
+                if chosen_item:
+                    self.parent_view.result = {"id": chosen_item["id"], "item": chosen_item["item"]}
+                    await interaction.response.edit_message(
+                        content=f"Seleccionado: **{chosen_item['item']}**. Procesando...",
+                        view=None,
+                        embed=None
+                    )
+                    self.parent_view.stop()
+        
+        # Agregar Select
+        weapon_select = WeaponSelect(items)
+        weapon_select.parent_view = self
+        self.add_item(weapon_select)
+        
+        # Agregar botón "Sin arma"
         no_btn = Button(label="Sin arma / intentar sin objetos", style=discord.ButtonStyle.danger)
         async def no_cb(interaction: discord.Interaction):
             if interaction.user.id != self.user_id:
@@ -137,19 +168,13 @@ class ChooseWeaponView(View):
         return interaction.user.id == self.user_id
 
     async def on_timeout(self):
-        # Disable buttons on timeout
+        # Disable all children on timeout
         for child in self.children:
             try:
                 if hasattr(child, 'disabled'):
                     setattr(child, 'disabled', True)
             except Exception:
                 pass
-        # try to edit the original message to indicate timeout
-        try:
-            # there's no stored message here; caller should save and edit if needed.
-            pass
-        except Exception:
-            pass
 
 class RobCog(commands.Cog):
     def __init__(self, bot):
@@ -256,14 +281,30 @@ class RobCog(commands.Cog):
                 return await ctx_or_interaction.followup.send(final)
             return await ctx_or_interaction.send(final)
 
-        # otherwise show buttons to choose item
+        # otherwise show select menu to choose item
         embed = discord.Embed(
             title="🔫 Elige objeto para el robo",
-            description=f"{user.mention}, escoge el objeto que quieras usar (o 'Sin arma' para intentar sin objetos).\n\n{suggestion_text}",
+            description=f"{user.mention}, escoge el objeto que quieras usar (o 'Sin arma' para intentar sin objetos).",
             color=discord.Color.orange()
         )
+        
+        # Si hay más de 25 items, mostrar solo los mejores
+        items_to_show = inv
+        if len(inv) > 25:
+            # Ordenar por poder descendente y tomar los primeros 25
+            items_to_show = sorted(inv, key=lambda x: x.get("poder", 0), reverse=True)[:25]
+            embed.add_field(
+                name="📌 Nota",
+                value=f"Tienes {len(inv)} objetos. Mostrando los 25 mejores por poder.",
+                inline=False
+            )
+        
+        # Agregar resumen visual
+        if len(inv) <= 10:
+            lines = [f"**{i['item']}** ({i.get('rareza','?')}) — ⚡ {i.get('poder', weapon_power_from_rareza(i.get('rareza')))}" for i in items_to_show]
+            embed.add_field(name="Objetos disponibles", value="\n".join(lines), inline=False)
 
-        view = ChooseWeaponView(user.id, inv, timeout=30)
+        view = ChooseWeaponSelectView(user.id, items_to_show, timeout=30)
 
         # send message and capture message object depending on context
         sent_msg = None
