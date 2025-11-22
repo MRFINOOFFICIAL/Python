@@ -54,13 +54,47 @@ class DuelsCog(commands.Cog):
                 user = await self.bot.fetch_user(int(duel['retador']))
                 embed.add_field(
                     name=f"ID: {duel['id']} - {user.name}",
-                    value=f"Apuesta: {duel['cantidad']}💰",
+                    value=f"Apuesta: {duel['cantidad']}💰\n\nUsa `/aceptar-duel {duel['id']}` para aceptar",
                     inline=False
                 )
             except:
                 pass
         
         await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="aceptar-duel", description="Aceptar un desafío de duelo")
+    async def accept_duel_cmd(self, interaction: discord.Interaction, duel_id: int):
+        await interaction.response.defer()
+        
+        # Aceptar el duelo
+        result = await accept_duel(duel_id, interaction.user.id)
+        if not result:
+            await interaction.followup.send("❌ Duelo no encontrado o ya fue aceptado.")
+            return
+        
+        retador_id = result['retador']
+        cantidad = result['cantidad']
+        
+        # Calcular ganador
+        ganador = random.choice([interaction.user.id, int(retador_id)])
+        perdedor = int(retador_id) if ganador == interaction.user.id else interaction.user.id
+        
+        # Transferir dinero
+        await add_money(ganador, cantidad)
+        await add_money(perdedor, -cantidad)
+        
+        # Mensaje de resultado
+        try:
+            ganador_user = await self.bot.fetch_user(ganador)
+            perdedor_user = await self.bot.fetch_user(perdedor)
+            embed = discord.Embed(
+                title="⚔️ ¡Duelo Completado!",
+                description=f"**Ganador:** {ganador_user.mention}\n**Perdedor:** {perdedor_user.mention}\n**Cantidad:** {cantidad}💰",
+                color=discord.Color.gold()
+            )
+            await interaction.followup.send(embed=embed)
+        except:
+            await interaction.followup.send(f"⚔️ Duelo completado. Ganador: <@{ganador}>")
 
 async def setup(bot):
     await bot.add_cog(DuelsCog(bot))
