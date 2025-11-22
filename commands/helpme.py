@@ -108,6 +108,7 @@ class HelpAlmanacView(discord.ui.View):
         options = [
             discord.SelectOption(label="General", description="Guía rápida de todos los comandos", emoji="📜"),
             discord.SelectOption(label="Exploración & Objetos", description="Cómo explorar y usar items", emoji="🌲"),
+            discord.SelectOption(label="Minería & Pesca & Forja", description="Recolección de materiales y crafting", emoji="⛏️"),
             discord.SelectOption(label="Combate & Bosses", description="Sistema de peleas contra jefes", emoji="⚔️"),
             discord.SelectOption(label="Tienda & Compras", description="Items de tienda y efectos", emoji="🏪"),
             discord.SelectOption(label="Almanaque — Cofres", description="Tipos de cofres y probabilidades", emoji="🗝️"),
@@ -133,6 +134,8 @@ class HelpAlmanacView(discord.ui.View):
             embed = self._build_general()
         elif choice == "Exploración & Objetos":
             embed = self._build_exploration()
+        elif choice == "Minería & Pesca & Forja":
+            embed = self._build_gathering()
         elif choice == "Combate & Bosses":
             embed = self._build_combat()
         elif choice == "Tienda & Compras":
@@ -187,8 +190,8 @@ class HelpAlmanacView(discord.ui.View):
             inline=False
         )
         embed.add_field(
-            name="🌲 Exploración",
-            value="`/explore` — Buscar objetos y cofres (cooldown 25s)",
+            name="🌲 Exploración & Recolección",
+            value="`/explore` — Buscar objetos y cofres (cooldown 25s)\n`/minar` — Extraer minerales (cooldown 30s)\n`/pescar` — Atrapar criaturas acuáticas (cooldown 40s)\n`/forjar` — Crear armas y herramientas mejoradas",
             inline=False
         )
         embed.add_field(
@@ -247,6 +250,47 @@ class HelpAlmanacView(discord.ui.View):
             inline=False
         )
         embed.set_footer(text="Los items encontrados se usan automáticamente en combate si los tienes equipados.")
+        return embed
+
+    def _build_gathering(self) -> discord.Embed:
+        """Guía de minería, pesca y forja"""
+        embed = discord.Embed(
+            title="⛏️ Minería & Pesca & Forja",
+            description="Sistema completo de recolección de materiales y crafting de armas.",
+            color=discord.Color.gold()
+        )
+        
+        embed.add_field(
+            name="⛏️ MINERÍA",
+            value="**Comando:** `/minar` (cooldown: 30 segundos)\n\n**Materiales obtenibles:**\n• Comunes: Piedra de carbón, Cristal azul, Mineral de hierro, Polvo de cuarzo, Roca brillante\n• Raros: Esmeralda cruda, Diamante sin tallar, Cristal de ámbar\n• Épicos: Gema de rubí, Zafiro puro\n• Legendarios: Ópalo místico, Meteorito antiguo\n\n**Herramientas de minería:**\n⚪ **Pico Normal**: Inicio (sin bonus)\n🔵 **Pico Mejorado**: +30% probabilidad de loot raro/épico\n🟣 **Pico Épico**: +50% probabilidad de loot épico/legendario",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎣 PESCA",
+            value="**Comando:** `/pescar` (cooldown: 40 segundos)\n\n**Criaturas obtenibles:**\n• Comunes: Pez común, Camarón rosado, Concha marina, Alga preciosa, Perla imperfecta\n• Raros: Pez dorado, Coral rojo, Caracol antiguo\n• Épicos: Pez espada, Perla de agua dulce\n• Legendarios: Leviatán pequeño, Sirena petrificada\n\n**Herramientas de pesca:**\n⚪ **Caña Normal**: Inicio (sin bonus)\n🔵 **Caña Mejorada**: +30% probabilidad de loot raro/épico\n🟣 **Caña Épica**: +50% probabilidad de loot épico/legendario",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🔨 FORJA - ARMAS",
+            value="**Comando:** `/forjar <rareza>` (rareza: comun, raro, epico, legendario)\n\n⚪ **Armas Comunes:** Espada Leimma, Espada Gato, Bastón de Anciano, Daga Ratera, Espada Pez, Hélice\n🔵 **Armas Raras:** Espada de Finno, Kratos Espada, Espada Energía Halo\n🟣 **Armas Épicas:** Bate Golpeador, Katana de Musashi\n🟠 **Arma Legendaria:** Dragón Slayer",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🔨 FORJA - HERRAMIENTAS MEJORADAS",
+            value="**HERRAMIENTAS DE MINERÍA:**\n🔵 **Pico Mejorado** (Raro)\n   Materiales: 1x Esmeralda cruda + 3x Mineral de hierro\n   Efecto: +30% probabilidad de loot raro/épico\n\n🟣 **Pico Épico** (Épico)\n   Materiales: 2x Gema de rubí + 1x Diamante sin tallar\n   Efecto: +50% probabilidad de loot épico/legendario\n\n**HERRAMIENTAS DE PESCA:**\n🔵 **Caña Mejorada** (Rara)\n   Materiales: 1x Pez dorado + 2x Coral rojo\n   Efecto: +30% probabilidad de loot raro/épico\n\n🟣 **Caña Épica** (Épica)\n   Materiales: 2x Pez espada + 1x Perla de agua dulce\n   Efecto: +50% probabilidad de loot épico/legendario",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="💡 SISTEMA AUTOMÁTICO DE HERRAMIENTAS",
+            value="• Al primera usar `/minar` o `/pescar`, recibes **Pico Normal** y **Caña Normal** automáticamente\n• Cuando forjas una herramienta mejorada, la anterior se **elimina automáticamente** (reemplazo)\n• Las herramientas **NO se consumen** y puedes usarlas infinitas veces\n• El bonus se activa **automáticamente** si tienes la herramienta en tu inventario",
+            inline=False
+        )
+        
+        embed.set_footer(text="Todos los materiales se venden en /mercado. Los items sin límite en inventario.")
         return embed
 
     def _build_combat(self) -> discord.Embed:
