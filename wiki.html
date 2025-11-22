@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Economía Bot - Wiki</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            background: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: 0.3s;
+        }
+        
+        .nav button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .command {
+            background: #f5f5f5;
+            padding: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .command strong {
+            color: #667eea;
+        }
+        
+        .command-desc {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.95em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f9f9f9;
+            border: 2px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+        
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Economía Bot</h1>
+            <p>Sistema de juego RPG y economía en Discord</p>
+        </header>
+        
+        <div class="nav">
+            <button onclick="showSection('inicio')">🏠 Inicio</button>
+            <button onclick="showSection('comandos')">⚡ Comandos</button>
+            <button onclick="showSection('sistema')">🎮 Sistema de Juego</button>
+            <button onclick="showSection('items')">🎒 Items & Equipo</button>
+            <button onclick="showSection('sociedad')">👥 Social</button>
+        </div>
+        
+        <div class="content">
+            <!-- INICIO -->
+            <div id="inicio" class="section active">
+                <h2>🏠 Bienvenido a Economía Bot</h2>
+                
+                <p style="margin-bottom: 20px;">
+                    Este es un bot de Discord que te permite jugar un RPG completo con sistema de economía. 
+                    Gana dinero trabajando, explora para buscar items, pelea contra jefes, y únete a clubs 
+                    para potenciar tu progreso.
+                </p>
+                
+                <h3>📊 Estadísticas del Bot</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number">51</div>
+                        <div class="label">Comandos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">14</div>
+                        <div class="label">Jefes Únicos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">200+</div>
+                        <div class="label">Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">∞</div>
+                        <div class="label">Diversión</div>
+                    </div>
+                </div>
+                
+                <h3>✨ Características Principales</h3>
+                <div class="features">
+                    <div class="feature-card">
+                        <h4>💰 Sistema de Economía</h4>
+                        <p>Trabaja, gana dinero y compra items únicos en la tienda.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚔️ Combate por Turnos</h4>
+                        <p>Pelea contra 14 jefes diferentes con mecánicas estratégicas.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎒 Inventario Ilimitado</h4>
+                        <p>Recolecta, equipa y usa items sin límites.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🏢 Sistema de Clubs</h4>
+                        <p>Crea clubs, ahorra dinero grupal y obtén bonificadores.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🐾 Mascotas Pokédex</h4>
+                        <p>Colecciona mascotas únicas con sistemas de XP progresivo.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⛏️ Minería & Pesca</h4>
+                        <p>Recolecta recursos y crea armas únicas mediante forja.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- COMANDOS -->
+            <div id="comandos" class="section">
+                <h2>⚡ Comandos Principales</h2>
+                
+                <h3>👤 Perfil & Inventario</h3>
+                <div class="command">
+                    <strong>/profile</strong>
+                    <div class="command-desc">Ver tu perfil, nivel, dinero y rango actual</div>
+                </div>
+                <div class="command">
+                    <strong>/inventario</strong>
+                    <div class="command-desc">Ver todos tus items con rareza y durabilidad</div>
+                </div>
+                
+                <h3>💼 Trabajos & Economía</h3>
+                <div class="command">
+                    <strong>/work</strong>
+                    <div class="command-desc">Trabaja y gana dinero (cooldown 10 min)</div>
+                </div>
+                <div class="command">
+                    <strong>/jobs</strong>
+                    <div class="command-desc">Ver lista de trabajos disponibles</div>
+                </div>
+                <div class="command">
+                    <strong>/shop</strong>
+                    <div class="command-desc">Compra items, mascotas y consumibles</div>
+                </div>
+                
+                <h3>⚔️ Combate & Exploración</h3>
+                <div class="command">
+                    <strong>/explore</strong>
+                    <div class="command-desc">Explora y busca items (cooldown 25 seg)</div>
+                </div>
+                <div class="command">
+                    <strong>/fight</strong>
+                    <div class="command-desc">Pelea contra jefes (cooldown 2 min)</div>
+                </div>
+                <div class="command">
+                    <strong>/rob @usuario</strong>
+                    <div class="command-desc">Roba dinero a otro usuario (cooldown 5 min)</div>
+                </div>
+                
+                <h3>🏆 Social & Clubs</h3>
+                <div class="command">
+                    <strong>/crear-club</strong>
+                    <div class="command-desc">Crea tu propio club (máx 10 miembros)</div>
+                </div>
+                <div class="command">
+                    <strong>/leaderboard</strong>
+                    <div class="command-desc">Ver ranking de dinero y XP</div>
+                </div>
+                <div class="command">
+                    <strong>/desafiar @usuario</strong>
+                    <div class="command-desc">Apuesta dinero en un duelo</div>
+                </div>
+            </div>
+            
+            <!-- SISTEMA DE JUEGO -->
+            <div id="sistema" class="section">
+                <h2>🎮 Sistema de Juego</h2>
+                
+                <h3>💚 Sistema de Vidas</h3>
+                <p>Comienzas con <strong>3 vidas</strong>. Si pierdes todas, <strong>pierdes todo tu progreso</strong> 
+                (dinero, items, todo). Recupera vidas ganando experiencia o usando items especiales.</p>
+                
+                <h3>🏆 Rangos de Progresión</h3>
+                <div class="command">
+                    <strong>Novato</strong>
+                    <div class="command-desc">Rango inicial - 0 XP</div>
+                </div>
+                <div class="command">
+                    <strong>Enfermo Básico</strong>
+                    <div class="command-desc">500 XP ganado</div>
+                </div>
+                <div class="command">
+                    <strong>Enfermo Avanzado</strong>
+                    <div class="command-desc">1500 XP ganado</div>
+                </div>
+                <div class="command">
+                    <strong>Enfermo Supremo</strong>
+                    <div class="command-desc">3000 XP ganado - ¡Máximo nivel!</div>
+                </div>
+                
+                <h3>⭐ Rareza de Items</h3>
+                <p>Los items están clasificados en 5 niveles de rareza:</p>
+                <div class="command">
+                    <strong>⚪ Común</strong> → 🔵 Raro → 🟣 Épico → 🟠 Legendario → 🔶 Maestro
+                </div>
+                
+                <h3>💰 Trabajos Disponibles</h3>
+                <p>Cada trabajo tiene un salario diferente y puedes cambiar entre ellos:</p>
+                <div class="command">
+                    <strong>Camillero: 150💰</strong>
+                    <div class="command-desc">Trabajo básico de hospital</div>
+                </div>
+                <div class="command">
+                    <strong>Médico: 3000💰</strong>
+                    <div class="command-desc">Trabajo profesional - requiere XP</div>
+                </div>
+                <div class="command">
+                    <strong>Director: 15000💰</strong>
+                    <div class="command-desc">¡Máximo salario!</div>
+                </div>
+            </div>
+            
+            <!-- ITEMS & EQUIPO -->
+            <div id="items" class="section">
+                <h2>🎒 Items & Equipo</h2>
+                
+                <h3>🔨 Armas Únicas (No se gastan)</h3>
+                <p>Las armas tienen efectos especiales en combate y se pueden usar infinitas veces:</p>
+                <div class="command">
+                    <strong>Fragmento Omega</strong>
+                    <div class="command-desc">Legendario - Sistema de 2 turnos: prepara → ataque de 120 daño</div>
+                </div>
+                <div class="command">
+                    <strong>Dragón Slayer</strong>
+                    <div class="command-desc">Maestro - +50% daño contra jefes</div>
+                </div>
+                
+                <h3>💊 Consumibles (Se gastan en combate)</h3>
+                <p>Usa estos items para potenciarte durante un combate - ¡se gastan después!</p>
+                <div class="command">
+                    <strong>Bebida de Furia</strong>
+                    <div class="command-desc">+30% daño por 1 turno</div>
+                </div>
+                <div class="command">
+                    <strong>Escudo Mágico</strong>
+                    <div class="command-desc">Reduce daño recibido en 50% por 1 turno</div>
+                </div>
+                
+                <h3>🐾 Mascotas</h3>
+                <p>Puedes tener múltiples mascotas y cambiar entre ellas:</p>
+                <div class="command">
+                    <strong>/mis-mascotas</strong>
+                    <div class="command-desc">Ver todas tus mascotas</div>
+                </div>
+                <div class="command">
+                    <strong>/mi-mascota</strong>
+                    <div class="command-desc">Ver mascota activa actual</div>
+                </div>
+                <p style="margin-top: 10px;">Las mascotas ganan XP en combate y suben de nivel cada 100 XP, 
+                dándote bonificadores progresivos (hasta +100%).</p>
+                
+                <h3>⛏️ Recolección & Forja</h3>
+                <div class="command">
+                    <strong>/minar</strong>
+                    <div class="command-desc">Extrae minerales (cooldown 30 seg)</div>
+                </div>
+                <div class="command">
+                    <strong>/pescar</strong>
+                    <div class="command-desc">Pesca criaturas acuáticas (cooldown 40 seg)</div>
+                </div>
+                <div class="command">
+                    <strong>/forjar</strong>
+                    <div class="command-desc">Crea armas únicas con los recursos recolectados</div>
+                </div>
+            </div>
+            
+            <!-- SOCIAL -->
+            <div id="sociedad" class="section">
+                <h2>👥 Sistema Social</h2>
+                
+                <h3>🏢 Clubs & Gremios</h3>
+                <p>Únete a un club para jugar con amigos y obtener bonificadores.</p>
+                <div class="command">
+                    <strong>Bonificadores disponibles:</strong>
+                    <div class="command-desc">
+                        🏫 Aula: +25% dinero en trabajos<br>
+                        🧘 Meditación: +30% XP<br>
+                        ⚔️ Armería: +15% daño<br>
+                        📚 Biblioteca: +20% éxito en minijuegos
+                    </div>
+                </div>
+                
+                <h3>💰 Tesorería del Club</h3>
+                <p><strong>Todos los miembros</strong> pueden depositar dinero al club.</p>
+                <p><strong>Solo el líder</strong> puede retirar dinero del club.</p>
+                
+                <h3>📊 Leaderboards</h3>
+                <div class="command">
+                    <strong>/leaderboard dinero</strong>
+                    <div class="command-desc">Top 10 jugadores más ricos</div>
+                </div>
+                <div class="command">
+                    <strong>/leaderboard experiencia</strong>
+                    <div class="command-desc">Top 10 jugadores con más XP</div>
+                </div>
+                
+                <h3>⚔️ Duelos & Trading</h3>
+                <div class="command">
+                    <strong>/desafiar @usuario cantidad</strong>
+                    <div class="command-desc">Apuesta dinero en un duelo 1v1 - ¡El ganador se lleva todo!</div>
+                </div>
+                <div class="command">
+                    <strong>/ofrecer-trade @usuario</strong>
+                    <div class="command-desc">Proponer intercambio de items</div>
+                </div>
+                
+                <h3>📦 Mercado de Items</h3>
+                <div class="command">
+                    <strong>/vender-item id precio</strong>
+                    <div class="command-desc">Vende un item a otro jugador</div>
+                </div>
+                <div class="command">
+                    <strong>/mercado</strong>
+                    <div class="command-desc">Ver items en venta en el servidor</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>🏥 Economía Bot • Sistema de RPG y Economía para Discord</p>
+            <p>¡Diviértete, gana dinero y conquista el servidor! 🎮</p>
+        </footer>
+    </div>
+    
+    <script>
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
