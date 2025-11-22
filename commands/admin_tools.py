@@ -2,26 +2,24 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import aiosqlite
-from db import add_money, set_job, get_user, DB
+from db import add_money, set_job, get_user, DB, remove_event_channel, get_event_channels, set_event_channel as db_set_event_channel
 
 async def set_event_channel(guild_id, channel_id):
-    """Configurar canal para anuncios de bosses"""
+    """Configurar canal para anuncios de bosses - reemplaza todos los canales viejos"""
     async with aiosqlite.connect(DB) as db:
+        # Eliminar todos los canales viejos del servidor
+        await db.execute("DELETE FROM event_channels WHERE guild_id = ?", (str(guild_id),))
+        # Agregar el nuevo canal
         await db.execute(
-            "INSERT OR REPLACE INTO event_channels (guild_id, channel_id) VALUES (?, ?)",
+            "INSERT INTO event_channels (guild_id, channel_id) VALUES (?, ?)",
             (str(guild_id), str(channel_id))
         )
         await db.commit()
 
 async def get_event_channel(guild_id):
-    """Obtener canal configurado para anuncios"""
-    async with aiosqlite.connect(DB) as db:
-        cursor = await db.execute(
-            "SELECT channel_id FROM event_channels WHERE guild_id = ?",
-            (str(guild_id),)
-        )
-        row = await cursor.fetchone()
-        return int(row[0]) if row else None
+    """Obtener el PRIMER canal configurado para anuncios"""
+    channels = await get_event_channels(guild_id)
+    return channels[0] if channels else None
 
 class AdminCog(commands.Cog):
     def __init__(self, bot):
