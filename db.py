@@ -199,6 +199,29 @@ async def init_db():
             FOREIGN KEY (club_id) REFERENCES clubs(id)
         )
         """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS rob_cooldowns (
+            user_id TEXT,
+            target_id TEXT,
+            last_rob TIMESTAMP,
+            PRIMARY KEY (user_id, target_id)
+        )
+        """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS explore_cooldowns (
+            user_id TEXT PRIMARY KEY,
+            last_explore TIMESTAMP
+        )
+        """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS duel_cooldowns (
+            user_id TEXT PRIMARY KEY,
+            last_duel TIMESTAMP
+        )
+        """)
 
         await db.commit()
 
@@ -392,6 +415,72 @@ async def get_remaining_work_cooldown(user_id, job_name, minutes=10):
     remaining = timedelta(minutes=minutes) - elapsed
     return max(0, int(remaining.total_seconds()))
 
+# ---------- ROB COOLDOWN (5 minutes) ----------
+
+async def set_rob_cooldown(user_id, target_id):
+    """Set rob cooldown for a user (5 minutes)"""
+    from datetime import timedelta
+    async with aiosqlite.connect(DB) as db:
+        cooldown_expiry = datetime.now() + timedelta(minutes=5)
+        await db.execute(
+            "INSERT OR REPLACE INTO rob_cooldowns(user_id, target_id, last_rob) VALUES (?, ?, ?)",
+            (str(user_id), str(target_id), cooldown_expiry.isoformat())
+        )
+        await db.commit()
+
+async def get_rob_cooldown(user_id):
+    """Get the last rob time for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_rob FROM rob_cooldowns WHERE user_id = ? ORDER BY last_rob DESC LIMIT 1", (str(user_id),))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
+# ---------- EXPLORE COOLDOWN (25 seconds) ----------
+
+async def set_explore_cooldown(user_id):
+    """Set explore cooldown for a user (25 seconds)"""
+    from datetime import timedelta
+    async with aiosqlite.connect(DB) as db:
+        cooldown_expiry = datetime.now() + timedelta(seconds=25)
+        await db.execute(
+            "INSERT OR REPLACE INTO explore_cooldowns(user_id, last_explore) VALUES (?, ?)",
+            (str(user_id), cooldown_expiry.isoformat())
+        )
+        await db.commit()
+
+async def get_explore_cooldown(user_id):
+    """Get the last explore time for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_explore FROM explore_cooldowns WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
+# ---------- DUEL COOLDOWN (1 minute) ----------
+
+async def set_duel_cooldown(user_id):
+    """Set duel cooldown for a user (1 minute)"""
+    from datetime import timedelta
+    async with aiosqlite.connect(DB) as db:
+        cooldown_expiry = datetime.now() + timedelta(minutes=1)
+        await db.execute(
+            "INSERT OR REPLACE INTO duel_cooldowns(user_id, last_duel) VALUES (?, ?)",
+            (str(user_id), cooldown_expiry.isoformat())
+        )
+        await db.commit()
+
+async def get_duel_cooldown(user_id):
+    """Get the last duel time for a user"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT last_duel FROM duel_cooldowns WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
 # ---------- BUFFS ACTIVOS ----------
 
 async def add_active_buff(user_id, buff_name, minutes=60):
@@ -496,9 +585,11 @@ async def get_equipped_item(user_id):
         return None
 
 async def set_fight_cooldown(user_id, guild_id):
-    """Set fight cooldown for a user in a guild"""
+    """Set fight cooldown for a user in a guild (2 minutes)"""
+    from datetime import timedelta
     async with aiosqlite.connect(DB) as db:
-        await db.execute("INSERT OR REPLACE INTO boss_cooldowns(user_id, guild_id, last_fight) VALUES (?, ?, ?)", (str(user_id), str(guild_id), datetime.now().isoformat()))
+        cooldown_expiry = datetime.now() + timedelta(minutes=2)
+        await db.execute("INSERT OR REPLACE INTO boss_cooldowns(user_id, guild_id, last_fight) VALUES (?, ?, ?)", (str(user_id), str(guild_id), cooldown_expiry.isoformat()))
         await db.commit()
 
 async def get_fight_cooldown(user_id, guild_id):

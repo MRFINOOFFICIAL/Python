@@ -205,6 +205,14 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
    - **Fight Command**: Victoria con embed dorado y emojis (🏆), derrota con embed rojo oscuro, recompensas formateadas con códigos, mostrar bonus de mascota
    - **Shop Command**: Emojis de rareza para cada item (⚪🔵🟣🟠🔶), precio en código, descripción clara, footer motivacional, navegación mejorada
 
+7. **Cooldown System Completed** ⏳:
+   - **Work** (`/work`): 10 minutos
+   - **Explore** (`/explore`): 25 segundos (prefix y slash)
+   - **Fight** (`/fight`): 2 minutos
+   - **Rob** (`/rob`): 5 minutos (prefix y slash)
+   - **Duel** (`/desafiar`): 1 minuto
+   - Todas las tablas de cooldown creadas en base de datos (rob_cooldowns, explore_cooldowns, duel_cooldowns)
+
 ### Previous Session (Nov 21, 2025)
 1. **Fixed Explore Errors**: Corrected `remove_item()` function calls - changed from 2 arguments to 1 argument (item_id only)
 2. **Updated Help System**: Completely rewrote `/ayuda` command with 6 interactive sections covering 14 bosses, combat mechanics, items, chests, and admin tools

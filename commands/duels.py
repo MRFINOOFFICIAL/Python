@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 from db import (create_duel, get_pending_duels, accept_duel, 
-                add_money, get_user)
+                add_money, get_user, get_duel_cooldown, set_duel_cooldown)
 
 async def cantidad_sugerida_autocomplete(interaction: discord.Interaction, current: str):
     """Sugerencias de cantidad para duelos"""
@@ -25,6 +25,15 @@ class DuelsCog(commands.Cog):
     @app_commands.command(name="desafiar", description="Desafiar a un jugador a duelo por dinero")
     @app_commands.autocomplete(cantidad=cantidad_sugerida_autocomplete)
     async def challenge(self, interaction: discord.Interaction, usuario: discord.User, cantidad: int):
+        from datetime import datetime
+        
+        # Verificar cooldown de 1 minuto
+        last_duel = await get_duel_cooldown(interaction.user.id)
+        if last_duel and datetime.now() < last_duel:
+            remaining = last_duel - datetime.now()
+            secs = int(remaining.total_seconds())
+            return await interaction.response.send_message(f"⏳ Ya desafiaste hace poco. Espera {secs}s.", ephemeral=True)
+        
         await interaction.response.defer()
         
         if cantidad <= 0:
@@ -37,6 +46,7 @@ class DuelsCog(commands.Cog):
             return
         
         await create_duel(interaction.user.id, usuario.id, cantidad)
+        await set_duel_cooldown(interaction.user.id)
         await interaction.followup.send(f"⚔️ Desafío enviado a {usuario.mention}: {cantidad}💰")
 
     @app_commands.command(name="mis-duelos", description="Ver desafíos pendientes")

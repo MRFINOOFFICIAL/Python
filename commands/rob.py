@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress
+from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress, get_rob_cooldown, set_rob_cooldown
 import random
 from typing import Optional
 
@@ -157,9 +157,12 @@ class RobCog(commands.Cog):
 
     async def _perform_rob(self, user_id: int, target_member: discord.Member, chosen_item_id: Optional[int], chosen_item_name: Optional[str]):
         """Core robber logic: returns result message string and whether success."""
+        # Establecer cooldown
+        await set_rob_cooldown(user_id, target_member.id)
+        
         target = await get_user(target_member.id)
         if not target or target.get("dinero", 0) < 50:
-            return False, "Esa persona no tiene suficiente dinero para robar."
+            return False, "Esa persona no tienen suficiente dinero para robar."
 
         # determine power
         power = 0
@@ -205,6 +208,15 @@ class RobCog(commands.Cog):
     @app_commands.command(name="rob", description="Robar a otro usuario (requiere mencionar)")
     @app_commands.describe(member="Usuario a robar")
     async def rob_slash(self, interaction: discord.Interaction, member: discord.Member):
+        from datetime import datetime
+        
+        # Verificar cooldown de 5 minutos
+        last_rob = await get_rob_cooldown(interaction.user.id)
+        if last_rob and datetime.now() < last_rob:
+            remaining = last_rob - datetime.now()
+            mins, secs = divmod(int(remaining.total_seconds()), 60)
+            return await interaction.response.send_message(f"⏳ Ya robaste hace poco. Espera {mins}m {secs}s.", ephemeral=True)
+        
         await interaction.response.defer()
         await self._start_rob_flow(interaction, interaction.user, member, is_interaction=True)
 

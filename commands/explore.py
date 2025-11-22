@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
-from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress, update_mission_progress, add_pet_xp
+from db import add_item_to_user, get_inventory, remove_item, get_lives, set_lives, reset_user_progress, update_mission_progress, add_pet_xp, set_explore_cooldown
 import random
 from typing import Tuple, List, Optional
 from cache import set_buff, get_buff, clear_buff
@@ -269,11 +269,24 @@ class ExploreCog(commands.Cog):
     @app_commands.command(name="explore", description="🌲 Explora y encuentra objetos y cofres")
     async def explore_slash(self, interaction: discord.Interaction):
         """Comando slash: explorar"""
+        from db import get_explore_cooldown
+        from datetime import datetime, timedelta
+        
+        # Verificar cooldown de 25 segundos
+        last_explore = await get_explore_cooldown(interaction.user.id)
+        if last_explore and datetime.now() < last_explore:
+            remaining = last_explore - datetime.now()
+            secs = int(remaining.total_seconds())
+            return await interaction.response.send_message(f"⏳ Aún estás explorando. Espera {secs}s.", ephemeral=True)
+        
         await interaction.response.defer()
         await self._do_explore(interaction.user, send_fn=lambda **kw: interaction.followup.send(**kw), author_ctx=interaction)
 
     async def _do_explore(self, user, send_fn, author_ctx):
         """Lógica principal de exploración"""
+        # Establecer cooldown de 25 segundos
+        await set_explore_cooldown(user.id)
+        
         inv = await get_inventory(user.id)
         has_linterna = has_item_in_inv(inv, "linterna")
 
