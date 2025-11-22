@@ -519,7 +519,6 @@ class BossesCog(commands.Cog):
         
         await create_boss(guild_id, boss["name"], boss["hp"])
         
-        channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
         embed.add_field(name="Nombre", value=boss["name"], inline=True)
         embed.add_field(name="Tipo", value=boss_type, inline=True)
@@ -528,15 +527,18 @@ class BossesCog(commands.Cog):
         embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
         embed.add_field(name="Usa !fight o /fight para pelear", value="⚔️", inline=False)
         
+        # Enviar al canal actual
+        await ctx.send(embed=embed)
+        
+        # Luego enviar a los canales configurados
+        channels = await get_event_channels(guild_id)
         for ch_id in channels:
             try:
                 ch = self.bot.get_channel(ch_id)
-                if ch:
+                if ch and ch.id != ctx.channel.id:
                     await ch.send(embed=embed)
             except:
                 pass
-        
-        await ctx.send("✅ Jefe spawneado")
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
     @app_commands.describe(tipo="Tipo de jefe: Mini-Boss, Boss o Especial", jefe="O selecciona un jefe específico")
@@ -570,7 +572,6 @@ class BossesCog(commands.Cog):
         
         await create_boss(guild_id, boss["name"], boss["hp"])
         
-        channels = await get_event_channels(guild_id)
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
         embed.add_field(name="Nombre", value=boss["name"], inline=True)
         embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
@@ -579,15 +580,18 @@ class BossesCog(commands.Cog):
         embed.add_field(name="Dinero", value=f"{boss['rewards']['dinero'][0]}-{boss['rewards']['dinero'][1]}", inline=True)
         embed.add_field(name="Usa !fight o /fight para pelear", value="⚔️", inline=False)
         
+        # Enviar al canal actual primero
+        await interaction.response.send_message(embed=embed)
+        
+        # Luego enviar a los canales configurados
+        channels = await get_event_channels(guild_id)
         for ch_id in channels:
             try:
                 ch = self.bot.get_channel(ch_id)
-                if ch:
+                if ch and ch.id != interaction.channel_id:
                     await ch.send(embed=embed)
             except:
                 pass
-        
-        await interaction.response.send_message("✅ Jefe spawneado", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(BossesCog(bot))
