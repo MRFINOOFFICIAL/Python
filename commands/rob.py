@@ -198,7 +198,7 @@ class RobCog(commands.Cog):
             return False, f"❌ Fallaste y perdiste {loss}💰. Ten cuidado."
 
     @commands.command(name="rob")
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 300, commands.BucketType.user)
     async def rob_prefix(self, ctx, member: discord.Member):
         await self._start_rob_flow(ctx, ctx.author, member, is_interaction=False)
 
