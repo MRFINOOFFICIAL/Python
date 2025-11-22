@@ -6,7 +6,7 @@ Sistema automático de spawn de bosses.
 """
 import asyncio
 from datetime import datetime, timedelta
-from db import get_all_active_bosses, create_boss, deactivate_boss
+from db import get_all_active_bosses, create_boss, deactivate_boss, get_event_channels
 from bosses import get_random_boss
 import discord
 
@@ -42,18 +42,20 @@ async def auto_spawn_bosses(bot):
                         await create_boss(guild_id, mini_boss["name"], max_hp)
                         LAST_SPAWN_TIMES["mini_boss"][guild_id] = current_time
                         
-                        # Notificar
-                        for channel in guild.text_channels:
+                        # Notificar en el canal configurado
+                        channels = await get_event_channels(guild_id)
+                        for ch_id in channels:
                             try:
-                                embed = discord.Embed(
-                                    title=f"🚨 ¡¡NUEVO Mini-Boss apareció!!",
-                                    description=f"**{mini_boss['name']}** ha reemplazado al anterior.\nUsa `/fight` para pelear.",
-                                    color=discord.Color.orange()
-                                )
-                                embed.add_field(name="HP", value=f"{mini_boss['hp']} HP", inline=True)
-                                embed.add_field(name="Tipo", value="Mini-Boss", inline=True)
-                                await channel.send(embed=embed)
-                                break
+                                channel = bot.get_channel(ch_id)
+                                if channel:
+                                    embed = discord.Embed(
+                                        title=f"🚨 ¡¡NUEVO Mini-Boss apareció!!",
+                                        description=f"**{mini_boss['name']}** ha reemplazado al anterior.\nUsa `/fight` para pelear.",
+                                        color=discord.Color.orange()
+                                    )
+                                    embed.add_field(name="HP", value=f"{mini_boss['hp']} HP", inline=True)
+                                    embed.add_field(name="Tipo", value="Mini-Boss", inline=True)
+                                    await channel.send(embed=embed)
                             except:
                                 pass
                     continue
@@ -73,18 +75,20 @@ async def auto_spawn_bosses(bot):
                         await create_boss(guild_id, boss["name"], max_hp)
                         LAST_SPAWN_TIMES["boss"][guild_id] = current_time
                         
-                        # Notificar
-                        for channel in guild.text_channels:
+                        # Notificar en el canal configurado
+                        channels = await get_event_channels(guild_id)
+                        for ch_id in channels:
                             try:
-                                embed = discord.Embed(
-                                    title=f"🚨 ¡¡NUEVO Boss ha aparecido!!",
-                                    description=f"**{boss['name']}** ha reemplazado al anterior.\nUsa `/fight` para pelear.",
-                                    color=discord.Color.red()
-                                )
-                                embed.add_field(name="HP", value=f"{boss['hp']} HP", inline=True)
-                                embed.add_field(name="Tipo", value="Boss Normal", inline=True)
-                                await channel.send(embed=embed)
-                                break
+                                channel = bot.get_channel(ch_id)
+                                if channel:
+                                    embed = discord.Embed(
+                                        title=f"🚨 ¡¡NUEVO Boss ha aparecido!!",
+                                        description=f"**{boss['name']}** ha reemplazado al anterior.\nUsa `/fight` para pelear.",
+                                        color=discord.Color.red()
+                                    )
+                                    embed.add_field(name="HP", value=f"{boss['hp']} HP", inline=True)
+                                    embed.add_field(name="Tipo", value="Boss Normal", inline=True)
+                                    await channel.send(embed=embed)
                             except:
                                 pass
         
