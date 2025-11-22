@@ -133,6 +133,15 @@ async def init_db():
         )
         """)
         await db.execute("""
+        CREATE TABLE IF NOT EXISTS mascotas (
+            user_id TEXT PRIMARY KEY,
+            nombre TEXT NOT NULL,
+            xp INTEGER DEFAULT 0,
+            rareza TEXT DEFAULT 'común',
+            equipada BOOLEAN DEFAULT 1
+        )
+        """)
+        await db.execute("""
         CREATE TABLE IF NOT EXISTS pet_xp (
             user_id TEXT PRIMARY KEY,
             xp INTEGER DEFAULT 0
@@ -709,3 +718,46 @@ async def get_club_bonus(user_id):
             return 0
     except:
         return 0
+
+# ---------- MASCOTAS ----------
+
+async def get_pet(user_id):
+    """Obtener mascota del usuario"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT nombre, xp, rareza FROM mascotas WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row:
+            return {"nombre": row[0], "xp": row[1], "rareza": row[2]}
+        return None
+
+async def create_pet(user_id, nombre, rareza="común"):
+    """Crear mascota para usuario"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            "INSERT OR REPLACE INTO mascotas(user_id, nombre, xp, rareza, equipada) VALUES (?, ?, ?, ?, ?)",
+            (str(user_id), nombre, 0, rareza, 1)
+        )
+        await db.commit()
+
+async def add_pet_xp(user_id, xp=10):
+    """Agregar XP a mascota"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT xp FROM mascotas WHERE user_id = ?", (str(user_id),))
+        row = await cur.fetchone()
+        if row:
+            await db.execute("UPDATE mascotas SET xp = xp + ? WHERE user_id = ?", (xp, str(user_id)))
+        await db.commit()
+
+async def get_pet_level(user_id):
+    """Obtener nivel de mascota (cada 100 XP = 1 nivel)"""
+    pet = await get_pet(user_id)
+    if pet:
+        return pet["xp"] // 100
+    return 0
+
+async def get_pet_xp_total(user_id):
+    """Obtener XP total de mascota"""
+    pet = await get_pet(user_id)
+    if pet:
+        return pet["xp"]
+    return 0

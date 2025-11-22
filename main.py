@@ -102,6 +102,7 @@ async def main():
         await bot.load_extension("commands.market")
         await bot.load_extension("commands.duels")
         await bot.load_extension("commands.clubs")
+        await bot.load_extension("commands.pets")
         
         # Iniciar tarea de auto-spawn de bosses
         from boss_autospawn import auto_spawn_bosses
