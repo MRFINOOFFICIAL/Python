@@ -177,9 +177,14 @@ async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | Non
             return -penalty, f"⏱️ Bot no disponible. Perdiste {penalty}💰"
         msg = await bot.wait_for("message", timeout=total_time, check=check)
         answer = msg.content.lower().strip()
+    except asyncio.TimeoutError:
+        penalty = max(5, int(pay*0.12))
+        timeout_msg = f"⏱️ ¡Tiempo agotado! Perdiste {penalty}💰"
+        await send_fn(f"❌ {timeout_msg}")
+        return -penalty, timeout_msg
     except Exception:
         penalty = max(5, int(pay*0.12))
-        return -penalty, f"⏱️ Tiempo agotado. Perdiste {penalty}💰"
+        return -penalty, f"⏱️ Error al esperar respuesta. Perdiste {penalty}💰"
 
     if answer in respuestas:
         reward = int(pay * DIFFICULTY_MULT[difficulty]) + random.randint(0, int(pay*0.15))
