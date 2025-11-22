@@ -5,11 +5,13 @@ import asyncio
 import discord
 from discord.ext import commands
 from db import init_db
+from keep_alive import keep_alive
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("discord")
 
 print(">>> Bot iniciando...")
+keep_alive()
 
 intents = discord.Intents.default()
 intents.message_content = True
