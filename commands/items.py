@@ -183,10 +183,6 @@ class ItemsCog(commands.Cog):
         if "huevo" in item_name:
             import asyncio
             import random
-            existing_pet = await get_pet(user_id)
-            if existing_pet:
-                await send_fn("❌ Ya tienes una mascota. Usa `/cambiar-mascota` para cambiarla.")
-                return
             
             # Mascotas posibles con probabilidades según tipo de huevo
             MASCOTAS_POOL = [
