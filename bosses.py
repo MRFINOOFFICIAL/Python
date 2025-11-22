@@ -5,42 +5,42 @@ from typing import Dict, Optional
 
 # Mapeo de armas únicas por boss
 BOSS_WEAPONS = {
-    "Goblin Capitán": "Espada del Goblin",
-    "Orco Guerrero": "Hacha del Orco",
-    "Bruja del Bosque": "Vara de la Bruja",
-    "Mecha Enojado": "Mecha Enojado",  # Boss único
-    "Savi Forma Teto": "Núcleo de Savi",
-    "Dragón Antiguo": "Aliento del Dragón",
-    "Rey Esqueleto": "Corona del Rey Esqueleto",
-    "Demonio Oscuro": "Espada Oscura",
-    "Savi Forma Final": "Esencia de Savi",
-    "Psicólogo Loco": "Cordura Rota",
-    "Médico Misterioso": "Bisturí Misterioso",
-    "Enfermera de Hierro": "Jeringa de Hierro",
-    "Director del Caos": "Cetro del Caos",
-    "Fino": "Espada de Fino",
+    "🎭 Ansiedad de Goblin": "Espada del Goblin",
+    "🪓 Ira del Orco": "Hacha del Orco",
+    "🧙 Obsesión de Bruja": "Vara de la Bruja",
+    "🤖 Síndrome de Mecha": "Síndrome de Mecha",
+    "✨ Forma Leve de Savi": "Núcleo de Savi",
+    "🐉 Depresión Dragón": "Aliento del Dragón",
+    "💀 Duelo de Esqueleto": "Corona del Rey Esqueleto",
+    "😈 Psicosis del Demonio": "Espada Oscura",
+    "👑 Savi Forma Crítica": "Esencia de Savi",
+    "🧠 Psicólogo Perturbado": "Cordura Rota",
+    "👨‍⚕️ Médico Siniestro": "Bisturí Misterioso",
+    "⚕️ Enfermera Despiadada": "Jeringa de Hierro",
+    "🎩 Director del Caos Total": "Cetro del Caos",
+    "✨ Fino - La Verdad Última": "Espada de Fino",
 }
 
 BOSSES_DB = {
     "Mini-Boss": [
-        {"name": "Goblin Capitán", "hp": 80, "ataque": 8, "rareza": "raro", "prob": 0.4, "rewards": {"dinero": (150, 300), "items": ["ID falso", "Chihuahua"]}},
-        {"name": "Orco Guerrero", "hp": 100, "ataque": 10, "rareza": "raro", "prob": 0.3, "rewards": {"dinero": (200, 350), "items": ["Bastón de Staff"]}},
-        {"name": "Bruja del Bosque", "hp": 70, "ataque": 12, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (250, 400), "items": ["Núcleo energético"]}},
-        {"name": "Mecha Enojado", "hp": 120, "ataque": 15, "rareza": "epico", "prob": 0.25, "rewards": {"dinero": (350, 600), "items": ["Fragmento Omega"]}},
-        {"name": "Savi Forma Teto", "hp": 150, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (450, 750), "items": ["Fragmento Omega"]}},
+        {"name": "🎭 Ansiedad de Goblin", "hp": 80, "ataque": 8, "rareza": "raro", "prob": 0.4, "rewards": {"dinero": (150, 300), "items": ["ID falso", "Chihuahua"]}},
+        {"name": "🪓 Ira del Orco", "hp": 100, "ataque": 10, "rareza": "raro", "prob": 0.3, "rewards": {"dinero": (200, 350), "items": ["Bastón de Staff"]}},
+        {"name": "🧙 Obsesión de Bruja", "hp": 70, "ataque": 12, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (250, 400), "items": ["Núcleo energético"]}},
+        {"name": "🤖 Síndrome de Mecha", "hp": 120, "ataque": 15, "rareza": "epico", "prob": 0.25, "rewards": {"dinero": (350, 600), "items": ["Fragmento Omega"]}},
+        {"name": "✨ Forma Leve de Savi", "hp": 150, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (450, 750), "items": ["Fragmento Omega"]}},
     ],
     "Boss": [
-        {"name": "Dragón Antiguo", "hp": 300, "ataque": 20, "rareza": "legendario", "prob": 0.15, "rewards": {"dinero": (1200, 2500), "items": ["Llave Maestra", "Fragmento Omega"]}},
-        {"name": "Rey Esqueleto", "hp": 250, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (1000, 1800), "items": ["Fragmento Omega"]}},
-        {"name": "Demonio Oscuro", "hp": 280, "ataque": 22, "rareza": "legendario", "prob": 0.1, "rewards": {"dinero": (1400, 3000), "items": ["Llave Maestra"]}},
-        {"name": "Savi Forma Final", "hp": 350, "ataque": 28, "rareza": "legendario", "prob": 0.18, "rewards": {"dinero": (2300, 4200), "items": ["Fragmento Omega", "Traje ritual", "Núcleo energético"]}},
+        {"name": "🐉 Depresión Dragón", "hp": 300, "ataque": 20, "rareza": "legendario", "prob": 0.15, "rewards": {"dinero": (1200, 2500), "items": ["Llave Maestra", "Fragmento Omega"]}},
+        {"name": "💀 Duelo de Esqueleto", "hp": 250, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (1000, 1800), "items": ["Fragmento Omega"]}},
+        {"name": "😈 Psicosis del Demonio", "hp": 280, "ataque": 22, "rareza": "legendario", "prob": 0.1, "rewards": {"dinero": (1400, 3000), "items": ["Llave Maestra"]}},
+        {"name": "👑 Savi Forma Crítica", "hp": 350, "ataque": 28, "rareza": "legendario", "prob": 0.18, "rewards": {"dinero": (2300, 4200), "items": ["Fragmento Omega", "Traje ritual", "Núcleo energético"]}},
     ],
     "Especial": [
-        {"name": "Psicólogo Loco", "hp": 350, "ataque": 25, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (3500, 6000), "items": ["Fragmento Omega", "Núcleo energético"]}},
-        {"name": "Médico Misterioso", "hp": 320, "ataque": 28, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (3000, 5500), "items": ["Traje ritual", "Llave Maestra"]}},
-        {"name": "Enfermera de Hierro", "hp": 400, "ataque": 30, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (4500, 7000), "items": ["Fragmento Omega"]}},
-        {"name": "Director del Caos", "hp": 500, "ataque": 35, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (6000, 10000), "items": ["Fragmento Omega", "Núcleo energético", "Traje ritual"]}},
-        {"name": "Fino", "hp": 600, "ataque": 40, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (9000, 15000), "items": ["Fragmento Omega", "Núcleo energético", "Traje ritual"]}},
+        {"name": "🧠 Psicólogo Perturbado", "hp": 350, "ataque": 25, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (3500, 6000), "items": ["Fragmento Omega", "Núcleo energético"]}},
+        {"name": "👨‍⚕️ Médico Siniestro", "hp": 320, "ataque": 28, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (3000, 5500), "items": ["Traje ritual", "Llave Maestra"]}},
+        {"name": "⚕️ Enfermera Despiadada", "hp": 400, "ataque": 30, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (4500, 7000), "items": ["Fragmento Omega"]}},
+        {"name": "🎩 Director del Caos Total", "hp": 500, "ataque": 35, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (6000, 10000), "items": ["Fragmento Omega", "Núcleo energético", "Traje ritual"]}},
+        {"name": "✨ Fino - La Verdad Última", "hp": 600, "ataque": 40, "rareza": "maestro", "prob": 1.0, "rewards": {"dinero": (9000, 15000), "items": ["Fragmento Omega", "Núcleo energético", "Traje ritual"]}},
     ]
 }
 
