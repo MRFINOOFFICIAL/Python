@@ -3,17 +3,35 @@ import random
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 
+# Mapeo de armas únicas por boss
+BOSS_WEAPONS = {
+    "Goblin Capitán": "Espada del Goblin",
+    "Orco Guerrero": "Hacha del Orco",
+    "Bruja del Bosque": "Vara de la Bruja",
+    "Mecha Enojado": "Mecha Enojado",  # Boss único
+    "Savi Forma Teto": "Núcleo de Savi",
+    "Dragón Antiguo": "Aliento del Dragón",
+    "Rey Esqueleto": "Corona del Rey Esqueleto",
+    "Demonio Oscuro": "Espada Oscura",
+    "Savi Forma Final": "Esencia de Savi",
+    "Psicólogo Loco": "Cordura Rota",
+    "Médico Misterioso": "Bisturí Misterioso",
+    "Enfermera de Hierro": "Jeringa de Hierro",
+    "Director del Caos": "Cetro del Caos",
+    "Fino": "Espada de Fino",
+}
+
 BOSSES_DB = {
     "Mini-Boss": [
         {"name": "Goblin Capitán", "hp": 80, "ataque": 8, "rareza": "raro", "prob": 0.4, "rewards": {"dinero": (100, 200), "items": ["ID falso", "Chihuahua"]}},
         {"name": "Orco Guerrero", "hp": 100, "ataque": 10, "rareza": "raro", "prob": 0.3, "rewards": {"dinero": (150, 250), "items": ["Bastón de Staff"]}},
-        {"name": "Bruja del Bosque", "hp": 70, "ataque": 12, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (200, 300), "items": ["Aconsejante Fantasma"]}},
-        {"name": "Mecha Enojado", "hp": 120, "ataque": 15, "rareza": "epico", "prob": 0.25, "rewards": {"dinero": (300, 500), "items": ["Mecha Enojado", "Fragmento Omega"]}},
-        {"name": "Savi Forma Teto", "hp": 150, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (400, 600), "items": ["Savi peluche", "Núcleo energético"]}},
+        {"name": "Bruja del Bosque", "hp": 70, "ataque": 12, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (200, 300), "items": ["Núcleo energético"]}},
+        {"name": "Mecha Enojado", "hp": 120, "ataque": 15, "rareza": "epico", "prob": 0.25, "rewards": {"dinero": (300, 500), "items": ["Fragmento Omega"]}},
+        {"name": "Savi Forma Teto", "hp": 150, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (400, 600), "items": ["Fragmento Omega"]}},
     ],
     "Boss": [
-        {"name": "Dragón Antiguo", "hp": 300, "ataque": 20, "rareza": "legendario", "prob": 0.15, "rewards": {"dinero": (1000, 2000), "items": ["Llave Maestra", "Mecha Enojado"]}},
-        {"name": "Rey Esqueleto", "hp": 250, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (800, 1500), "items": ["Pistola vieja", "Máscara de Xfi"]}},
+        {"name": "Dragón Antiguo", "hp": 300, "ataque": 20, "rareza": "legendario", "prob": 0.15, "rewards": {"dinero": (1000, 2000), "items": ["Llave Maestra", "Fragmento Omega"]}},
+        {"name": "Rey Esqueleto", "hp": 250, "ataque": 18, "rareza": "epico", "prob": 0.2, "rewards": {"dinero": (800, 1500), "items": ["Fragmento Omega"]}},
         {"name": "Demonio Oscuro", "hp": 280, "ataque": 22, "rareza": "legendario", "prob": 0.1, "rewards": {"dinero": (1200, 2500), "items": ["Llave Maestra"]}},
         {"name": "Savi Forma Final", "hp": 350, "ataque": 28, "rareza": "legendario", "prob": 0.18, "rewards": {"dinero": (2000, 3500), "items": ["Fragmento Omega", "Traje ritual", "Núcleo energético"]}},
     ],

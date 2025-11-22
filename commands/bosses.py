@@ -314,6 +314,7 @@ class BossesCog(commands.Cog):
         await set_fight_cooldown(user_id, guild_id)
         
         if boss_hp <= 0:
+            from bosses import BOSS_WEAPONS
             reward = await get_boss_reward(boss)
             await add_money(user_id, reward["dinero"])
             # Agregar XP por victoria
@@ -324,9 +325,18 @@ class BossesCog(commands.Cog):
             embed = discord.Embed(title="✅ ¡VICTORIA!", color=discord.Color.green())
             embed.add_field(name="Derrotaste a", value=boss['name'], inline=False)
             embed.add_field(name="Recompensa", value=f"💰 {reward['dinero']} dinero | ⭐ {xp_reward} XP", inline=False)
+            
+            # Recompensa: arma única del boss
+            boss_weapon = BOSS_WEAPONS.get(boss_name)
+            if boss_weapon:
+                await add_item_to_user(user_id, boss_weapon, rareza="maestro", usos=1, durabilidad=100, categoria="arma", poder=55)
+                embed.add_field(name="⚔️ ARMA ESPECIAL", value=f"**{boss_weapon}** (maestro - +20% cofres al explorar)", inline=False)
+            
+            # Recompensa adicional: items normales
             if reward["item"]:
                 await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
                 embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
+            
             await deactivate_boss(guild_id, boss_name)
             channels = await get_event_channels(guild_id)
             for ch_id in channels:

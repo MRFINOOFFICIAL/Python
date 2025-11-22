@@ -21,28 +21,28 @@ LOOT_TABLE: List[Tuple[str, str, int]] = [
     ("Cinta adhesiva", "comun", 1),
     ("Botella de sedante", "comun", 1),
     ("Cuchillo oxidado", "raro", 3),
-    ("Pistola vieja", "epico", 5),
+    ("Pistola vieja", "raro", 5),  # Cambio: era épico, ahora raro
     ("Botiquín", "comun", 1),
     ("Arma blanca artesanal", "raro", 3),
-    ("Palo golpeador de parejas felices", "epico", 5),
-    ("Savi peluche", "epico", 5),
+    ("Palo golpeador de parejas felices", "raro", 5),  # Cambio: era épico, ahora raro
+    ("Savi peluche", "raro", 5),  # Cambio: era épico, ahora raro
     ("Hélice de ventilador", "comun", 1),
-    ("Aconsejante Fantasma", "epico", 5),
+    ("Aconsejante Fantasma", "raro", 5),  # Cambio: era épico, ahora raro
     ("ID falso", "raro", 3),
-    ("Máscara de Xfi", "epico", 5),
+    ("Máscara de Xfi", "raro", 5),  # Cambio: era épico, ahora raro
     # Items especiales
     ("Bastón de Staff", "raro", 4),
     ("Teléfono", "comun", 1),
     ("Chihuahua", "raro", 2),
-    ("Mecha Enojado", "epico", 6),
+    ("Mecha Enojado", "legendario", 1),  # Cambio: ahora solo se obtiene derrotando al boss
     ("Linterna", "comun", 1),
-    ("Llave Maestra", "epico", 1),
+    ("Llave Maestra", "legendario", 1),  # Cambio: ahora raro de encontrar
     # Extras para variedad
     ("Anillo oxidado", "comun", 1),
     ("Mapa antiguo", "raro", 1),
     ("Gafas de soldador", "raro", 1),
     ("Caja de cerillas", "comun", 1),
-    ("Receta secreta", "epico", 1),
+    ("Receta secreta", "raro", 1),  # Cambio: era épico, ahora raro
     ("Núcleo energético", "legendario", 1),
     ("Fragmento Omega", "maestro", 1),
     ("Traje ritual", "legendario", 1),
@@ -53,15 +53,15 @@ LOOT_TABLE: List[Tuple[str, str, int]] = [
 ]
 
 WEIGHTS = [
-    40, 40, 10, 5, 30, 15, 5, 5, 25, 5, 10, 5,
-    8, 30, 15, 6, 20, 4,
-    35, 12, 10, 40, 15, 2, 1, 2, 10, 50, 35, 18
+    40, 40, 10, 3, 30, 15, 3, 3, 25, 3, 10, 3,
+    8, 30, 15, 1, 20, 1,
+    35, 12, 10, 40, 8, 1, 1, 2, 10, 50, 35, 18
 ]
 assert len(WEIGHTS) == len(LOOT_TABLE), "Pesos no coinciden con tabla de loot"
 
 # Configuración de cofres
 CHEST_CHANCE = 0.12
-CHEST_RARITY_WEIGHTS = {"comun": 60, "raro": 25, "epico": 10, "legendario": 4, "maestro": 1}
+CHEST_RARITY_WEIGHTS = {"comun": 60, "raro": 30, "epico": 5, "legendario": 4, "maestro": 1}  # Reducido épico de 10 a 5
 CHEST_YIELD = {"comun": (1, 1), "raro": (1, 2), "epico": (1, 2), "legendario": (2, 3), "maestro": (2, 4)}
 SEALED_PROB = {"epico": 0.03, "legendario": 0.15, "maestro": 0.65}
 CONSUME_KEY_ON_SEALED = True
