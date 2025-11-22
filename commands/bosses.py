@@ -517,15 +517,6 @@ class BossesCog(commands.Cog):
             except:
                 pass
         
-        allowed_ch_id = await get_allowed_channel(guild_id)
-        if allowed_ch_id:
-            try:
-                ch = self.bot.get_channel(allowed_ch_id)
-                if ch:
-                    await ch.send(embed=embed)
-            except:
-                pass
-        
         await ctx.send("✅ Jefe spawneado")
 
     @app_commands.command(name="spawnboss", description="Forzar spawn de jefe (Admin)")
@@ -572,15 +563,6 @@ class BossesCog(commands.Cog):
         for ch_id in channels:
             try:
                 ch = self.bot.get_channel(ch_id)
-                if ch:
-                    await ch.send(embed=embed)
-            except:
-                pass
-        
-        allowed_ch_id = await get_allowed_channel(guild_id)
-        if allowed_ch_id:
-            try:
-                ch = self.bot.get_channel(allowed_ch_id)
                 if ch:
                     await ch.send(embed=embed)
             except:
