@@ -389,7 +389,7 @@ async def add_shop_item(name, price, item_type, effect, rarity):
 
 async def get_shop_item(name):
     async with aiosqlite.connect(DB) as db:
-        cur = await db.execute("SELECT name, price, type, effect, rarity FROM shop WHERE name = ?", (name,))
+        cur = await db.execute("SELECT name, price, type, effect, rarity FROM shop WHERE LOWER(name) = LOWER(?)", (name,))
         row = await cur.fetchone()
         if row:
             return {"name": row[0], "price": row[1], "type": row[2], "effect": row[3], "rarity": row[4]}

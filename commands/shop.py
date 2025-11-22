@@ -172,21 +172,27 @@ class ShopCog(commands.Cog):
     @app_commands.autocomplete(item_name=shop_items_autocomplete)
     async def buy_slash(self, interaction: discord.Interaction, item_name: str):
         await interaction.response.defer(ephemeral=False)
-        user = await get_user(interaction.user.id)
-        item = await get_shop_item(item_name)
-        if not item:
-            return await interaction.followup.send("❌ No existe ese item (usa el nombre exacto).", ephemeral=True)
-        if user["dinero"] < item["price"]:
-            return await interaction.followup.send("❌ No tienes dinero suficiente.", ephemeral=True)
-        
-        await add_money(interaction.user.id, -item["price"])
-        # add to inventory con categoría del shop (type)
-        await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
-        
-        if item["type"] == "huevo_mascota":
-            await interaction.followup.send(f"🥚 ✅ Compraste **{item['name']}** por {item['price']}💰\n\n👉 Usa `/use` para eclosionar el huevo. El tiempo depende de su rareza.")
-        else:
-            await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
+        try:
+            user = await get_user(interaction.user.id)
+            if not user:
+                return await interaction.followup.send("❌ Error: No se encontró tu perfil.", ephemeral=True)
+            
+            item = await get_shop_item(item_name)
+            if not item:
+                return await interaction.followup.send(f"❌ No existe ese item. Usa `/shop` para ver items válidos.\n💡 Buscaste: {item_name}", ephemeral=True)
+            if user["dinero"] < item["price"]:
+                return await interaction.followup.send(f"❌ No tienes dinero suficiente.\n💰 Necesitas: {item['price']}\n💵 Tienes: {user['dinero']}", ephemeral=True)
+            
+            await add_money(interaction.user.id, -item["price"])
+            await add_item_to_user(interaction.user.id, item["name"], item["rarity"], usos=1, durabilidad=100, categoria=item["type"], poder=15)
+            
+            if item["type"] == "huevo_mascota":
+                await interaction.followup.send(f"🥚 ✅ Compraste **{item['name']}** por {item['price']}💰\n\n👉 Usa `/use` para eclosionar el huevo. El tiempo depende de su rareza.")
+            else:
+                await interaction.followup.send(f"✅ Compraste **{item['name']}** por {item['price']}💰")
+        except Exception as e:
+            print(f"Error en /buy: {e}")
+            await interaction.followup.send(f"❌ Error al comprar item: {str(e)}", ephemeral=True)
 
    
 
