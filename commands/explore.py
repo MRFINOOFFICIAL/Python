@@ -37,6 +37,20 @@ LOOT_TABLE: List[Tuple[str, str, int]] = [
     ("Mecha Enojado", "legendario", 1),  # Cambio: ahora solo se obtiene derrotando al boss
     ("Linterna", "comun", 1),
     ("Llave Maestra", "legendario", 1),  # Cambio: ahora raro de encontrar
+    # Armas especiales de bosses (muy raras)
+    ("Espada del Goblin", "legendario", 1),
+    ("Hacha del Orco", "legendario", 1),
+    ("Vara de la Bruja", "legendario", 1),
+    ("Núcleo de Savi", "legendario", 1),
+    ("Aliento del Dragón", "maestro", 1),
+    ("Corona del Rey Esqueleto", "maestro", 1),
+    ("Espada Oscura", "maestro", 1),
+    ("Esencia de Savi", "maestro", 1),
+    ("Cordura Rota", "maestro", 1),
+    ("Bisturí Misterioso", "maestro", 1),
+    ("Jeringa de Hierro", "maestro", 1),
+    ("Cetro del Caos", "maestro", 1),
+    ("Espada de Fino", "maestro", 1),
     # Extras para variedad
     ("Anillo oxidado", "comun", 1),
     ("Mapa antiguo", "raro", 1),
@@ -55,12 +69,15 @@ LOOT_TABLE: List[Tuple[str, str, int]] = [
 WEIGHTS = [
     40, 40, 10, 3, 30, 15, 3, 3, 25, 3, 10, 3,
     8, 30, 15, 1, 20, 1,
+    # Armas de bosses (muy bajos pesos, rarísimas)
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    # Resto
     35, 12, 10, 40, 8, 1, 1, 2, 10, 50, 35, 18
 ]
 assert len(WEIGHTS) == len(LOOT_TABLE), "Pesos no coinciden con tabla de loot"
 
 # Configuración de cofres
-CHEST_CHANCE = 0.12
+CHEST_CHANCE = 0.16  # Aumentado de 0.12 a 0.16 (16% de probabilidad de cofre)
 CHEST_RARITY_WEIGHTS = {"comun": 60, "raro": 30, "epico": 5, "legendario": 4, "maestro": 1}  # Reducido épico de 10 a 5
 CHEST_YIELD = {"comun": (1, 1), "raro": (1, 2), "epico": (1, 2), "legendario": (2, 3), "maestro": (2, 4)}
 SEALED_PROB = {"epico": 0.03, "legendario": 0.15, "maestro": 0.65}
@@ -101,6 +118,20 @@ ITEM_STATS = {
     "cable usb": {"categoria": "tecnologia", "poder": 9},
     "garrafa de aceite": {"categoria": "quimicos", "poder": 10},
     "guitarra rota": {"categoria": "arma", "poder": 12},
+    # Armas especiales de bosses
+    "espada del goblin": {"categoria": "arma", "poder": 42},
+    "hacha del orco": {"categoria": "arma", "poder": 44},
+    "vara de la bruja": {"categoria": "arma", "poder": 46},
+    "núcleo de savi": {"categoria": "arma", "poder": 48},
+    "aliento del dragón": {"categoria": "arma", "poder": 55},
+    "corona del rey esqueleto": {"categoria": "arma", "poder": 54},
+    "espada oscura": {"categoria": "arma", "poder": 56},
+    "esencia de savi": {"categoria": "arma", "poder": 58},
+    "cordura rota": {"categoria": "arma", "poder": 60},
+    "bisturí misterioso": {"categoria": "arma", "poder": 61},
+    "jeringa de hierro": {"categoria": "arma", "poder": 62},
+    "cetro del caos": {"categoria": "arma", "poder": 63},
+    "espada de fino": {"categoria": "arma", "poder": 65},
 }
 
 

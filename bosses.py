@@ -84,6 +84,20 @@ WEAPON_STATS = {
     "Savi Forma Teto": {"hit_chance": 0.75, "damage": 35, "crit_chance": 0.3},
     "Savi Forma Final": {"hit_chance": 0.8, "damage": 50, "crit_chance": 0.4},
     "Fino": {"hit_chance": 0.95, "damage": 70, "crit_chance": 0.5},
+    # Armas especiales de bosses
+    "Espada del Goblin": {"hit_chance": 0.75, "damage": 42, "crit_chance": 0.15},
+    "Hacha del Orco": {"hit_chance": 0.78, "damage": 44, "crit_chance": 0.16},
+    "Vara de la Bruja": {"hit_chance": 0.76, "damage": 46, "crit_chance": 0.22},
+    "Núcleo de Savi": {"hit_chance": 0.80, "damage": 48, "crit_chance": 0.25},
+    "Aliento del Dragón": {"hit_chance": 0.85, "damage": 55, "crit_chance": 0.28},
+    "Corona del Rey Esqueleto": {"hit_chance": 0.82, "damage": 54, "crit_chance": 0.26},
+    "Espada Oscura": {"hit_chance": 0.87, "damage": 56, "crit_chance": 0.30},
+    "Esencia de Savi": {"hit_chance": 0.88, "damage": 58, "crit_chance": 0.32},
+    "Cordura Rota": {"hit_chance": 0.90, "damage": 60, "crit_chance": 0.35},
+    "Bisturí Misterioso": {"hit_chance": 0.91, "damage": 61, "crit_chance": 0.36},
+    "Jeringa de Hierro": {"hit_chance": 0.92, "damage": 62, "crit_chance": 0.37},
+    "Cetro del Caos": {"hit_chance": 0.93, "damage": 63, "crit_chance": 0.38},
+    "Espada de Fino": {"hit_chance": 0.95, "damage": 65, "crit_chance": 0.40},
 }
 
 def get_random_boss(boss_type: str) -> Optional[Dict]:
