@@ -558,11 +558,6 @@ class BossesCog(commands.Cog):
         else:
             return await interaction.response.send_message("❌ Debes elegir un tipo (Mini-Boss, Boss, Especial) o un jefe específico", ephemeral=True)
         
-        # Validar que si es especial, solo el owner del bot puede
-        is_bot_owner = interaction.user.id == self.bot.owner_id
-        if is_special and not is_bot_owner:
-            return await interaction.response.send_message("❌ Solo el dueño del bot puede invocar bosses especiales.", ephemeral=True)
-        
         await create_boss(guild_id, boss["name"], boss["hp"])
         
         channels = await get_event_channels(guild_id)
