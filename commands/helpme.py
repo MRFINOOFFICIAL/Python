@@ -203,7 +203,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="💰 Robar",
-            value="`/rob <@usuario>` — Robar dinero de otro jugador",
+            value="`/rob <@usuario>` — Robar dinero de otro jugador (cooldown: 5 minutos)",
             inline=False
         )
         embed.add_field(
@@ -295,8 +295,14 @@ class HelpAlmanacView(discord.ui.View):
         """Guía de tienda"""
         embed = discord.Embed(
             title="🏪 Tienda & Compras",
-            description="Items especiales con efectos únicos.",
+            description="Items especiales con efectos únicos y HUEVOS de mascotas.",
             color=discord.Color.gold()
+        )
+        
+        embed.add_field(
+            name="🥚 HUEVOS DE MASCOTAS (Sistema actualizado)",
+            value="**Ahora hay 4 huevos genéricos con probabilidades diferentes:**\n\n🟡 **Huevo Común** (500💰)\n→ 70% mascota común, 20% rara, 10% épica\n\n🟠 **Huevo Raro** (2500💰)\n→ 30% común, 50% rara, 15% épica, 5% legendaria\n\n🔴 **Huevo Épico** (10000💰)\n→ 10% común, 25% rara, 55% épica, 10% legendaria\n\n⭐ **Huevo Legendario** (50000💰)\n→ 5% común, 10% rara, 20% épica, **65% legendaria**\n\n**Mascotas posibles:** Chihuahua, Gato, Perro, Loro (común) | Conejo, Hamster (raro) | Dragón, Fenix (épico) | Saviteto, Finopeluche, Mechones (legendario)",
+            inline=False
         )
         
         tienda_items = {item: info for item, info in ALMANAC_ITEMS.items() if info.get("tipo") == "tienda"}
@@ -309,7 +315,7 @@ class HelpAlmanacView(discord.ui.View):
         
         embed.add_field(
             name="💡 Recomendaciones",
-            value="🔧 **Kit de reparación** — Usa `/repair` para restaurar durabilidad de items (250💰)\n💰 **x2 de dinero de mecha** — Duplica dinero en trabajos 1 hora (1200💰)\n⚡ **Fragmento Omega** — El item más potente del juego",
+            value="🔧 **Kit de reparación** — Usa `/repair` para restaurar durabilidad de items (250💰)\n💰 **x2 de dinero de mecha** — Duplica dinero en trabajos 1 hora (1200💰)\n⚡ **Fragmento Omega** — El item más potente del juego\n🥚 **Huevos** — Compra el que mejor se adapte a tu presupuesto y riesgo",
             inline=False
         )
         
@@ -446,8 +452,8 @@ class HelpAlmanacView(discord.ui.View):
             inline=False
         )
         embed.add_field(
-            name="🐕 Mascotas con XP",
-            value="**Chihuahua** y otras mascotas ganan XP:\n• Cada 100 XP = 1 NIVEL\n• Niveles superiores = bonificadores progresivos\n• Usa mascotas en combate para acumular XP",
+            name="🐕 Mascotas con XP (Sistema completo)",
+            value="**Las mascotas ganan XP automáticamente:**\n• `/comprar-mascota` — Obtén huevos en tienda\n• `/use Huevo` — Eclosiona la mascota (rareza afecta tiempo)\n• `/mi-mascota` — Ver stats de tu mascota\n• Ganan XP en trabajos (+15 XP) y bosses (+25 XP)\n• Cada 100 XP = +1 NIVEL\n• Bonus progresivo: Nivel 1 = +5%, Nivel 10 = +50%, Nivel 20 = +100%\n• **Bonus se aplica a dinero y XP automáticamente**",
             inline=False
         )
         embed.add_field(
@@ -457,7 +463,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="🍷 Bebida de la Vida",
-            value="`/buy Bebida de la Vida` — 8000💰\n`/use` — Usar para ganar 1 vida extra\n\n⚠️ **Sistema de Vidas:**\n• Comienzas con 1 vida\n• 20% probabilidad de morir en explore\n• Si mueres, PIERDES TODO (dinero, items, XP)\n• ¡Compra vidas extras para protegerte!",
+            value="`/buy Bebida de la Vida` — 8000💰\n`/use` — Usar para ganar 1 vida extra\n\n⚠️ **Sistema de Vidas (Actualizado):**\n• **COMIENZAS CON 3 VIDAS** (antes era 1)\n• 20% probabilidad de morir en explore\n• Si mueres, PIERDES TODO (dinero, items, XP)\n• Vuelves con 3 vidas reseteadas\n• ¡Compra vidas extras para protegerte en exploración peligrosa!",
             inline=False
         )
         return embed
