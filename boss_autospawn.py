@@ -6,14 +6,9 @@ Sistema automático de spawn de bosses.
 """
 import asyncio
 from datetime import datetime, timedelta
-from db import get_all_active_bosses, create_boss, deactivate_boss, get_event_channels
+from db import get_all_active_bosses, create_boss, deactivate_boss, get_event_channels, set_boss_spawn_time, get_boss_spawn_time
 from bosses import get_random_boss
 import discord
-
-LAST_SPAWN_TIMES = {
-    "mini_boss": {},  # guild_id -> datetime
-    "boss": {},       # guild_id -> datetime
-}
 
 async def auto_spawn_bosses(bot):
     """Tarea que checkea cada 5 minutos si debe spawnear un boss"""
@@ -28,7 +23,7 @@ async def auto_spawn_bosses(bot):
                 guild_id = guild.id
                 
                 # Verificar mini-boss (cada 30 minutos)
-                last_mini = LAST_SPAWN_TIMES["mini_boss"].get(guild_id)
+                last_mini = await get_boss_spawn_time(guild_id, "mini_boss")
                 if last_mini is None or (current_time - last_mini).total_seconds() >= 1800:
                     mini_boss = get_random_boss("Mini-Boss")
                     if mini_boss:
@@ -40,7 +35,7 @@ async def auto_spawn_bosses(bot):
                         
                         max_hp = mini_boss.get("max_hp", mini_boss.get("hp", 50))
                         await create_boss(guild_id, mini_boss["name"], max_hp)
-                        LAST_SPAWN_TIMES["mini_boss"][guild_id] = current_time
+                        await set_boss_spawn_time(guild_id, "mini_boss")
                         
                         # Notificar en el canal configurado
                         channels = await get_event_channels(guild_id)
@@ -61,7 +56,7 @@ async def auto_spawn_bosses(bot):
                     continue
                 
                 # Verificar boss normal (cada 1 día)
-                last_boss = LAST_SPAWN_TIMES["boss"].get(guild_id)
+                last_boss = await get_boss_spawn_time(guild_id, "boss")
                 if last_boss is None or (current_time - last_boss).total_seconds() >= 86400:
                     boss = get_random_boss("Boss")
                     if boss:
@@ -73,7 +68,7 @@ async def auto_spawn_bosses(bot):
                         
                         max_hp = boss.get("max_hp", boss.get("hp", 100))
                         await create_boss(guild_id, boss["name"], max_hp)
-                        LAST_SPAWN_TIMES["boss"][guild_id] = current_time
+                        await set_boss_spawn_time(guild_id, "boss")
                         
                         # Notificar en el canal configurado
                         channels = await get_event_channels(guild_id)

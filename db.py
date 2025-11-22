@@ -95,6 +95,14 @@ async def init_db():
         )
         """)
         await db.execute("""
+        CREATE TABLE IF NOT EXISTS boss_spawn_times (
+            guild_id TEXT,
+            boss_type TEXT,
+            last_spawn TIMESTAMP,
+            PRIMARY KEY (guild_id, boss_type)
+        )
+        """)
+        await db.execute("""
         CREATE TABLE IF NOT EXISTS event_channels (
             guild_id TEXT,
             channel_id TEXT,
@@ -495,6 +503,27 @@ async def get_fight_cooldown(user_id, guild_id):
     """Get the last fight time for a user in a guild"""
     async with aiosqlite.connect(DB) as db:
         cur = await db.execute("SELECT last_fight FROM boss_cooldowns WHERE user_id = ? AND guild_id = ?", (str(user_id), str(guild_id)))
+        row = await cur.fetchone()
+        if row and row[0]:
+            return datetime.fromisoformat(row[0])
+        return None
+
+async def set_boss_spawn_time(guild_id, boss_type):
+    """Guardar el tiempo del último spawn de boss"""
+    async with aiosqlite.connect(DB) as db:
+        await db.execute(
+            "INSERT OR REPLACE INTO boss_spawn_times(guild_id, boss_type, last_spawn) VALUES (?, ?, ?)",
+            (str(guild_id), boss_type, datetime.now().isoformat())
+        )
+        await db.commit()
+
+async def get_boss_spawn_time(guild_id, boss_type):
+    """Obtener el tiempo del último spawn de boss"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute(
+            "SELECT last_spawn FROM boss_spawn_times WHERE guild_id = ? AND boss_type = ?",
+            (str(guild_id), boss_type)
+        )
         row = await cur.fetchone()
         if row and row[0]:
             return datetime.fromisoformat(row[0])
