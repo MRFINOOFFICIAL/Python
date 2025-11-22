@@ -65,13 +65,25 @@ async def repair_item_autocomplete(interaction: discord.Interaction, current: st
 
 class ItemUseView(ui.View):
     """Vista interactiva para usar items"""
-    def __init__(self, user_id: int, timeout: int = 60):
+    def __init__(self, user_id: int, options: list = None, timeout: int = 60):
         super().__init__(timeout=timeout)
         self.user_id = int(user_id)
         self.selected_item = None
+        
+        # Agregar select con opciones dinámicas si se proporcionan
+        if options:
+            select = ui.Select(
+                placeholder="Elige un item para usar",
+                options=options,
+                min_values=1,
+                max_values=1
+            )
+            async def select_callback(interaction: discord.Interaction):
+                await self.select_item(interaction, select)
+            select.callback = select_callback
+            self.add_item(select)
 
-    @ui.select(placeholder="Elige un item para usar", min_values=1, max_values=1)
-    async def select_item(self, interaction: discord.Interaction, select: ui.Select):
+    async def select_item(self, interaction: discord.Interaction, select: ui.Select = None):
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ No puedes usar este selector.", ephemeral=True)
             return
@@ -135,18 +147,8 @@ class ItemsCog(commands.Cog):
             color=discord.Color.blue()
         )
         
-        view = ItemUseView(user_id)
-        select = ui.Select(
-            placeholder="Elige un item para usar",
-            options=options,
-            min_values=1,
-            max_values=1
-        )
-        async def select_callback(interaction: discord.Interaction):
-            await view.select_item(interaction, select)
-        select.callback = select_callback
-        view.add_item(select)
-        
+        # Pasar opciones al constructor de ItemUseView
+        view = ItemUseView(user_id, options=options)
         msg = await send_fn(embed=embed, view=view)
         await view.wait()
         
