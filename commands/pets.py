@@ -1,11 +1,11 @@
 """
-Sistema de mascotas con XP progresivo.
-Comandos: /mi-mascota, /mascotas-disponibles, /cambiar-mascota
+Sistema de mascotas con XP progresivo y múltiples mascotas.
+Comandos: /mi-mascota, /mis-mascotas, /mascotas-disponibles
 """
 import discord
 from discord.ext import commands
-from discord import app_commands
-from db import get_pet, create_pet, get_pet_level, get_pet_xp_total, get_money, add_money
+from discord import app_commands, ui
+from db import get_pet, get_all_pets, create_pet, get_pet_level, get_pet_xp_total, get_money, add_money, set_active_pet
 
 MASCOTAS = {
     "chihuahua": {"rareza": "común", "emojis": "🐕", "precio": 500, "poder": 5},
@@ -32,20 +32,44 @@ BONUS_POR_NIVEL = {
     20: {"dinero": 2.0, "xp": 2.0},
 }
 
-async def mascota_autocomplete(interaction: discord.Interaction, current: str):
-    """Autocompletado para mascotas disponibles"""
-    try:
-        user_money = await get_money(interaction.user.id)
-        available = [name for name, data in MASCOTAS.items() if data["precio"] <= user_money and current.lower() in name.lower()]
-        return [app_commands.Choice(name=f"{name} ({data['rareza']})", value=name) for name, data in MASCOTAS.items() if name in available][:25]
-    except Exception:
-        return []
+class PetsChangerView(ui.View):
+    def __init__(self, user_id, pets, timeout=120):
+        super().__init__(timeout=timeout)
+        self.user_id = user_id
+        self.pets = pets
+        self.selected_pet = None
+        
+        options = []
+        for pet in pets:
+            emoji = MASCOTAS.get(pet["nombre"].lower(), {}).get("emojis", "🐾")
+            label = f"{emoji} {pet['nombre']} (Nivel {pet['xp'] // 100})"
+            value = str(pet["id"])
+            options.append(discord.SelectOption(label=label, value=value, default=pet["activa"]))
+        
+        self.select = ui.Select(placeholder="Elige tu mascota activa...", options=options, min_values=1, max_values=1)
+        self.select.callback = self.on_select
+        self.add_item(self.select)
+    
+    async def on_select(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user_id:
+            await interaction.response.defer()
+            return
+        
+        pet_id = int(self.select.values[0])
+        await set_active_pet(self.user_id, pet_id)
+        self.selected_pet = pet_id
+        
+        pet = next((p for p in self.pets if p["id"] == pet_id), None)
+        if pet:
+            emoji = MASCOTAS.get(pet["nombre"].lower(), {}).get("emojis", "🐾")
+            await interaction.response.edit_message(content=f"✅ {emoji} **{pet['nombre']}** is now active!")
+        self.stop()
 
 class PetsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="mi-mascota", description="Ver tu mascota actual")
+    @app_commands.command(name="mi-mascota", description="Ver tu mascota activa")
     async def my_pet(self, interaction: discord.Interaction):
         """Ver mascota del usuario"""
         await interaction.response.defer()
@@ -64,11 +88,11 @@ class PetsCog(commands.Cog):
         xp_total = await get_pet_xp_total(interaction.user.id)
         xp_para_siguiente = 100 - (xp_total % 100)
         
-        data = MASCOTAS.get(pet["nombre"], {})
+        data = MASCOTAS.get(pet["nombre"].lower(), {})
         emoji = data.get("emojis", "🐾")
         
         embed = discord.Embed(
-            title=f"{emoji} {pet['nombre'].capitalize()}",
+            title=f"{emoji} {pet['nombre'].capitalize()} (ACTIVA)",
             description=f"**Rareza:** {pet['rareza'].upper()}\n**Nivel:** {nivel}\n**XP:** {xp_total}",
             color=discord.Color.gold()
         )
@@ -83,7 +107,47 @@ class PetsCog(commands.Cog):
                 inline=False
             )
         
+        embed.set_footer(text="Usa /mis-mascotas para ver todas tus mascotas y cambiar la activa")
         await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="mis-mascotas", description="Ver todas tus mascotas y cambiar la activa")
+    async def all_pets(self, interaction: discord.Interaction):
+        """Ver todas las mascotas y cambiar activa"""
+        await interaction.response.defer()
+        
+        pets = await get_all_pets(interaction.user.id)
+        if not pets:
+            embed = discord.Embed(
+                title="🐾 Sin Mascotas",
+                description="No tienes ninguna mascota. Compra un huevo de mascota en `/shop` y úsalo con `/use`.",
+                color=discord.Color.blue()
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # Embed con lista de mascotas
+        embed = discord.Embed(
+            title="🐾 Mis Mascotas",
+            description=f"**Total:** {len(pets)} mascota(s)",
+            color=discord.Color.gold()
+        )
+        
+        for pet in pets:
+            nivel = pet["xp"] // 100
+            data = MASCOTAS.get(pet["nombre"].lower(), {})
+            emoji = data.get("emojis", "🐾")
+            active_badge = "✅ ACTIVA" if pet["activa"] else ""
+            
+            embed.add_field(
+                name=f"{emoji} {pet['nombre']} {active_badge}",
+                value=f"`{pet['rareza'].upper()}` | Nivel {nivel} | {pet['xp']} XP",
+                inline=False
+            )
+        
+        # View con selector
+        view = PetsChangerView(interaction.user.id, pets)
+        embed.set_footer(text="Usa el selector para cambiar tu mascota activa")
+        await interaction.followup.send(embed=embed, view=view)
 
     @app_commands.command(name="mascotas-disponibles", description="Ver todas las mascotas disponibles")
     async def available_pets(self, interaction: discord.Interaction):
@@ -105,44 +169,12 @@ class PetsCog(commands.Cog):
         for rareza in ["común", "raro", "épico", "legendario"]:
             if rareza in por_rareza:
                 mascotas_text = "\n".join([
-                    f"{data['emojis']} **{nombre.capitalize()}** - {data['precio']}💰 (Poder: {data['poder']})"
+                    f"{data['emojis']} **{nombre.capitalize()}** (Poder: {data['poder']})"
                     for nombre, data in por_rareza[rareza]
                 ])
                 embed.add_field(name=f"{rareza.upper()}", value=mascotas_text, inline=False)
         
-        await interaction.followup.send(embed=embed)
-
-    @app_commands.command(name="cambiar-mascota", description="Cambiar a otra mascota")
-    @app_commands.autocomplete(nombre=mascota_autocomplete)
-    async def change_pet(self, interaction: discord.Interaction, nombre: str):
-        """Cambiar mascota actual"""
-        await interaction.response.defer()
-        
-        nombre = nombre.lower()
-        if nombre not in MASCOTAS:
-            await interaction.followup.send("❌ Mascota no encontrada.")
-            return
-        
-        pet = await get_pet(interaction.user.id)
-        if not pet:
-            await interaction.followup.send("❌ No tienes mascota. Compra un huevo de mascota en `/shop` y úsalo con `/use`.")
-            return
-        
-        data = MASCOTAS[nombre]
-        dinero = await get_money(interaction.user.id)
-        
-        if dinero < data["precio"]:
-            await interaction.followup.send(f"❌ No tienes suficiente dinero. Necesitas {data['precio']}💰")
-            return
-        
-        await add_money(interaction.user.id, -data["precio"])
-        await create_pet(interaction.user.id, nombre, data["rareza"])
-        
-        embed = discord.Embed(
-            title="✅ Mascota Cambiada",
-            description=f"{data['emojis']} Cambiaste a un **{nombre}**!\n\nTu {pet['nombre']} ha sido reemplazado.",
-            color=discord.Color.green()
-        )
+        embed.set_footer(text="Compra huevos de mascotas en /shop para coleccionar más")
         await interaction.followup.send(embed=embed)
 
 async def setup(bot):

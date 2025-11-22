@@ -232,7 +232,7 @@ class ItemsCog(commands.Cog):
             await send_fn(f"🥚 {msg}")
             await asyncio.sleep(duration)
             
-            # Crear mascota
+            # Crear mascota (ADD, no reemplazar)
             await create_pet(user_id, pet_name, rareza)
             
             # Remover el huevo
@@ -241,7 +241,7 @@ class ItemsCog(commands.Cog):
             # Mensaje especial según rareza
             emoji_rarezas = {"común": "🐾", "raro": "⭐", "épico": "✨", "legendario": "⚡"}
             emoji = emoji_rarezas.get(rareza, "🐾")
-            await send_fn(f"{emoji} ¡¡¡HA ECLOSIONADO !!! {emoji}\n✨ ¡Tu **{pet_name}** ({rareza.upper()}) ha nacido! ✨\n\nUsa `/mi-mascota` para verlo en acción.")
+            await send_fn(f"{emoji} ¡¡¡HA ECLOSIONADO !!! {emoji}\n✨ ¡Tu **{pet_name}** ({rareza.upper()}) ha nacido y es tu mascota activa! ✨\n\nUsa `/mi-mascota` o `/mis-mascotas` para verlo.")
             return
         
         # Efectos especiales de items

@@ -142,11 +142,12 @@ async def init_db():
         """)
         await db.execute("""
         CREATE TABLE IF NOT EXISTS mascotas (
-            user_id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
             nombre TEXT NOT NULL,
             xp INTEGER DEFAULT 0,
             rareza TEXT DEFAULT 'común',
-            equipada BOOLEAN DEFAULT 1
+            activa BOOLEAN DEFAULT 1
         )
         """)
         await db.execute("""
@@ -902,41 +903,58 @@ async def get_club_bonus(user_id):
 # ---------- MASCOTAS ----------
 
 async def get_pet(user_id):
-    """Obtener mascota del usuario"""
+    """Obtener mascota activa del usuario"""
     async with aiosqlite.connect(DB) as db:
-        cur = await db.execute("SELECT nombre, xp, rareza FROM mascotas WHERE user_id = ?", (str(user_id),))
+        cur = await db.execute("SELECT id, nombre, xp, rareza FROM mascotas WHERE user_id = ? AND activa = 1 LIMIT 1", (str(user_id),))
         row = await cur.fetchone()
         if row:
-            return {"nombre": row[0], "xp": row[1], "rareza": row[2]}
+            return {"id": row[0], "nombre": row[1], "xp": row[2], "rareza": row[3]}
         return None
 
-async def create_pet(user_id, nombre, rareza="común"):
-    """Crear mascota para usuario"""
+async def get_all_pets(user_id):
+    """Obtener todas las mascotas del usuario"""
     async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT id, nombre, xp, rareza, activa FROM mascotas WHERE user_id = ? ORDER BY activa DESC, id ASC", (str(user_id),))
+        rows = await cur.fetchall()
+        return [{"id": r[0], "nombre": r[1], "xp": r[2], "rareza": r[3], "activa": r[4]} for r in rows]
+
+async def create_pet(user_id, nombre, rareza="común"):
+    """Crear nueva mascota (deactivar otras)"""
+    async with aiosqlite.connect(DB) as db:
+        # Deactivar mascotas previas
+        await db.execute("UPDATE mascotas SET activa = 0 WHERE user_id = ?", (str(user_id),))
+        # Crear nueva mascota activa
         await db.execute(
-            "INSERT OR REPLACE INTO mascotas(user_id, nombre, xp, rareza, equipada) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO mascotas(user_id, nombre, xp, rareza, activa) VALUES (?, ?, ?, ?, ?)",
             (str(user_id), nombre, 0, rareza, 1)
         )
         await db.commit()
 
-async def add_pet_xp(user_id, xp=10):
-    """Agregar XP a mascota"""
+async def set_active_pet(user_id, pet_id):
+    """Cambiar mascota activa"""
     async with aiosqlite.connect(DB) as db:
-        cur = await db.execute("SELECT xp FROM mascotas WHERE user_id = ?", (str(user_id),))
+        await db.execute("UPDATE mascotas SET activa = 0 WHERE user_id = ?", (str(user_id),))
+        await db.execute("UPDATE mascotas SET activa = 1 WHERE id = ? AND user_id = ?", (pet_id, str(user_id)))
+        await db.commit()
+
+async def add_pet_xp(user_id, xp=10):
+    """Agregar XP a mascota activa"""
+    async with aiosqlite.connect(DB) as db:
+        cur = await db.execute("SELECT id FROM mascotas WHERE user_id = ? AND activa = 1 LIMIT 1", (str(user_id),))
         row = await cur.fetchone()
         if row:
-            await db.execute("UPDATE mascotas SET xp = xp + ? WHERE user_id = ?", (xp, str(user_id)))
+            await db.execute("UPDATE mascotas SET xp = xp + ? WHERE id = ?", (xp, row[0]))
         await db.commit()
 
 async def get_pet_level(user_id):
-    """Obtener nivel de mascota (cada 100 XP = 1 nivel)"""
+    """Obtener nivel de mascota activa"""
     pet = await get_pet(user_id)
     if pet:
         return pet["xp"] // 100
     return 0
 
 async def get_pet_xp_total(user_id):
-    """Obtener XP total de mascota"""
+    """Obtener XP total de mascota activa"""
     pet = await get_pet(user_id)
     if pet:
         return pet["xp"]
