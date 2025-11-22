@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 from datetime import datetime, timedelta
-from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory, club_has_upgrade, add_experiencia, update_mission_progress, add_pet_xp
+from db import add_money, get_user, set_work_cooldown, get_work_cooldown, get_inventory, club_has_upgrade, add_experiencia, update_mission_progress, add_pet_xp, get_pet_bonus_multiplier
 from cache import set_buff, get_buff
 import time
 
@@ -341,6 +341,9 @@ class WorkCog(commands.Cog):
 
         if result != 0:
             result = int(result * money_multiplier)
+            # Aplicar bonificador de mascota
+            pet_bonus = await get_pet_bonus_multiplier(user_id)
+            result = int(result * pet_bonus)
             await add_money(user_id, result)
             # Dar XP a mascota
             await add_pet_xp(user_id, 15)

@@ -761,3 +761,26 @@ async def get_pet_xp_total(user_id):
     if pet:
         return pet["xp"]
     return 0
+
+async def get_pet_bonus_multiplier(user_id):
+    """Obtener multiplicador de bonificadores basado en nivel de mascota"""
+    nivel = await get_pet_level(user_id)
+    
+    # Tabla de bonificadores por nivel
+    BONUS_POR_NIVEL = {
+        0: 1.0,
+        1: 1.05,
+        2: 1.10,
+        3: 1.15,
+        5: 1.25,
+        10: 1.50,
+        15: 1.75,
+        20: 2.0,
+    }
+    
+    # Buscar el multiplicador más cercano (hacia abajo)
+    for level in sorted(BONUS_POR_NIVEL.keys(), reverse=True):
+        if nivel >= level:
+            return BONUS_POR_NIVEL[level]
+    
+    return 1.0
