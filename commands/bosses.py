@@ -490,59 +490,6 @@ class BossesCog(commands.Cog):
         
         await interaction.followup.send(embed=embed)
 
-    @commands.command(name="event")
-    @commands.has_guild_permissions(administrator=True)
-    async def event_prefix(self, ctx, action: str, channel: Optional[discord.TextChannel] = None):
-        """!event enable/disable #channel - Habilitar/deshabilitar canal de eventos"""
-        if not ctx.guild:
-            return await ctx.send("❌ Este comando solo funciona en servidores")
-        guild_id = ctx.guild.id
-        
-        if action.lower() == "enable":
-            if not channel:
-                return await ctx.send("❌ Debes especificar un canal: `!event enable #canal`")
-            await set_event_channel(guild_id, channel.id)
-            embed = discord.Embed(title="✅ Canal Habilitado", color=discord.Color.green())
-            embed.add_field(name="Canal", value=channel.mention, inline=False)
-        elif action.lower() == "disable":
-            if not channel:
-                return await ctx.send("❌ Debes especificar un canal: `!event disable #canal`")
-            await remove_event_channel(guild_id, channel.id)
-            embed = discord.Embed(title="✅ Canal Deshabilitado", color=discord.Color.orange())
-            embed.add_field(name="Canal", value=channel.mention, inline=False)
-        else:
-            return await ctx.send("❌ Usa `!event enable #canal` o `!event disable #canal`")
-        
-        await ctx.send(embed=embed)
-
-    @app_commands.command(name="event", description="Habilitar/deshabilitar canal de eventos")
-    @app_commands.describe(action="enable o disable", channel="Canal para eventos")
-    async def event_slash(self, interaction: discord.Interaction, action: str, channel: Optional[discord.TextChannel] = None):
-        """Enable/disable event channel"""
-        if not interaction.guild:
-            return await interaction.response.send_message("❌ Este comando solo funciona en servidores", ephemeral=True)
-        if not interaction.permissions.administrator:
-            return await interaction.response.send_message("❌ Solo admins", ephemeral=True)
-        
-        guild_id = interaction.guild_id
-        
-        if action.lower() == "enable":
-            if not channel:
-                return await interaction.response.send_message("❌ Debes especificar un canal", ephemeral=True)
-            await set_event_channel(guild_id, channel.id)
-            embed = discord.Embed(title="✅ Canal Habilitado", color=discord.Color.green())
-            embed.add_field(name="Canal", value=channel.mention, inline=False)
-        elif action.lower() == "disable":
-            if not channel:
-                return await interaction.response.send_message("❌ Debes especificar un canal", ephemeral=True)
-            await remove_event_channel(guild_id, channel.id)
-            embed = discord.Embed(title="✅ Canal Deshabilitado", color=discord.Color.orange())
-            embed.add_field(name="Canal", value=channel.mention, inline=False)
-        else:
-            return await interaction.response.send_message("❌ Usa 'enable' o 'disable'", ephemeral=True)
-        
-        await interaction.response.send_message(embed=embed)
-
     @commands.command(name="spawnboss")
     @commands.has_guild_permissions(administrator=True)
     async def spawnboss_prefix(self, ctx, boss_type: str):
