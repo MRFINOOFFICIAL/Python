@@ -11,7 +11,7 @@ def home():
 @app.route("/wiki")
 def wiki():
     try:
-        with open("wiki.html", "r", encoding="utf-8") as f:
+        with open("public/html/wiki.html", "r", encoding="utf-8") as f:
             return f.read()
     except:
         return "<h1>Wiki no encontrada</h1>"
