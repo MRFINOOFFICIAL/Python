@@ -401,7 +401,7 @@ async def get_shop_item(name):
 async def set_work_cooldown(user_id, job_name):
     from datetime import timedelta
     async with aiosqlite.connect(DB) as db:
-        cooldown_expiry = datetime.now() + timedelta(minutes=10)
+        cooldown_expiry = datetime.now() + timedelta(minutes=5)
         await db.execute("INSERT OR REPLACE INTO work_cooldowns(user_id, job_name, last_work) VALUES (?, ?, ?)", 
                         (str(user_id), job_name, cooldown_expiry.isoformat()))
         await db.commit()
