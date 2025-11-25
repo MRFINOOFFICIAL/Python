@@ -383,7 +383,7 @@ class WorkCog(commands.Cog):
         else:
             embed.add_field(name="❌ Sesión No Completada", value="```Fallaste el ejercicio terapéutico```", inline=False)
         
-        embed.set_footer(text=f"⏳ Próxima terapia en 5 minutos")
+        embed.set_footer(text=f"⏳ Próxima terapia en 2 minutos")
         await send_fn(embed=embed)
 
     @commands.command(name="work")
