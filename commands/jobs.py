@@ -12,7 +12,7 @@ async def apply_jobs_autocomplete(interaction: discord.Interaction, current: str
     """Autocomplete para mostrar trabajos disponibles según rango"""
     try:
         user = await get_user(interaction.user.id)
-        rango = user.get("rango", "Novato")
+        rango = user.get("rango", "Novato") if user else "Novato"
         trabajos_dict = JOBS_BY_RANK.get(rango, {})
         
         if not trabajos_dict:
@@ -46,7 +46,7 @@ class JobsCog(commands.Cog):
             user_id = ctx_or_interaction.user.id
 
         user = await get_user(user_id)
-        rango = user.get("rango", "Novato")
+        rango = user.get("rango", "Novato") if user else "Novato"
         trabajos_dict = JOBS_BY_RANK.get(rango, {})
 
         embed = discord.Embed(
@@ -84,7 +84,7 @@ class JobsCog(commands.Cog):
 
     async def _apply(self, user_id, trabajo_nombre, send_fn):
         user = await get_user(user_id)
-        rango = user.get("rango", "Novato")
+        rango = user.get("rango", "Novato") if user else "Novato"
         trabajos_dict = JOBS_BY_RANK.get(rango, {})
         
         # Buscar el trabajo (case-insensitive)
