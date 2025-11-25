@@ -249,6 +249,50 @@ class ClubsCog(commands.Cog):
         
         await interaction.followup.send(f"✅ Retiraste {cantidad}💰 del club.")
 
+    @app_commands.command(name="dar-dinero-club", description="Dar dinero a un miembro del club (solo líder)")
+    async def give_money_to_member(self, interaction: discord.Interaction, usuario: discord.User, cantidad: int):
+        """Dar dinero a un miembro del club - Solo el líder puede hacerlo"""
+        await interaction.response.defer()
+        
+        if cantidad <= 0:
+            await interaction.followup.send("❌ La cantidad debe ser mayor a 0.")
+            return
+        
+        club = await self.get_user_club(interaction.user.id)
+        if not club:
+            await interaction.followup.send("❌ No estás en un club.")
+            return
+        
+        if club["lider"] != str(interaction.user.id):
+            await interaction.followup.send("❌ Solo el líder puede dar dinero a los miembros.")
+            return
+        
+        # Verificar que el usuario esté en el club
+        target_club = await self.get_user_club(usuario.id)
+        if not target_club or target_club["id"] != club["id"]:
+            await interaction.followup.send("❌ Ese usuario no está en tu club.")
+            return
+        
+        # Verificar que el club tenga suficiente dinero
+        if club["dinero"] < cantidad:
+            await interaction.followup.send(f"❌ El club no tiene {cantidad}💰. Tiene {club['dinero']}💰")
+            return
+        
+        # Transferir dinero
+        async with aiosqlite.connect(DB) as db:
+            await db.execute("UPDATE clubs SET dinero = dinero - ? WHERE id = ?", (cantidad, club["id"]))
+            await db.execute("UPDATE users SET dinero = dinero + ? WHERE user_id = ?", (cantidad, str(usuario.id)))
+            await db.commit()
+        
+        embed = discord.Embed(
+            title="💰 Donación de Club",
+            description=f"✅ Diste {cantidad}💰 a {usuario.mention}",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="💚 Generosidad Terapéutica", value=f"El líder del grupo de apoyo compartió recursos para la recuperación grupal.", inline=False)
+        embed.set_footer(text=f"Tesorería del club: {club['dinero'] - cantidad}💰")
+        await interaction.followup.send(embed=embed)
+
     @app_commands.command(name="expulsar-miembro", description="Expulsar miembro del club (solo líder)")
     async def kick_member(self, interaction: discord.Interaction, usuario: discord.User):
         """Expulsar miembro del club"""
