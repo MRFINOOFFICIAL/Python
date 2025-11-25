@@ -142,12 +142,13 @@ class AdminCog(commands.Cog):
 
     @app_commands.command(name="setchannel", description="Configurar canal para anuncios de bosses")
     async def setchannel_slash(self, interaction: discord.Interaction, canal: discord.TextChannel):
+        await interaction.response.defer()
         user = self._member_from_interaction(interaction)
         if not user.guild_permissions.administrator:
-            return await interaction.response.send_message("❌ Solo admins.", ephemeral=True)
+            return await interaction.followup.send("❌ Solo admins.", ephemeral=True)
         
         await set_event_channel(interaction.guild_id, canal.id)
-        await interaction.response.send_message(f"✅ Canal de anuncios configurado a {canal.mention}")
+        await interaction.followup.send(f"✅ Canal de anuncios configurado a {canal.mention}")
 
     @commands.command(name="getchannel")
     @commands.has_guild_permissions(administrator=True)
@@ -162,16 +163,17 @@ class AdminCog(commands.Cog):
 
     @app_commands.command(name="getchannel", description="Ver canal configurado para anuncios")
     async def getchannel_slash(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         user = self._member_from_interaction(interaction)
         if not user.guild_permissions.administrator:
-            return await interaction.response.send_message("❌ Solo admins.", ephemeral=True)
+            return await interaction.followup.send("❌ Solo admins.", ephemeral=True)
         
         channel_id = await get_event_channel(interaction.guild_id)
         if channel_id:
             channel = interaction.guild.get_channel(channel_id)
-            await interaction.response.send_message(f"📢 Canal configurado: {channel.mention if channel else f'<#{channel_id}>'}")
+            await interaction.followup.send(f"📢 Canal configurado: {channel.mention if channel else f'<#{channel_id}>'}")
         else:
-            await interaction.response.send_message("❌ No hay canal configurado. Usa `/setchannel #canal`")
+            await interaction.followup.send("❌ No hay canal configurado. Usa `/setchannel #canal`")
 
 
 async def setup(bot):
