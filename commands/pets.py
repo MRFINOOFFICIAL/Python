@@ -14,6 +14,7 @@ MASCOTAS = {
     "loro": {"rareza": "común", "emojis": "🦜", "precio": 500, "poder": 5, "desc": "Ave parlante que escucha tus traumas"},
     "conejo": {"rareza": "raro", "emojis": "🐰", "precio": 2500, "poder": 12, "desc": "Conejo saltador de alegría"},
     "hamster": {"rareza": "raro", "emojis": "🐹", "precio": 2500, "poder": 12, "desc": "Pequeño roedor de esperanza"},
+    "basura ann": {"rareza": "raro", "emojis": "🗑️", "precio": 2500, "poder": 12, "desc": "Tacho de basura compasivo que absorbe tus desperdicios emocionales"},
     "dragón": {"rareza": "épico", "emojis": "🐉", "precio": 10000, "poder": 25, "desc": "Dragón sanador de fuego interior"},
     "fenix": {"rareza": "épico", "emojis": "🔥", "precio": 10000, "poder": 25, "desc": "Ave del renacimiento emocional"},
     "saviteto": {"rareza": "legendario", "emojis": "✨", "precio": 50000, "poder": 50, "desc": "Ser mítico de sanación absoluta"},
