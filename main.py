@@ -96,6 +96,7 @@ async def main():
         await bot.load_extension("commands.helpme")
         await bot.load_extension("commands.admin_tools")
         await bot.load_extension("commands.blackjack")
+        await bot.load_extension("commands.gambling")
         await bot.load_extension("commands.bosses")
         await bot.load_extension("commands.items")
         await bot.load_extension("commands.leaderboard")
