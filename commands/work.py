@@ -14,21 +14,34 @@ import time
 JOBS_BY_RANK = {
     "Novato": {
         "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
+        "Limpiador de Traumas": {"pay": 100, "games": ["dados", "pregunta"]},
+        "Asistente de Cocina Terapéutica": {"pay": 120, "games": ["dados", "pregunta"]},
+        "Repartidor de Medicinas": {"pay": 130, "games": ["dados", "pregunta"]},
     },
     "Enfermo Básico": {
         "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
         "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
+        "Auxiliar de Enfermería Mental": {"pay": 200, "games": ["dados", "pregunta"]},
+        "Facilitador de Actividades Terapéuticas": {"pay": 220, "games": ["pregunta", "dados"]},
+        "Archivero de Historias Clínicas": {"pay": 180, "games": ["dados", "pregunta"]},
     },
     "Enfermo Avanzado": {
         "Analista de Crisis": {"pay": 600, "games": ["pregunta", "dados"]},
         "Guardia Sedante": {"pay": 900, "games": ["dados", "pregunta"]},
         "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
+        "Coordinador de Terapias de Grupo": {"pay": 750, "games": ["pregunta", "dados"]},
+        "Inspector de Seguridad Psicológica": {"pay": 850, "games": ["dados", "pregunta"]},
+        "Especialista en Técnicas de Relajación": {"pay": 700, "games": ["pregunta", "dados"]},
     },
     "Enfermo Supremo": {
         "Supervisor Psiquiátrico": {"pay": 1800, "games": ["dados", "pregunta"]},
         "Jefe de Terapia de Choque": {"pay": 3500, "games": ["dados", "pregunta"]},
         "Jefe del Distrito del Psicólogo": {"pay": 8000, "games": ["dados", "pregunta"]},
         "Director del Sanatorio": {"pay": 15000, "games": ["dados", "pregunta"]},
+        "Maestro de Meditación Zen": {"pay": 2000, "games": ["pregunta", "dados"]},
+        "Investigador de Traumas": {"pay": 4000, "games": ["pregunta", "dados"]},
+        "Consejero Supremo del Bienestar Mental": {"pay": 10000, "games": ["pregunta", "dados"]},
+        "Guardián de la Paz Mental": {"pay": 12000, "games": ["dados", "pregunta"]},
     }
 }
 
