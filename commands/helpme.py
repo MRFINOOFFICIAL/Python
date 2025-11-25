@@ -110,6 +110,7 @@ class HelpAlmanacView(discord.ui.View):
             discord.SelectOption(label="Exploración & Objetos", description="Cómo explorar y usar items", emoji="🌲"),
             discord.SelectOption(label="Minería & Pesca & Forja", description="Recolección de materiales y crafting", emoji="⛏️"),
             discord.SelectOption(label="Combate & Bosses", description="Sistema de peleas contra jefes", emoji="⚔️"),
+            discord.SelectOption(label="🎰 Juegos & Apuestas", description="Minijuegos de azar para ganar dinero", emoji="🎰"),
             discord.SelectOption(label="Tienda & Compras", description="Items de tienda y efectos", emoji="🏪"),
             discord.SelectOption(label="Almanaque — Cofres", description="Tipos de cofres y probabilidades", emoji="🗝️"),
             discord.SelectOption(label="Social & Economía", description="Misiones, Trading, Mercado, Duelos", emoji="💼"),
@@ -138,6 +139,8 @@ class HelpAlmanacView(discord.ui.View):
             embed = self._build_gathering()
         elif choice == "Combate & Bosses":
             embed = self._build_combat()
+        elif choice == "🎰 Juegos & Apuestas":
+            embed = self._build_gambling()
         elif choice == "Tienda & Compras":
             embed = self._build_shop()
         elif choice == "Almanaque — Cofres":
@@ -200,8 +203,8 @@ class HelpAlmanacView(discord.ui.View):
             inline=False
         )
         embed.add_field(
-            name="🃏 Minijuegos",
-            value="`/blackjack` — Jugar blackjack y apostar dinero",
+            name="🃏 Minijuegos & Apuestas",
+            value="`/blackjack <cantidad>` — Blackjack contra el dealer\n`/moneda <cantidad>` — Moneda al aire (50/50)\n`/ruleta <numero> <cantidad>` — Ruleta (1-36, ganas 36x)\n`/tragamonedas <cantidad>` — Tragamonedas con símbolos",
             inline=False
         )
         embed.add_field(
@@ -216,7 +219,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="🏢 Clubs (Gremios)",
-            value="`/crear-club <nombre>` — Crear un nuevo club\n`/unirse-club <nombre>` — Unirse a un club existente\n`/club-info` — Ver info de tu club\n`/salir-club` — Salir de tu club\n`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n`/upgrades-club` — Ver upgrades disponibles\n`/comprar-upgrade-club <nombre>` — Comprar upgrade",
+            value="`/crear-club <nombre>` — Crear un nuevo club\n`/unirse-club <nombre>` — Unirse a un club existente\n`/club-info` — Ver info de tu club\n`/salir-club` — Salir de tu club\n`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n`/dar-dinero-club @usuario <dinero>` — Dar dinero a un miembro (solo líder)\n`/upgrades-club` — Ver upgrades disponibles\n`/comprar-upgrade-club <nombre>` — Comprar upgrade",
             inline=False
         )
         embed.set_footer(text="Usa el menú para ver detalles de cada sección.")
@@ -333,6 +336,41 @@ class HelpAlmanacView(discord.ui.View):
         # Agregar info de bosses
         for boss_type, bosses in BOSS_INFO.items():
             embed.add_field(name=boss_type, value="\n".join(bosses), inline=False)
+        return embed
+
+    def _build_gambling(self) -> discord.Embed:
+        """Guía de juegos y apuestas"""
+        embed = discord.Embed(
+            title="🎰 Juegos & Apuestas del Sanatorio",
+            description="Cuatro emocionantes juegos de azar para probar tu suerte y ganar dinero.",
+            color=discord.Color.purple()
+        )
+        embed.add_field(
+            name="🃏 Blackjack",
+            value="**Comando:** `/blackjack <cantidad>`\n\n**Objetivo:** Sumar 21 sin pasarse. Gana si tienes más que el dealer.\n\n**Acciones:**\n• 🎴 **Hit** — Pedir otra carta\n• ✋ **Stand** — Plantarse y finalizar\n• 💰 **Double** — Doblar apuesta (solo primera tirada)\n\n**Recompensas:**\n• Victoria normal: Ganas tu apuesta\n• **Blackjack natural** (As + 10): Ganas 1.5x tu apuesta\n• Derrota: Pierdes tu apuesta\n\n**Bonus:**\n• Item **Danza de Saviteto** +15% bonus\n• Item **x2 de dinero de mecha** duplica ganancias",
+            inline=False
+        )
+        embed.add_field(
+            name="🪙 Moneda al Aire",
+            value="**Comando:** `/moneda <cantidad>`\n\n**Mecánica:** 50/50 de ganar o perder (completamente aleatorio).\n\n**Recompensas:**\n• ✅ CARA (50%): Ganas **2x tu apuesta** 🎉\n• ❌ SELLO (50%): Pierdes tu apuesta 😔\n\n**Temática:** 💚 Confianza en tu intuición\n\n**Bonus:** Item **x2 de dinero de mecha** duplica ganancias",
+            inline=False
+        )
+        embed.add_field(
+            name="🎡 Ruleta del Sanatorio",
+            value="**Comando:** `/ruleta <numero> <cantidad>`\n• `<numero>` = 1 a 36 (tu predicción)\n• `<cantidad>` = dinero a apostar\n\n**Mecánica:** La ruleta gira y elige un número del 1-36.\n\n**Recompensas:**\n• ✅ Si aciertas: Ganas **36x tu apuesta** 🏆 (jackpot)\n• ❌ Si fallas: Pierdes tu apuesta\n\n**Temática:** 🌟 Epifanía Psicológica — Tu intuición alcanza su máxima claridad\n\n**Probabilidad:** ~2.7% de acertar (¡muy difícil pero muy rentable!)\n\n**Bonus:** Item **x2 de dinero de mecha** duplica ganancias",
+            inline=False
+        )
+        embed.add_field(
+            name="🎰 Tragamonedas del Sanatorio",
+            value="**Comando:** `/tragamonedas <cantidad>`\n\n**Símbolos (5 tipos):**\n• ⚪ Común (1x multiplicador)\n• 🔵 Raro (2x)\n• 🟣 Épico (3x)\n• 🌟 Legendario (5x)\n• 💎 Maestro (10x)\n\n**Recompensas:**\n• 🏆 **3 iguales (JACKPOT)**: Ganas cantidad × multiplicador × 20\n• ✨ **2 iguales**: Ganas cantidad × multiplicador × 5\n• ❌ **Sin coincidencia**: Pierdes tu apuesta\n\n**Ejemplo:** Sacas 💎💎💎 (Maestro) con apuesta de 100💰 = 100 × 10 × 20 = **20,000💰** 🎊\n\n**Temática:** 💚 Recuperación Espectacular en jackpot\n\n**Bonus:** Item **x2 de dinero de mecha** duplica ganancias",
+            inline=False
+        )
+        embed.add_field(
+            name="💡 Consejos de Apuestas",
+            value="⚠️ **Riesgo vs Recompensa:**\n• **Blackjack** — Bajo riesgo, recompensa moderada (estrategia importa)\n• **Moneda** — Riesgo medio (50/50)\n• **Ruleta** — Alto riesgo, ALTA recompensa (2.7% de ganar, ¡pero 36x!)\n• **Tragamonedas** — Riesgo moderado, recompensa variable\n\n✅ **Multiplicadores:** Todos respetan el item **x2 de dinero de mecha**\n💰 **Presupuesto:** Nunca apuestes más de lo que puedas perder\n🏥 **Tema:** ¡El azar es parte de la recuperación terapéutica!",
+            inline=False
+        )
+        embed.set_footer(text="¡Recuerda: El juego es entretenimiento. Apuesta responsablemente!")
         return embed
 
     def _build_shop(self) -> discord.Embed:
@@ -458,7 +496,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="💰 Tesorería Compartida",
-            value="`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n\n💡 El dinero del club se usa para comprar upgrades que benefician a TODOS",
+            value="`/depositar-club <dinero>` — Donar dinero al club\n`/retirar-club <dinero>` — Retirar dinero (solo líder)\n`/dar-dinero-club @usuario <dinero>` — Dar dinero a un miembro (solo líder) - **Generosidad Terapéutica** 💚\n\n💡 El dinero del club se usa para comprar upgrades que benefician a TODOS",
             inline=False
         )
         embed.add_field(
