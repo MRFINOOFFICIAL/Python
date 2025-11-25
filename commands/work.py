@@ -43,92 +43,158 @@ QUESTION_BANK = {
         "easy": [
             {"p":"¿Cuánto es 2 + 2?","r":["4","cuatro"]},
             {"p":"¿Cuánto es 5 - 3?","r":["2","dos"]},
-            {"p":"¿Cuánto es 3 × 3?","r":["9","nueve"]}
+            {"p":"¿Cuánto es 3 × 3?","r":["9","nueve"]},
+            {"p":"¿Cuánto es 10 - 6?","r":["4","cuatro"]},
+            {"p":"¿Cuánto es 2 × 5?","r":["10","diez"]},
+            {"p":"¿Cuánto es 8 ÷ 2?","r":["4","cuatro"]},
+            {"p":"¿Cuánto es 1 + 1?","r":["2","dos"]}
         ],
         "normal": [
             {"p":"¿Cuánto es 12 ÷ 3?","r":["4","cuatro"]},
             {"p":"Si x=5, ¿qué es x+7?","r":["12","doce"]},
-            {"p":"Resuelve: 7+8","r":["15","quince"]}
+            {"p":"Resuelve: 7+8","r":["15","quince"]},
+            {"p":"¿Cuánto es 25 ÷ 5?","r":["5","cinco"]},
+            {"p":"Si y=3, ¿qué es y×4?","r":["12","doce"]},
+            {"p":"Resuelve: 20 - 9","r":["11","once"]},
+            {"p":"¿Cuánto es 6 × 3?","r":["18","dieciocho"]}
         ],
         "hard": [
-            {"p":"¿Cuánto es 13 × 7?","r":["91","noventa y uno","noventa y uno"]},
-            {"p":"¿Cuál es la raíz cuadrada de 144?","r":["12","doce"]}
+            {"p":"¿Cuánto es 13 × 7?","r":["91","noventa y uno"]},
+            {"p":"¿Cuál es la raíz cuadrada de 144?","r":["12","doce"]},
+            {"p":"¿Cuánto es 156 ÷ 12?","r":["13","trece"]},
+            {"p":"Si a=8, ¿qué es a×9?","r":["72","setenta y dos"]},
+            {"p":"¿Cuál es la raíz cuadrada de 169?","r":["13","trece"]},
+            {"p":"Resuelve: 45 + 27","r":["72","setenta y dos"]}
         ],
         "expert": [
             {"p":"Resuelve: 17 × 13","r":["221","doscientos veintiuno"]},
-            {"p":"¿Cuánto es 2^6?","r":["64","sesenta y cuatro"]}
+            {"p":"¿Cuánto es 2^6?","r":["64","sesenta y cuatro"]},
+            {"p":"¿Cuánto es 15^2?","r":["225","doscientos veinticinco"]},
+            {"p":"¿Cuánto es 3^5?","r":["243","doscientos cuarenta y tres"]},
+            {"p":"¿Cuál es el resultado de 99 × 11?","r":["1089","mil ochenta y nueve"]},
+            {"p":"¿Cuánto es 144 ÷ 12?","r":["12","doce"]}
         ]
     },
     "cultura": {
         "easy":[
             {"p":"¿Capital de España?","r":["madrid"]},
-            {"p":"¿Cuál es el idioma principal de Brasil?","r":["portugues","portugués"]}
+            {"p":"¿Cuál es el idioma principal de Brasil?","r":["portugues","portugués"]},
+            {"p":"¿Capital de Francia?","r":["paris"]},
+            {"p":"¿En qué país está la Torre Eiffel?","r":["francia"]},
+            {"p":"¿Capital de Alemania?","r":["berlin"]},
+            {"p":"¿Capital de Japón?","r":["tokio","tokyo"]}
         ],
         "normal":[
             {"p":"¿Capital de Italia?","r":["roma"]},
-            {"p":"¿En qué continente está Egipto?","r":["asia","africa"]}
+            {"p":"¿En qué continente está Egipto?","r":["africa"]},
+            {"p":"¿Capital de México?","r":["cdmx","ciudad de méxico","méxico"]},
+            {"p":"¿Capital de Canadá?","r":["ottawa"]},
+            {"p":"¿Cuál es el río más largo del mundo?","r":["nilo"]},
+            {"p":"¿Cuál es el continente más grande?","r":["asia"]}
         ],
         "hard":[
             {"p":"¿En qué año terminó la Segunda Guerra Mundial?","r":["1945"]},
-            {"p":"¿Autor de 'Cien años de soledad'?","r":["gabriel garcia marquez","garcia marquez","gabo","gabriel garcía márquez"]}
+            {"p":"¿Autor de 'Cien años de soledad'?","r":["gabriel garcia marquez","garcia marquez","gabo"]},
+            {"p":"¿Quién fue el primer presidente de los EE.UU.?","r":["george washington","washington"]},
+            {"p":"¿En qué año cayó el muro de Berlín?","r":["1989"]},
+            {"p":"¿Capital de Rusia?","r":["moscú","moscu"]}
         ],
         "expert":[
             {"p":"¿Quién pintó 'La persistencia de la memoria'?","r":["salvador dali","dali"]},
-            {"p":"¿En qué año fue la Revolución Francesa (inicio)?","r":["1789"]}
+            {"p":"¿En qué año fue la Revolución Francesa (inicio)?","r":["1789"]},
+            {"p":"¿Cuál es la novela de John Steinbeck sobre la Gran Depresión?","r":["the grapes of wrath","las uvas de la ira"]},
+            {"p":"¿Quién escribió 'Don Quijote'?","r":["miguel de cervantes","cervantes"]},
+            {"p":"¿En qué año se firmó la Declaración de Independencia de EE.UU.?","r":["1776"]}
         ]
     },
     "ciencia": {
         "easy":[
             {"p":"¿El agua hierve a 100 en qué unidad?","r":["c","celsius","grados celsius"]},
-            {"p":"¿Cuál es el gas que respiramos principalmente?","r":["oxigeno","oxígeno"]}
+            {"p":"¿Cuál es el gas que respiramos principalmente?","r":["oxigeno","oxígeno"]},
+            {"p":"¿Cuántas patas tiene un insecto?","r":["6","seis"]},
+            {"p":"¿Cuál es el animal más grande del mundo?","r":["ballena azul","ballena"]},
+            {"p":"¿A qué temperatura se congela el agua?","r":["0","cero celsius"]}
         ],
         "normal":[
             {"p":"¿Qué planeta es conocido como el 'Planeta Rojo'?","r":["marte"]},
-            {"p":"¿Unidad básica de los seres vivos?","r":["celula","célula"]}
+            {"p":"¿Unidad básica de los seres vivos?","r":["celula","célula"]},
+            {"p":"¿Cuántos huesos tiene el esqueleto humano adulto?","r":["206","doscientos seis"]},
+            {"p":"¿Qué elemento químico tiene el símbolo Au?","r":["oro"]},
+            {"p":"¿Cuál es el planeta más cercano al Sol?","r":["mercurio"]}
         ],
         "hard":[
             {"p":"¿Qué partícula tiene carga negativa dentro del átomo?","r":["electron","electrón"]},
-            {"p":"¿Qué órgano produce la insulina?","r":["pancreas","páncreas"]}
+            {"p":"¿Qué órgano produce la insulina?","r":["pancreas","páncreas"]},
+            {"p":"¿Cuántas capas tiene la atmósfera?","r":["5","cinco"]},
+            {"p":"¿Qué científico desarrolló la teoría de la relatividad?","r":["albert einstein","einstein"]},
+            {"p":"¿Cuál es la velocidad de la luz?","r":["300000 km/s","300000","3×10^8"]}
         ],
         "expert":[
             {"p":"¿Qué ley relaciona fuerza, masa y aceleración?","r":["segunda ley de newton","f=ma","f = m a"]},
-            {"p":"¿Qué molécula lleva la información genética?","r":["dna","adn","ácido desoxirribonucleico"]}
+            {"p":"¿Qué molécula lleva la información genética?","r":["dna","adn","ácido desoxirribonucleico"]},
+            {"p":"¿Cuál es la partícula fundamental más pequeña que forma toda la materia?","r":["quark"]},
+            {"p":"¿Quién fue el primer ganador del Premio Nobel en Física?","r":["wilhelm röntgen","rontgen"]},
+            {"p":"¿En qué año descubrió Fleming la penicilina?","r":["1928"]}
         ]
     },
     "videojuegos": {
         "easy":[
             {"p":"¿En Minecraft, cuál es el nombre del material obtenido al minar diamantes?","r":["diamante","diamantes"]},
-            {"p":"¿En qué consola salió originalmente 'Super Mario'?","r":["nes","nintendo","nintendo entertainment system"]}
+            {"p":"¿En qué consola salió originalmente 'Super Mario'?","r":["nes","nintendo"]},
+            {"p":"¿Cómo se llama el personaje principal de Zelda?","r":["link"]},
+            {"p":"¿Cuál es el juego más vendido de todos los tiempos?","r":["tetris"]},
+            {"p":"¿Qué personaje es el icono de Nintendo?","r":["mario"]}
         ],
         "normal":[
             {"p":"¿Cómo se llama el creador de Minecraft?","r":["notch","markus persson","marcus persson"]},
-            {"p":"¿Qué franquicia tiene un famoso personaje llamado 'Master Chief'?","r":["halo"]}
+            {"p":"¿Qué franquicia tiene un famoso personaje llamado 'Master Chief'?","r":["halo"]},
+            {"p":"¿En qué año se lanzó el primer 'Pokémon'?","r":["1996"]},
+            {"p":"¿Cuál es el nombre del protagonista de Final Fantasy VII?","r":["cloud","cloud strife"]},
+            {"p":"¿Qué juego es famoso por decir 'All your base are belong to us'?","r":["zero wing"]}
         ],
         "hard":[
             {"p":"¿En qué año se lanzó el primer 'The Legend of Zelda'?","r":["1986"]},
-            {"p":"¿Cuál es el género principal de 'Dark Souls'?","r":["rpg","acción rpg","action rpg"]}
+            {"p":"¿Cuál es el género principal de 'Dark Souls'?","r":["rpg","acción rpg","souls-like"]},
+            {"p":"¿Quién es el creador de la serie 'Metal Gear'?","r":["hideo kojima","kojima"]},
+            {"p":"¿En qué año se lanzó Fortnite?","r":["2017"]},
+            {"p":"¿Cuál es el famoso juego de disparos 2D de los 90s?","r":["doom"]}
         ],
         "expert":[
             {"p":"¿Cuál es el motor gráfico de 'Doom (1993)'?","r":["doom engine"]},
-            {"p":"¿Quién dirigió 'The Last of Us' juego original?","r":["neil druckmann","neil"]}
+            {"p":"¿Quién dirigió 'The Last of Us' juego original?","r":["neil druckmann","neil"]},
+            {"p":"¿En qué año fue la primera competencia de eSports profesional?","r":["1972"]},
+            {"p":"¿Cuál fue el primer juego MMORPG masivo?","r":["ultima online","everquest"]},
+            {"p":"¿Cuál es el juego de culto de 1999 que revolucionó los juegos de rol?","r":["planescape torment"]}
         ]
     },
     "sanatorio": {
         "easy":[
-            {"p":"¿Qué profesional trabaja con la salud mental?","r":["psiquiatra","psicologo","psicóloga","psicologo"]},
-            {"p":"¿Qué palabra describe atención a la salud mental?","r":["terapia","psicoterapia"]}
+            {"p":"¿Qué profesional trabaja con la salud mental?","r":["psiquiatra","psicologo","psicóloga"]},
+            {"p":"¿Qué palabra describe atención a la salud mental?","r":["terapia","psicoterapia"]},
+            {"p":"¿Cuál es el número de emergencia psicológica en crisis?","r":["sos","teléfono de la esperanza"]},
+            {"p":"¿Qué es la depresión?","r":["un trastorno mental","un desorden del ánimo"]},
+            {"p":"¿Cuál es el objetivo principal de la terapia?","r":["sanar","recuperarse","mejorar"]}
         ],
         "normal":[
-            {"p":"¿Qué se usa para sedar a un paciente en emergencias (término general)?","r":["sedante","anestesico","anestésico"]},
-            {"p":"¿Terapia breve o terapia de larga duración: cuál es más corta?","r":["breve","corta"]}
+            {"p":"¿Qué se usa para sedar a un paciente en emergencias (término general)?","r":["sedante","anestesico"]},
+            {"p":"¿Terapia breve o terapia de larga duración: cuál es más corta?","r":["breve","corta"]},
+            {"p":"¿Cuál es el trastorno de ansiedad más común?","r":["trastorno de ansiedad generalizada","tag"]},
+            {"p":"¿Qué técnica de respiración se usa para calmar la ansiedad?","r":["respiración profunda","box breathing"]},
+            {"p":"¿Cuántos tipos principales de terapia existen?","r":["varios","múltiples","muchos"]}
         ],
         "hard":[
             {"p":"¿Qué profesional diagnostica trastornos mentales médicamente?","r":["psiquiatra"]},
-            {"p":"¿Terapia cognitiva conductual abreviada como?","r":["tcc","tcc."]}
+            {"p":"¿Terapia cognitiva conductual abreviada como?","r":["tcc"]},
+            {"p":"¿En qué año Freud publicó 'La Interpretación de los Sueños'?","r":["1900"]},
+            {"p":"¿Cuál es el trastorno bipolar?","r":["una enfermedad mental con cambios de ánimo extremos"]},
+            {"p":"¿Qué es el mindfulness?","r":["meditación","conciencia plena"]}
         ],
         "expert":[
             {"p":"¿Qué fármaco es un antidepresivo ISRS? (ejemplo)","r":["fluoxetina","sertralina","paroxetina"]},
-            {"p":"¿Qué escala evalúa la gravedad de la depresión (iniciales)?: PHQ-?","r":["9","phq-9"]}
+            {"p":"¿Qué escala evalúa la gravedad de la depresión (iniciales)?: PHQ-?","r":["9"]},
+            {"p":"¿Quién fue el fundador del psicoanálisis?","r":["sigmund freud","freud"]},
+            {"p":"¿Qué es la resiliencia psicológica?","r":["la capacidad de recuperarse","adaptarse"]},
+            {"p":"¿Cuál es el trastorno neurológico más relacionado con traumas?","r":["ptsd","trastorno de estrés postraumático"]}
         ]
     }
 }
