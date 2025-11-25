@@ -63,6 +63,91 @@ async def on_guild_join(guild):
     except Exception as e:
         print(f"Error sincronizando en {guild.name}: {e}")
 
+@bot.event
+async def on_message(message):
+    """Detectar cuando el bot es mencionado y enviar guía de inicio"""
+    # Evitar que el bot responda a sí mismo
+    if message.author.bot:
+        return
+    
+    # Detectar si el bot fue mencionado
+    if bot.user in message.mentions and not message.content.startswith(("!", "/")):
+        embed = discord.Embed(
+            title="🏥 BIENVENIDO AL SANATORIO PSIQUIÁTRICO",
+            description="Guía completa para comenzar tu recuperación mental",
+            color=discord.Color.from_rgb(74, 222, 128)
+        )
+        
+        embed.add_field(
+            name="📖 PASO 1: Crea tu Perfil",
+            value="Usa `/perfil` o `!perfil` para ver tu perfil. Se crea automáticamente al usar cualquier comando.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="💼 PASO 2: Busca un Trabajo",
+            value="• `/jobs` — Ve todos los trabajos disponibles\n• `/apply <trabajo>` — Aplica a un trabajo\n• `/work` — Trabaja y gana dinero (cooldown: 2 min)",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🌲 PASO 3: Explora y Recolecta",
+            value="• `/explore` — Busca cofres y objetos (cooldown: 25s)\n• `/minar` — Extrae minerales con minijuego de 4 botones (cooldown: 30s)\n• `/pescar` — Atrapa peces haciendo clicks (cooldown: 40s)",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🛍️ PASO 4: Compra en la Tienda",
+            value="• `/shop` — Ver la farmacia clínica\n• `/buy <item>` — Compra medicinas, armas, huevos de mascotas\n• `/inventario` — Ver tu inventario",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="⚔️ PASO 5: Pelea contra Traumas",
+            value="• `/spawnboss <nombre>` — Invoca un jefe (admin only)\n• `/fight` — Pelea contra el jefe activo (cooldown: 2 min)\n• `/bossinfo` — Info del jefe actual",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎮 PASO 6: Minijuegos y Más",
+            value="• `/blackjack` — Juega blackjack\n• `/moneda` — Apuesta en moneda al aire\n• `/ruleta` — Juega ruleta\n• `/tragamonedas` — Máquinas tragamonedas",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="👥 PASO 7: Características Sociales",
+            value="• `/leaderboard [dinero|experiencia]` — Ranking\n• `/desafiar @user <dinero>` — Duelo PvP\n• `/vender-item <id> <precio>` — Mercado\n• `/club <acción>` — Crear/unirse a clubs",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🏅 PROGRESIÓN DE RANGO",
+            value="**Novato** → **Enfermo Básico** → **Enfermo Avanzado** → **Enfermo Supremo**\n\nGana dinero y experiencia para ascender.",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📚 COMANDOS ÚTILES",
+            value="• `/ayuda` — Ayuda detallada (7 secciones)\n• `/perfil` — Tu perfil\n• `/mi-mascota` — Tu mascota activa\n• `/misiones` — Misiones diarias\n• `/equip <arma>` — Equipar arma",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="💡 CONSEJOS",
+            value="✅ Trabaja regularmente para ganar dinero\n✅ Explora para encontrar items raros\n✅ Compra huevos de mascotas para bonificadores\n✅ Pelea jefes para grandes recompensas\n✅ Participa en duelos y missions",
+            inline=False
+        )
+        
+        embed.set_footer(text="🏥 Tu salud mental es nuestra prioridad — Usa /ayuda para más detalles")
+        
+        try:
+            await message.reply(embed=embed)
+        except Exception as e:
+            print(f"Error al enviar guía: {e}")
+    
+    # Permitir que otros comandos se procesen normalmente
+    await bot.process_commands(message)
+
 # manejo básico de errores de comando
 @bot.event
 async def on_command_error(ctx, error):
