@@ -194,7 +194,7 @@ class HelpAlmanacView(discord.ui.View):
         )
         embed.add_field(
             name="🌲 Exploración & Recolección",
-            value="`/explore` — Buscar objetos y cofres (cooldown 25s)\n`/minar` — Extraer minerales (cooldown 30s)\n`/pescar` — Atrapar criaturas acuáticas (cooldown 40s)\n`/forjar` — Crear armas y herramientas mejoradas",
+            value="`/explore` — Buscar objetos y cofres (cooldown 25s)\n`/minar` — Extraer minerales con minijuegos (cooldown 30s)\n`/pescar` — Atrapar criaturas acuáticas con minijuegos (cooldown 40s)\n`/forjar` — Crear armas y herramientas mejoradas",
             inline=False
         )
         embed.add_field(
@@ -265,13 +265,13 @@ class HelpAlmanacView(discord.ui.View):
         
         embed.add_field(
             name="⛏️ MINERÍA",
-            value="**Comando:** `/minar` (cooldown: 30 segundos)\n\n**Materiales obtenibles:**\n• Comunes: Piedra de carbón, Cristal azul, Mineral de hierro, Polvo de cuarzo, Roca brillante\n• Raros: Esmeralda cruda, Diamante sin tallar, Cristal de ámbar\n• Épicos: Gema de rubí, Zafiro puro\n• Legendarios: Ópalo místico, Meteorito antiguo\n\n**Herramientas de minería:**\n⚪ **Pico Normal**: Inicio (sin bonus)\n🔵 **Pico Mejorado**: +30% probabilidad de loot raro/épico\n🟣 **Pico Épico**: +50% probabilidad de loot épico/legendario",
+            value="**Comando:** `/minar` (cooldown: 30 segundos)\n\n**Minijuego:** 🎲 Sacas un dado (1-6). ¡Necesitas 3+ para ganar! (50% de probabilidad)\n• Si ganas → Obtienes un mineral\n• Si pierdes → No obtienes nada, pero sin penalización\n\n**Materiales obtenibles:**\n• Comunes: Piedra de carbón, Cristal azul, Mineral de hierro, Polvo de cuarzo, Roca brillante\n• Raros: Esmeralda cruda, Diamante sin tallar, Cristal de ámbar\n• Épicos: Gema de rubí, Zafiro puro\n• Legendarios: Ópalo místico, Meteorito antiguo\n\n**Herramientas de minería:**\n⚪ **Pico Normal**: Inicio (sin bonus)\n🔵 **Pico Mejorado**: +30% probabilidad de loot raro/épico\n🟣 **Pico Épico**: +50% probabilidad de loot épico/legendario",
             inline=False
         )
         
         embed.add_field(
             name="🎣 PESCA",
-            value="**Comando:** `/pescar` (cooldown: 40 segundos)\n\n**Criaturas obtenibles:**\n• Comunes: Pez común, Camarón rosado, Concha marina, Alga preciosa, Perla imperfecta\n• Raros: Pez dorado, Coral rojo, Caracol antiguo\n• Épicos: Pez espada, Perla de agua dulce\n• Legendarios: Leviatán pequeño, Sirena petrificada\n\n**Herramientas de pesca:**\n⚪ **Caña Normal**: Inicio (sin bonus)\n🔵 **Caña Mejorada**: +30% probabilidad de loot raro/épico\n🟣 **Caña Épica**: +50% probabilidad de loot épico/legendario",
+            value="**Comando:** `/pescar` (cooldown: 40 segundos)\n\n**Minijuego:** 🎲 Sacas un dado (1-6). ¡Necesitas 4+ para ganar! (33% de probabilidad - más difícil)\n• Si ganas → Obtienes una criatura marina\n• Si pierdes → El pez se escapa, pero sin penalización\n\n**Criaturas obtenibles:**\n• Comunes: Pez común, Camarón rosado, Concha marina, Alga preciosa, Perla imperfecta\n• Raros: Pez dorado, Coral rojo, Caracol antiguo\n• Épicos: Pez espada, Perla de agua dulce\n• Legendarios: Leviatán pequeño, Sirena petrificada\n\n**Herramientas de pesca:**\n⚪ **Caña Normal**: Inicio (sin bonus)\n🔵 **Caña Mejorada**: +30% probabilidad de loot raro/épico\n🟣 **Caña Épica**: +50% probabilidad de loot épico/legendario",
             inline=False
         )
         

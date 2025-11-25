@@ -64,6 +64,23 @@ class MiningCog(commands.Cog):
         has_epic_pick = any(item["item"].lower() == "pico épico" for item in inv)
         has_rare_pick = any(item["item"].lower() == "pico mejorado" for item in inv)
         
+        # ========== MINIJUEGO: DADOS ==========
+        # Tirada de dados (1-6) - necesitas 3+ para ganar
+        dado = random.randint(1, 6)
+        min_threshold = 3  # 50% de probabilidad
+        
+        # Si pierdes el minijuego, no obtienes el mineral
+        if dado < min_threshold:
+            embed = discord.Embed(
+                title="⛏️ Minería — Fallo",
+                description=f"{user.mention} sacaste un {dado} (🎲). ¡La piedra se derrumbó!",
+                color=discord.Color.dark_gray()
+            )
+            embed.add_field(name="❌ Sin Suerte", value="No pudiste extraer nada esta vez. Vuelve a intentar.", inline=False)
+            embed.set_footer(text="La destreza terapéutica requiere práctica...")
+            return await send_fn(embed=embed)
+        
+        # Si ganas, obtén el mineral
         # Ajustar pesos según herramientas
         weights = list(MINING_WEIGHTS)  # Copiar pesos originales
         
@@ -99,10 +116,11 @@ class MiningCog(commands.Cog):
             tool_bonus = "\n✨ **Pico Mejorado** activado (+30% loot raro/épico)"
         
         embed = discord.Embed(
-            title=f"{rarity_emoji.get(rarity, '')} ⛏️ Minería",
-            description=f"{user.mention}, extrajiste **{name}** ({rarity})!{tool_bonus}",
+            title=f"{rarity_emoji.get(rarity, '')} ⛏️ Minería — ¡Éxito!",
+            description=f"{user.mention}, sacaste un {dado} (🎲) — ¡Extrajiste **{name}**!{tool_bonus}",
             color=discord.Color.dark_gray()
         )
+        embed.add_field(name="💚 Destreza Terapéutica", value=f"Rareza: **{rarity}**", inline=False)
         embed.set_footer(text="Sigue minando para encontrar gemas raras.")
         await send_fn(embed=embed)
 

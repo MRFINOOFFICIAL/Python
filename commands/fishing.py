@@ -64,6 +64,23 @@ class FishingCog(commands.Cog):
         has_epic_rod = any(item["item"].lower() == "caña épica" for item in inv)
         has_rare_rod = any(item["item"].lower() == "caña mejorada" for item in inv)
         
+        # ========== MINIJUEGO: DADOS ==========
+        # Tirada de dados (1-6) - necesitas 4+ para ganar (33% de probabilidad)
+        dado = random.randint(1, 6)
+        min_threshold = 4  # Pesca es más difícil que minería
+        
+        # Si pierdes el minijuego, no obtienes el pez
+        if dado < min_threshold:
+            embed = discord.Embed(
+                title="🎣 Pesca — Fallo",
+                description=f"{user.mention} sacaste un {dado} (🎲). ¡El pez se escapó!",
+                color=discord.Color.blue()
+            )
+            embed.add_field(name="❌ Se Escapó", value="El pez fue más rápido. Vuelve a intentar.", inline=False)
+            embed.set_footer(text="La paciencia en el inconsciente requiere destreza...")
+            return await send_fn(embed=embed)
+        
+        # Si ganas, obtén el pez
         # Ajustar pesos según herramientas
         weights = list(FISHING_WEIGHTS)  # Copiar pesos originales
         
@@ -99,10 +116,11 @@ class FishingCog(commands.Cog):
             tool_bonus = "\n✨ **Caña Mejorada** activada (+30% loot raro/épico)"
         
         embed = discord.Embed(
-            title=f"{rarity_emoji.get(rarity, '')} 🎣 Pesca",
-            description=f"{user.mention}, atrapaste **{name}** ({rarity})!{tool_bonus}",
+            title=f"{rarity_emoji.get(rarity, '')} 🎣 Pesca — ¡Éxito!",
+            description=f"{user.mention}, sacaste un {dado} (🎲) — ¡Atrapaste **{name}**!{tool_bonus}",
             color=discord.Color.blue()
         )
+        embed.add_field(name="💚 Inmersión Profunda", value=f"Rareza: **{rarity}**", inline=False)
         embed.set_footer(text="Sigue pescando para encontrar criaturas raras.")
         await send_fn(embed=embed)
 
