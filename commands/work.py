@@ -10,16 +10,32 @@ from cache import set_buff, get_buff
 import time
 
 # ---------------- Tabla de salarios y minijuegos ----------------
-JOBS = {
-    "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
-    "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
-    "Analista de Crisis": {"pay": 600, "games": ["pregunta", "dados"]},
-    "Guardia Sedante": {"pay": 900, "games": ["dados", "pregunta"]},
-    "Supervisor Psiquiátrico": {"pay": 1800, "games": ["dados", "pregunta"]},
-    "Jefe de Terapia de Choque": {"pay": 3500, "games": ["dados", "pregunta"]},
-    "Jefe del Distrito del Psicólogo": {"pay": 8000, "games": ["dados", "pregunta"]},
-    "Director del Sanatorio": {"pay": 15000, "games": ["dados", "pregunta"]}
+# Estructura: RANGOS y TRABAJOS por rango
+JOBS_BY_RANK = {
+    "Novato": {
+        "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
+    },
+    "Enfermo Básico": {
+        "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
+        "Camillero": {"pay": 150, "games": ["dados", "pregunta"]},
+    },
+    "Enfermo Avanzado": {
+        "Analista de Crisis": {"pay": 600, "games": ["pregunta", "dados"]},
+        "Guardia Sedante": {"pay": 900, "games": ["dados", "pregunta"]},
+        "Asistente del Psiquiatra": {"pay": 250, "games": ["dados", "pregunta"]},
+    },
+    "Enfermo Supremo": {
+        "Supervisor Psiquiátrico": {"pay": 1800, "games": ["dados", "pregunta"]},
+        "Jefe de Terapia de Choque": {"pay": 3500, "games": ["dados", "pregunta"]},
+        "Jefe del Distrito del Psicólogo": {"pay": 8000, "games": ["dados", "pregunta"]},
+        "Director del Sanatorio": {"pay": 15000, "games": ["dados", "pregunta"]},
+    }
 }
+
+# Estructura plana para compatibilidad con código existente
+JOBS = {}
+for rank_jobs in JOBS_BY_RANK.values():
+    JOBS.update(rank_jobs)
 
 # ---------------- Preguntas ----------------
 QUESTION_BANK = {

@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from db import get_user, set_job
-from jobs import JOBS
+from commands.work import JOBS_BY_RANK
 
 
 # ==================== AUTOCOMPLETE ====================
@@ -13,12 +13,12 @@ async def apply_jobs_autocomplete(interaction: discord.Interaction, current: str
     try:
         user = await get_user(interaction.user.id)
         rango = user.get("rango", "Novato")
-        trabajos = JOBS.get(rango, [])
+        trabajos_dict = JOBS_BY_RANK.get(rango, {})
         
-        if not trabajos:
+        if not trabajos_dict:
             return []
         
-        job_names = [job["name"] for job in trabajos]
+        job_names = list(trabajos_dict.keys())
         filtered = [name for name in job_names if current.lower() in name.lower()] if current else job_names
         
         return [app_commands.Choice(name=name, value=name) for name in filtered[:25]]
@@ -47,22 +47,26 @@ class JobsCog(commands.Cog):
 
         user = await get_user(user_id)
         rango = user.get("rango", "Novato")
-        trabajos = JOBS.get(rango, [])
+        trabajos_dict = JOBS_BY_RANK.get(rango, {})
 
         embed = discord.Embed(
-            title=f"Trabajos disponibles — Rango {rango}",
-            color=discord.Color.dark_purple()
+            title=f"🏥 Trabajos Disponibles — Rango {rango}",
+            description="Usa `/apply <nombre_trabajo>` para aplicar a un trabajo",
+            color=discord.Color.from_rgb(74, 222, 128)
         )
 
-        if not trabajos:
-            embed.description = "No tienes trabajos disponibles todavía."
+        if not trabajos_dict:
+            embed.description = "❌ No tienes trabajos disponibles en tu rango actual."
             await send_fn(embed=embed)
             return
 
-        for t in trabajos:
+        # JOBS_BY_RANK es: JOBS_BY_RANK[rango] = {"NombreTrabajo": {"pay": 150, "games": [...]}, ...}
+        for job_name, job_data in sorted(trabajos_dict.items(), key=lambda x: x[1].get("pay", 0)):
+            pay = job_data.get("pay", 0)
+            games = ", ".join(job_data.get("games", []))
             embed.add_field(
-                name=f"{t['name']} — {t['salary']}💰",
-                value=t.get("desc", "Sin descripción."),
+                name=f"💼 {job_name}",
+                value=f"💰 **{pay}** recuperación mental\n🎮 Minijuegos: {games}",
                 inline=False
             )
 
@@ -81,13 +85,17 @@ class JobsCog(commands.Cog):
     async def _apply(self, user_id, trabajo_nombre, send_fn):
         user = await get_user(user_id)
         rango = user.get("rango", "Novato")
-        trabajos = JOBS.get(rango, [])
-        t = next((x for x in trabajos if x["name"].lower() == trabajo_nombre.lower()), None)
-        if not t:
-            await send_fn(content="❌ Ese trabajo no existe o no es parte de tu rango.")
+        trabajos_dict = JOBS_BY_RANK.get(rango, {})
+        
+        # Buscar el trabajo (case-insensitive)
+        job_name = next((name for name in trabajos_dict.keys() if name.lower() == trabajo_nombre.lower()), None)
+        
+        if not job_name:
+            await send_fn(content=f"❌ Ese trabajo no existe o no es parte de tu rango ({rango}).\nUsa `/jobs` para ver tus trabajos disponibles.")
             return
-        await set_job(user_id, t["name"])
-        await send_fn(content=f"✅ Ahora trabajas como **{t['name']}**.")
+        
+        await set_job(user_id, job_name)
+        await send_fn(content=f"✅ Ahora trabajas como **{job_name}** 🏥\n💰 Ganancia: {trabajos_dict[job_name]['pay']} recuperación mental")
 
 async def setup(bot):
     await bot.add_cog(JobsCog(bot))
