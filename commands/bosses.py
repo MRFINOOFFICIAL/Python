@@ -538,14 +538,16 @@ class BossesCog(commands.Cog):
         if not boss:
             return await ctx.send("❌ Error al generar jefe")
         
-        await create_boss(guild_id, boss["name"], boss["hp"])
+        boss_name = boss.get("name", "Jefe Desconocido")
+        boss_hp = boss.get("hp", 100)
+        await create_boss(guild_id, boss_name, boss_hp)
         
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
-        embed.add_field(name="Nombre", value=boss["name"], inline=True)
+        embed.add_field(name="Nombre", value=boss_name, inline=True)
         embed.add_field(name="Tipo", value=boss_type, inline=True)
-        embed.add_field(name="HP", value=boss["hp"], inline=True)
-        embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
-        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
+        embed.add_field(name="HP", value=boss_hp, inline=True)
+        embed.add_field(name="Ataque", value=boss.get("ataque", 0), inline=True)
+        embed.add_field(name="Rareza", value=boss.get("rareza", "Desconocida"), inline=True)
         embed.add_field(name="Usa !fight o /fight para pelear", value="⚔️", inline=False)
         
         # Enviar al canal actual
@@ -591,14 +593,21 @@ class BossesCog(commands.Cog):
         else:
             return await interaction.response.send_message("❌ Debes elegir un tipo (Mini-Boss, Boss, Especial) o un jefe específico", ephemeral=True)
         
-        await create_boss(guild_id, boss["name"], boss["hp"])
+        boss_name = boss.get("name", "Jefe Desconocido")
+        boss_hp = boss.get("hp", 100)
+        await create_boss(guild_id, boss_name, boss_hp)
         
         embed = discord.Embed(title="🚨 ¡JEFE APARECE!", color=discord.Color.red())
-        embed.add_field(name="Nombre", value=boss["name"], inline=True)
-        embed.add_field(name="Rareza", value=boss["rareza"], inline=True)
-        embed.add_field(name="HP", value=boss["hp"], inline=True)
-        embed.add_field(name="Ataque", value=boss["ataque"], inline=True)
-        embed.add_field(name="Dinero", value=f"{boss['rewards']['dinero'][0]}-{boss['rewards']['dinero'][1]}", inline=True)
+        embed.add_field(name="Nombre", value=boss_name, inline=True)
+        embed.add_field(name="Rareza", value=boss.get("rareza", "Desconocida"), inline=True)
+        embed.add_field(name="HP", value=boss_hp, inline=True)
+        embed.add_field(name="Ataque", value=boss.get("ataque", 0), inline=True)
+        
+        # Dinero seguro
+        rewards = boss.get("rewards", {})
+        dinero_range = rewards.get("dinero", [100, 500])
+        dinero_text = f"{dinero_range[0]}-{dinero_range[1]}" if isinstance(dinero_range, list) and len(dinero_range) >= 2 else "100-500"
+        embed.add_field(name="Dinero", value=dinero_text, inline=True)
         embed.add_field(name="Usa !fight o /fight para pelear", value="⚔️", inline=False)
         
         # Enviar al canal actual primero
