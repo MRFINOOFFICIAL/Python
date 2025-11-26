@@ -244,6 +244,9 @@ class BossesCog(commands.Cog):
                         elif "mecha enojado" in item_name:
                             boss_hp -= 70
                             fight_log.append(f"🤖 ¡Mecha Enojado te ayuda! -{70} HP al jefe!")
+                        elif "papitas" in item_name:
+                            player_hp = min(100, player_hp + 20)
+                            fight_log.append(f"🍟 ¡Papitas consumidas! +20 HP (¡qué delicia!)")
                         elif item_type == "consumible":
                             player_hp = min(100, player_hp + 50)
                             fight_log.append(f"📦 ¡Recuperaste 50 HP!")
