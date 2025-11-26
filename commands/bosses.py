@@ -328,9 +328,11 @@ class BossesCog(commands.Cog):
         if boss_hp <= 0:
             from bosses import BOSS_WEAPONS
             reward = await get_boss_reward(boss)
+            if not reward:
+                reward = {"dinero": 0, "item": None}
             
             # Aplicar bonificador de mascota
-            dinero_base = reward["dinero"]
+            dinero_base = reward.get("dinero", 0)
             pet_bonus = await get_pet_bonus_multiplier(user_id)
             dinero_final = int(dinero_base * pet_bonus)
             
@@ -343,7 +345,7 @@ class BossesCog(commands.Cog):
                         if pet_name:
                             abilities = PET_ABILITIES.get(pet_name, {})
                             if "reward_multiplier" in abilities:
-                                dinero_final = int(dinero_final * (1 + abilities["reward_multiplier"]))
+                                dinero_final = int(dinero_final * (1 + abilities.get("reward_multiplier", 0)))
                 except Exception:
                     pass  # Si hay error con mascota, continuar sin bonus
             
@@ -358,7 +360,8 @@ class BossesCog(commands.Cog):
                 xp_reward = int(xp_reward * 1.30)  # +30% XP
             await add_experiencia(user_id, xp_reward)
             embed = discord.Embed(title="🏆 ¡VICTORIA!", color=discord.Color.gold())
-            embed.add_field(name="⚔️ Enemigo derrotado", value=f"```{boss['name']}```", inline=False)
+            boss_name_display = boss.get("name", "Jefe Desconocido")
+            embed.add_field(name="⚔️ Enemigo derrotado", value=f"```{boss_name_display}```", inline=False)
             
             # Mostrar recompensa con bonus
             if pet_bonus > 1.0:
@@ -392,9 +395,11 @@ class BossesCog(commands.Cog):
                 embed.add_field(name="⚔️ Arma especial", value=f"Fallaste: {boss_weapon} no se obtuvo (probabilidad de {int(weapon_chance*100)}%)", inline=False)
             
             # Recompensa adicional: items normales
-            if reward["item"]:
-                await add_item_to_user(user_id, reward["item"], rareza=boss["rareza"], usos=1, durabilidad=100, categoria="arma", poder=15)
-                embed.add_field(name="Item", value=f"📦 {reward['item']}", inline=False)
+            reward_item = reward.get("item")
+            if reward_item:
+                boss_rareza = boss.get("rareza", "común")
+                await add_item_to_user(user_id, reward_item, rareza=boss_rareza, usos=1, durabilidad=100, categoria="arma", poder=15)
+                embed.add_field(name="Item", value=f"📦 {reward_item}", inline=False)
             
             await deactivate_boss(guild_id, boss_name)
             channels = await get_event_channels(guild_id)
