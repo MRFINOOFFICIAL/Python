@@ -1,26 +1,47 @@
 """
-Sistema de mascotas con XP progresivo y múltiples mascotas.
-Comandos: /mi-mascota, /mis-mascotas, /mascotas-disponibles
+Sistema de mascotas con XP progresivo, habilidades únicas y utilidades prácticas.
+Comandos: /mi-mascota, /mis-mascotas, /mascotas-disponibles, /acariciar-mascota
 """
 import discord
 from discord.ext import commands
 from discord import app_commands, ui
-from db import get_pet, get_all_pets, create_pet, get_pet_level, get_pet_xp_total, get_money, add_money, set_active_pet
+from db import get_pet, get_all_pets, create_pet, get_pet_level, get_pet_xp_total, get_money, add_money, set_active_pet, add_pet_xp
+from datetime import datetime, timedelta
+import random
 
 MASCOTAS = {
-    "chihuahua": {"rareza": "común", "emojis": "🐕", "precio": 500, "poder": 5, "desc": "Compañero leal de apoyo emocional"},
-    "gato": {"rareza": "común", "emojis": "🐱", "precio": 500, "poder": 5, "desc": "Felino sanador del alma"},
-    "perro": {"rareza": "común", "emojis": "🐶", "precio": 500, "poder": 5, "desc": "Perro de servicio psicológico"},
-    "loro": {"rareza": "común", "emojis": "🦜", "precio": 500, "poder": 5, "desc": "Ave parlante que escucha tus traumas"},
-    "conejo": {"rareza": "raro", "emojis": "🐰", "precio": 2500, "poder": 12, "desc": "Conejo saltador de alegría"},
-    "hamster": {"rareza": "raro", "emojis": "🐹", "precio": 2500, "poder": 12, "desc": "Pequeño roedor de esperanza"},
-    "basura ann": {"rareza": "raro", "emojis": "🗑️", "precio": 2500, "poder": 12, "desc": "Tacho de basura compasivo que absorbe tus desperdicios emocionales"},
-    "dragón": {"rareza": "épico", "emojis": "🐉", "precio": 10000, "poder": 25, "desc": "Dragón sanador de fuego interior"},
-    "fenix": {"rareza": "épico", "emojis": "🔥", "precio": 10000, "poder": 25, "desc": "Ave del renacimiento emocional"},
-    "saviteto": {"rareza": "legendario", "emojis": "✨", "precio": 50000, "poder": 50, "desc": "Ser mítico de sanación absoluta"},
-    "finopeluche": {"rareza": "legendario", "emojis": "💎", "precio": 50000, "poder": 50, "desc": "Peluche mágico de la verdad final"},
-    "mechones": {"rareza": "legendario", "emojis": "👑", "precio": 50000, "poder": 50, "desc": "Rey de la recuperación mental"},
+    "chihuahua": {"rareza": "común", "emojis": "🐕", "precio": 500, "poder": 5, "desc": "Compañero leal de apoyo emocional", "habilidad": "Alerta: Detecta robos reduciendo su éxito en -15%"},
+    "gato": {"rareza": "común", "emojis": "🐱", "precio": 500, "poder": 5, "desc": "Felino sanador del alma", "habilidad": "Independencia: +10% dinero en /work"},
+    "perro": {"rareza": "común", "emojis": "🐶", "precio": 500, "poder": 5, "desc": "Perro de servicio psicológico", "habilidad": "Lealtad: +5% daño en combate"},
+    "loro": {"rareza": "común", "emojis": "🦜", "precio": 500, "poder": 5, "desc": "Ave parlante que escucha tus traumas", "habilidad": "Sabiduría: +10% XP ganado"},
+    "conejo": {"rareza": "raro", "emojis": "🐰", "precio": 2500, "poder": 12, "desc": "Conejo saltador de alegría", "habilidad": "Velocidad: +15% dinero en /work"},
+    "hamster": {"rareza": "raro", "emojis": "🐹", "precio": 2500, "poder": 12, "desc": "Pequeño roedor de esperanza", "habilidad": "Acumulación: Guarda 5% de dinero ganado para recompensa diaria"},
+    "basura ann": {"rareza": "raro", "emojis": "🗑️", "precio": 2500, "poder": 12, "desc": "Tacho de basura que absorbe desperdicios emocionales", "habilidad": "Protección: Reduce robos exitosos en -25%"},
+    "dragón": {"rareza": "épico", "emojis": "🐉", "precio": 10000, "poder": 25, "desc": "Dragón sanador de fuego interior", "habilidad": "Fuego: +20% daño en combate contra jefes"},
+    "fenix": {"rareza": "épico", "emojis": "🔥", "precio": 10000, "poder": 25, "desc": "Ave del renacimiento emocional", "habilidad": "Resurrección: +25% dinero y XP en victorias"},
+    "saviteto": {"rareza": "legendario", "emojis": "✨", "precio": 50000, "poder": 50, "desc": "Ser mítico de sanación absoluta", "habilidad": "Sanación: Bloquea 40% de robos, gana 500💰 diarios"},
+    "finopeluche": {"rareza": "legendario", "emojis": "💎", "precio": 50000, "poder": 50, "desc": "Peluche mágico de la verdad final", "habilidad": "Verdad: +50% dinero en /work y bloques 35% robos"},
+    "mechones": {"rareza": "legendario", "emojis": "👑", "precio": 50000, "poder": 50, "desc": "Rey de la recuperación mental", "habilidad": "Imperio: +30% daño, +500💰 diarios, bloquea 45% robos"},
 }
+
+# Habilidades por mascota - Defensa contra robos
+PET_ABILITIES = {
+    "chihuahua": {"rob_defense": 0.15},
+    "gato": {"work_bonus": 0.10},
+    "perro": {"combat_bonus": 0.05},
+    "loro": {"xp_bonus": 0.10},
+    "conejo": {"work_bonus": 0.15},
+    "hamster": {"daily_reward": 0.05},
+    "basura ann": {"rob_defense": 0.25},
+    "dragón": {"combat_bonus": 0.20, "boss_bonus": 0.15},
+    "fenix": {"reward_multiplier": 0.25},
+    "saviteto": {"rob_defense": 0.40, "daily_dinero": 500},
+    "finopeluche": {"work_bonus": 0.50, "rob_defense": 0.35},
+    "mechones": {"combat_bonus": 0.30, "rob_defense": 0.45, "daily_dinero": 500},
+}
+
+# Tabla de cooldowns para /acariciar-mascota
+PET_INTERACTION_COOLDOWNS = {}
 
 BONUS_POR_NIVEL = {
     0: {"dinero": 1.0, "xp": 1.0},
@@ -170,12 +191,70 @@ class PetsCog(commands.Cog):
         for rareza in ["común", "raro", "épico", "legendario"]:
             if rareza in por_rareza:
                 mascotas_text = "\n".join([
-                    f"{data['emojis']} **{nombre.capitalize()}** (Poder: {data['poder']})"
+                    f"{data['emojis']} **{nombre.capitalize()}** (Poder: {data['poder']})\n⚡ {data['habilidad']}"
                     for nombre, data in por_rareza[rareza]
                 ])
                 embed.add_field(name=f"{rareza.upper()}", value=mascotas_text, inline=False)
         
-        embed.set_footer(text="Compra huevos de mascotas en /shop para coleccionar más")
+        embed.set_footer(text="Compra huevos de mascotas en /shop para coleccionar más. Usa /acariciar-mascota diariamente!")
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="acariciar-mascota", description="Interactúa con tu mascota diariamente para ganar recompensas")
+    async def pet_interaction(self, interaction: discord.Interaction):
+        """Interactuar con mascota para ganar recompensas diarias"""
+        await interaction.response.defer()
+        user_id = interaction.user.id
+        
+        # Verificar cooldown (1 vez por día)
+        now = datetime.now()
+        last_interaction = PET_INTERACTION_COOLDOWNS.get(user_id)
+        if last_interaction and now < last_interaction:
+            remaining = last_interaction - now
+            hours, remainder = divmod(int(remaining.total_seconds()), 3600)
+            minutes = remainder // 60
+            return await interaction.followup.send(f"⏳ Ya acariciaste hoy. Vuelve en {hours}h {minutes}m.", ephemeral=True)
+        
+        pet = await get_pet(user_id)
+        if not pet:
+            return await interaction.followup.send("🐾 No tienes mascota activa. Compra un huevo en `/shop`.", ephemeral=True)
+        
+        # Actualizar cooldown
+        PET_INTERACTION_COOLDOWNS[user_id] = now + timedelta(days=1)
+        
+        # Ganar XP
+        xp_gained = random.randint(15, 35)
+        await add_pet_xp(user_id, xp_gained)
+        
+        # Recompensas según mascota
+        pet_name = pet["nombre"].lower()
+        abilities = PET_ABILITIES.get(pet_name, {})
+        
+        rewards = f"📊 +{xp_gained} XP"
+        dinero_reward = 0
+        
+        # Recompensa diaria especial
+        if "daily_dinero" in abilities:
+            dinero_reward = abilities["daily_dinero"]
+            dinero_reward += random.randint(100, 300)
+        else:
+            dinero_reward = random.randint(200, 500)
+        
+        await add_money(user_id, dinero_reward)
+        rewards += f"\n💰 +{dinero_reward}💰"
+        
+        # Info de habilidad
+        emoji = MASCOTAS.get(pet_name, {}).get("emojis", "🐾")
+        level = pet["xp"] // 100
+        
+        embed = discord.Embed(
+            title=f"{emoji} Sesión de Terapia con {pet['nombre'].capitalize()}",
+            description=f"¡Tu mascota está feliz contigo! Nivel: {level}",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="🎁 Recompensas", value=rewards, inline=False)
+        embed.add_field(name="⚡ Habilidad Especial", value=MASCOTAS[pet_name]["habilidad"], inline=False)
+        embed.set_footer(text="Vuelve mañana para otra sesión")
+        
         await interaction.followup.send(embed=embed)
 
 async def setup(bot):

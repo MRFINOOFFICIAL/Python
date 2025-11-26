@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View, Select, select
-from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress, get_rob_cooldown, set_rob_cooldown
+from db import get_user, get_inventory, damage_item, add_money, remove_item, update_mission_progress, get_rob_cooldown, set_rob_cooldown, get_pet
 import random
 from typing import Optional
 
@@ -204,7 +204,20 @@ class RobCog(commands.Cog):
         else:
             power = 0
 
+        # HABILIDAD DE MASCOTA: Defensa contra robos
+        target_pet = await get_pet(target_member.id)
+        rob_defense = 0.0
+        defense_msg = ""
+        if target_pet:
+            from commands.pets import PET_ABILITIES
+            pet_name = target_pet["nombre"].lower()
+            abilities = PET_ABILITIES.get(pet_name, {})
+            rob_defense = abilities.get("rob_defense", 0.0)
+            if rob_defense > 0:
+                defense_msg = f" 🛡️ ({target_pet['nombre']} bloqueó {int(rob_defense*100)}%)"
+
         base_chance = 20 + int(power)
+        base_chance = max(5, base_chance * (1 - rob_defense))  # Reducir probabilidad por defensa
         success = random.randint(1, 100) <= base_chance
 
         if success:
@@ -219,11 +232,11 @@ class RobCog(commands.Cog):
                     await damage_item(chosen_item_id, 25)
                 except Exception:
                     pass
-            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!) — tu item sufrió daño."
+            return True, f"🦹‍♀️ Robaste {steal_amount}💰 a {target_member.name} (¡éxito!){defense_msg} — tu item sufrió daño."
         else:
             loss = random.randint(10, 100)
             await add_money(user_id, -loss)
-            return False, f"❌ Fallaste y perdiste {loss}💰. Ten cuidado."
+            return False, f"❌ Fallaste y perdiste {loss}💰.{defense_msg} Ten cuidado."
 
     @commands.command(name="rob")
     @commands.cooldown(1, 300, commands.BucketType.user)

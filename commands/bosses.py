@@ -325,6 +325,16 @@ class BossesCog(commands.Cog):
             dinero_base = reward["dinero"]
             pet_bonus = await get_pet_bonus_multiplier(user_id)
             dinero_final = int(dinero_base * pet_bonus)
+            
+            # HABILIDAD DE MASCOTA: Bonus en combate
+            pet = await get_pet(user_id)
+            if pet:
+                from commands.pets import PET_ABILITIES
+                pet_name = pet["nombre"].lower()
+                abilities = PET_ABILITIES.get(pet_name, {})
+                if "reward_multiplier" in abilities:
+                    dinero_final = int(dinero_final * (1 + abilities["reward_multiplier"]))
+            
             await add_money(user_id, dinero_final)
             
             # Dar XP a mascota
