@@ -63,10 +63,11 @@ class PetsChangerView(ui.View):
         
         options = []
         for pet in pets:
-            emoji = MASCOTAS.get(pet["nombre"].lower(), {}).get("emojis", "🐾")
-            label = f"{emoji} {pet['nombre']} (Nivel {pet['xp'] // 100})"
-            value = str(pet["id"])
-            options.append(discord.SelectOption(label=label, value=value, default=pet["activa"]))
+            pet_name = pet.get("nombre", "Mascota").lower()
+            emoji = MASCOTAS.get(pet_name, {}).get("emojis", "🐾")
+            label = f"{emoji} {pet.get('nombre', 'Mascota')} (Nivel {pet.get('xp', 0) // 100})"
+            value = str(pet.get("id", 0))
+            options.append(discord.SelectOption(label=label, value=value, default=pet.get("activa", False)))
         
         self.select = ui.Select(placeholder="Elige tu mascota activa...", options=options, min_values=1, max_values=1)
         self.select.callback = self.on_select
@@ -81,10 +82,11 @@ class PetsChangerView(ui.View):
         await set_active_pet(self.user_id, pet_id)
         self.selected_pet = pet_id
         
-        pet = next((p for p in self.pets if p["id"] == pet_id), None)
+        pet = next((p for p in self.pets if p.get("id") == pet_id), None)
         if pet:
-            emoji = MASCOTAS.get(pet["nombre"].lower(), {}).get("emojis", "🐾")
-            await interaction.response.edit_message(content=f"✅ {emoji} **{pet['nombre']}** is now active!")
+            pet_name = pet.get("nombre", "Mascota").lower()
+            emoji = MASCOTAS.get(pet_name, {}).get("emojis", "🐾")
+            await interaction.response.edit_message(content=f"✅ {emoji} **{pet.get('nombre', 'Mascota')}** is now active!")
         self.stop()
 
 class PetsCog(commands.Cog):
@@ -110,12 +112,13 @@ class PetsCog(commands.Cog):
         xp_total = await get_pet_xp_total(interaction.user.id)
         xp_para_siguiente = 100 - (xp_total % 100)
         
-        data = MASCOTAS.get(pet["nombre"].lower(), {})
+        pet_name = pet.get("nombre", "Mascota").lower()
+        data = MASCOTAS.get(pet_name, {})
         emoji = data.get("emojis", "🐾")
         
         embed = discord.Embed(
-            title=f"{emoji} {pet['nombre'].capitalize()} (ACTIVA)",
-            description=f"**Rareza:** {pet['rareza'].upper()}\n**Nivel:** {nivel}\n**XP:** {xp_total}",
+            title=f"{emoji} {pet.get('nombre', 'Mascota').capitalize()} (ACTIVA)",
+            description=f"**Rareza:** {pet.get('rareza', 'Desconocida').upper()}\n**Nivel:** {nivel}\n**XP:** {xp_total}",
             color=discord.Color.gold()
         )
         embed.add_field(name="Poder", value=f"{data.get('poder', 0)} ⚡", inline=True)
@@ -155,14 +158,15 @@ class PetsCog(commands.Cog):
         )
         
         for pet in pets:
-            nivel = pet["xp"] // 100
-            data = MASCOTAS.get(pet["nombre"].lower(), {})
+            pet_name = pet.get("nombre", "Mascota").lower()
+            nivel = pet.get("xp", 0) // 100
+            data = MASCOTAS.get(pet_name, {})
             emoji = data.get("emojis", "🐾")
-            active_badge = "✅ ACTIVA" if pet["activa"] else ""
+            active_badge = "✅ ACTIVA" if pet.get("activa", False) else ""
             
             embed.add_field(
-                name=f"{emoji} {pet['nombre']} {active_badge}",
-                value=f"`{pet['rareza'].upper()}` | Nivel {nivel} | {pet['xp']} XP",
+                name=f"{emoji} {pet.get('nombre', 'Mascota')} {active_badge}",
+                value=f"`{pet.get('rareza', 'Desconocida').upper()}` | Nivel {nivel} | {pet.get('xp', 0)} XP",
                 inline=False
             )
         
@@ -191,7 +195,7 @@ class PetsCog(commands.Cog):
         for rareza in ["común", "raro", "épico", "legendario"]:
             if rareza in por_rareza:
                 mascotas_text = "\n".join([
-                    f"{data['emojis']} **{nombre.capitalize()}** (Poder: {data['poder']})\n⚡ {data['habilidad']}"
+                    f"{data.get('emojis', '🐾')} **{nombre.capitalize()}** (Poder: {data.get('poder', 0)})\n⚡ {data.get('habilidad', 'Poder especial')}"
                     for nombre, data in por_rareza[rareza]
                 ])
                 embed.add_field(name=f"{rareza.upper()}", value=mascotas_text, inline=False)
@@ -226,7 +230,7 @@ class PetsCog(commands.Cog):
         await add_pet_xp(user_id, xp_gained)
         
         # Recompensas según mascota
-        pet_name = pet["nombre"].lower()
+        pet_name = pet.get("nombre", "Mascota").lower()
         abilities = PET_ABILITIES.get(pet_name, {})
         
         rewards = f"📊 +{xp_gained} XP"
