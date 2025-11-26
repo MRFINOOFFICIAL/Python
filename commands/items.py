@@ -246,7 +246,9 @@ class ItemsCog(commands.Cog):
             return
         
         # Efectos especiales de items
-        if "bebida de la vida" in item_name:
+        if "papitas" in item_name:
+            await send_fn("🍟 **Papitas consumidas** — ¡Curas 20 HP mental! Tu ánimo sube.")
+        elif "bebida de la vida" in item_name:
             await add_lives(user_id, 1)
             await send_fn("💊 **Bebida de Vida Eterna administrada** — ¡Has recuperado una vida psicológica! 💚")
         elif "kit de reparación" in item_name:
