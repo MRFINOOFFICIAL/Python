@@ -265,8 +265,19 @@ def generate_false_options(correct_answer: str, num_options: int = 3) -> list:
     false_options = list(set(false_options))
     false_options = [opt for opt in false_options if opt.lower() != correct_answer.lower()]
     
-    # Retornar N opciones aleatorias
-    return random.sample(false_options, min(num_options, len(false_options)))
+    # Garantizar que siempre hay al menos num_options opciones falsas
+    if len(false_options) < num_options:
+        # Si faltan opciones, agregar más genéricas
+        extra = ["Quizás", "Tal vez", "Otro", "Distinto", "Diferente", "Opuesto"]
+        false_options.extend([opt for opt in extra if opt.lower() != correct_answer.lower()])
+        false_options = list(set(false_options))
+    
+    # Retornar exactamente N opciones (garantizado)
+    if len(false_options) >= num_options:
+        return random.sample(false_options, num_options)
+    else:
+        # Última línea de defensa: llenar con genéricas si aún falta
+        return (false_options + ["Equivocado", "Nope", "No"])[:num_options]
 
 async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | None = None, user_id=None, bot=None, book_bonus=False):
     """
