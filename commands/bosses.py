@@ -17,6 +17,14 @@ from bosses import (
     get_boss_by_name, get_all_boss_names, get_available_bosses_by_type, get_weapon_benefit
 )
 
+# Pet abilities - imported at module level to avoid issues
+try:
+    from commands.pets import PET_ABILITIES
+    from db import get_pet
+except ImportError:
+    PET_ABILITIES = {}
+    get_pet = None
+
 
 # ==================== AUTOCOMPLETE ====================
 
@@ -327,13 +335,17 @@ class BossesCog(commands.Cog):
             dinero_final = int(dinero_base * pet_bonus)
             
             # HABILIDAD DE MASCOTA: Bonus en combate
-            pet = await get_pet(user_id)
-            if pet:
-                from commands.pets import PET_ABILITIES
-                pet_name = pet["nombre"].lower()
-                abilities = PET_ABILITIES.get(pet_name, {})
-                if "reward_multiplier" in abilities:
-                    dinero_final = int(dinero_final * (1 + abilities["reward_multiplier"]))
+            if get_pet:
+                try:
+                    pet = await get_pet(user_id)
+                    if pet:
+                        pet_name = pet.get("nombre", "").lower()
+                        if pet_name:
+                            abilities = PET_ABILITIES.get(pet_name, {})
+                            if "reward_multiplier" in abilities:
+                                dinero_final = int(dinero_final * (1 + abilities["reward_multiplier"]))
+                except Exception:
+                    pass  # Si hay error con mascota, continuar sin bonus
             
             await add_money(user_id, dinero_final)
             

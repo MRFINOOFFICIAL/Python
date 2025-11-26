@@ -243,16 +243,18 @@ class PetsCog(commands.Cog):
         rewards += f"\n💰 +{dinero_reward}💰"
         
         # Info de habilidad
-        emoji = MASCOTAS.get(pet_name, {}).get("emojis", "🐾")
-        level = pet["xp"] // 100
+        pet_data = MASCOTAS.get(pet_name, {})
+        emoji = pet_data.get("emojis", "🐾")
+        level = pet.get("xp", 0) // 100
+        habilidad = pet_data.get("habilidad", "Poder especial desconocido")
         
         embed = discord.Embed(
-            title=f"{emoji} Sesión de Terapia con {pet['nombre'].capitalize()}",
+            title=f"{emoji} Sesión de Terapia con {pet.get('nombre', 'Mascota').capitalize()}",
             description=f"¡Tu mascota está feliz contigo! Nivel: {level}",
             color=discord.Color.green()
         )
         embed.add_field(name="🎁 Recompensas", value=rewards, inline=False)
-        embed.add_field(name="⚡ Habilidad Especial", value=MASCOTAS[pet_name]["habilidad"], inline=False)
+        embed.add_field(name="⚡ Habilidad Especial", value=habilidad, inline=False)
         embed.set_footer(text="Vuelve mañana para otra sesión")
         
         await interaction.followup.send(embed=embed)

@@ -7,6 +7,12 @@ from db import get_user, get_inventory, damage_item, add_money, remove_item, upd
 import random
 from typing import Optional
 
+# Pet abilities - imported at module level to avoid issues
+try:
+    from commands.pets import PET_ABILITIES
+except ImportError:
+    PET_ABILITIES = {}
+
 # Mapa de stats por nombre del item (lowercase)
 ITEM_STATS = {
     "cinta adhesiva":      {"categoria": "herramientas", "poder": 3},
@@ -209,12 +215,15 @@ class RobCog(commands.Cog):
         rob_defense = 0.0
         defense_msg = ""
         if target_pet:
-            from commands.pets import PET_ABILITIES
-            pet_name = target_pet["nombre"].lower()
-            abilities = PET_ABILITIES.get(pet_name, {})
-            rob_defense = abilities.get("rob_defense", 0.0)
-            if rob_defense > 0:
-                defense_msg = f" 🛡️ ({target_pet['nombre']} bloqueó {int(rob_defense*100)}%)"
+            try:
+                pet_name = target_pet.get("nombre", "").lower()
+                if pet_name:
+                    abilities = PET_ABILITIES.get(pet_name, {})
+                    rob_defense = abilities.get("rob_defense", 0.0)
+                    if rob_defense > 0:
+                        defense_msg = f" 🛡️ ({target_pet.get('nombre', 'Mascota')} bloqueó {int(rob_defense*100)}%)"
+            except Exception:
+                pass  # Si hay error, continuar sin defensa
 
         base_chance = 20 + int(power)
         base_chance = max(5, base_chance * (1 - rob_defense))  # Reducir probabilidad por defensa
