@@ -239,8 +239,38 @@ async def play_dados(ctx, pay, bonus_time=0, book_bonus=False):
         loss = max(10, pay//6)
         return -loss, f"🎲 Sacaste un {dado}, fallaste y perdiste {loss}💰"
 
+def generate_false_options(correct_answer: str, num_options: int = 3) -> list:
+    """Genera opciones falsas similares pero distintas a la respuesta correcta."""
+    false_options = []
+    
+    # Lista de opciones falsas genéricas por categoría
+    generic_false = [
+        "No sé", "Depende", "Ninguna", "Todas", "5", "0", "Incorrecto",
+        "Falso", "Desconocido", "No existe", "Error", "N/A", "Indefinido",
+        "Imposible", "Infinito", "Negativo", "Positivo", "Cero", "Uno"
+    ]
+    
+    # Adicionar opciones basadas en el tipo de respuesta
+    try:
+        if correct_answer.isdigit():
+            num = int(correct_answer)
+            false_options.extend([str(num + 1), str(num - 1), str(num * 2)])
+    except:
+        pass
+    
+    # Agregar opciones genéricas
+    false_options.extend(generic_false)
+    
+    # Remover duplicados y asegurar que no incluya la respuesta correcta
+    false_options = list(set(false_options))
+    false_options = [opt for opt in false_options if opt.lower() != correct_answer.lower()]
+    
+    # Retornar N opciones aleatorias
+    return random.sample(false_options, min(num_options, len(false_options)))
+
 async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | None = None, user_id=None, bot=None, book_bonus=False):
     """
+    Sistema de múltiple choice (a, b, c, d).
     Si forced_difficulty viene (easy/normal/hard/expert) se fuerza esa dificultad.
     bonus_time añade segundos extra para responder.
     """
@@ -253,19 +283,33 @@ async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | Non
     bucket = bank.get(difficulty, []) or bank.get("normal", [])
     q = random.choice(bucket)
     pregunta = q["p"]
-    respuestas = [r.lower().strip() for r in q["r"]]
+    respuesta_correcta = q["r"][0].lower().strip()  # Primera respuesta es la correcta
+
+    # Generar 4 opciones (1 correcta + 3 falsas)
+    opciones_falsas = generate_false_options(respuesta_correcta, 3)
+    todas_opciones = [respuesta_correcta] + opciones_falsas
+    random.shuffle(todas_opciones)
+    
+    # Encontrar la letra correcta (a, b, c, d)
+    indice_correcto = todas_opciones.index(respuesta_correcta)
+    letra_correcta = chr(97 + indice_correcto)  # 'a', 'b', 'c', 'd'
+
+    # Crear el texto de opciones
+    opciones_texto = "\n".join([f"**{chr(97 + i)})** {todas_opciones[i]}" for i in range(4)])
 
     total_time = 12 + max(0, int(bonus_time))
     embed = discord.Embed(
-        title="🧠 Pregunta de trabajo",
+        title="🧠 Pregunta de trabajo (Múltiple Choice)",
         description=(f"**Categoría:** {category.capitalize()} — **Dificultad:** {difficulty.capitalize()}\n\n"
-                     f"{pregunta}\n\nTienes {total_time}s para responder."),
+                     f"**Pregunta:** {pregunta}\n\n"
+                     f"**Opciones:**\n{opciones_texto}\n\n"
+                     f"Responde con **a**, **b**, **c** o **d** ({total_time}s)"),
         color=discord.Color.blurple()
     )
     await send_fn(embed=embed)
 
     def check(msg):
-        return msg.author.id == user_id
+        return msg.author.id == user_id and msg.content.lower().strip() in ['a', 'b', 'c', 'd']
 
     try:
         if not bot:
@@ -282,16 +326,16 @@ async def play_pregunta(send_fn, pay, bonus_time=0, forced_difficulty: str | Non
         penalty = max(5, int(pay*0.12))
         return -penalty, f"⏱️ Error al esperar respuesta. Perdiste {penalty}💰"
 
-    if answer in respuestas:
+    if answer == letra_correcta:
         reward = int(pay * DIFFICULTY_MULT[difficulty]) + random.randint(0, int(pay*0.15))
-        return reward, f"✅ ¡Correcto! (+{reward}💰) — Categoria: {category.capitalize()} ({difficulty})"
+        return reward, f"✅ ¡Correcto! (+{reward}💰) — Respuesta: **{letra_correcta.upper()}) {respuesta_correcta}**"
     else:
         # Biblioteca Antigua: +20% chance de acertar una pregunta incorrecta
         if book_bonus and random.random() < 0.20:
             reward = int(pay * DIFFICULTY_MULT[difficulty] * 0.5)
             return reward, f"📚 ¡La Biblioteca te ayudó! Respuesta parcial. (+{reward}💰)"
         penalty = max(5, int(pay*0.08 * DIFFICULTY_MULT[difficulty]))
-        return -penalty, f"❌ Incorrecto. (Respuesta esperada: {respuestas[0]}) Perdistes {penalty}💰"
+        return -penalty, f"❌ Incorrecto. (Respuesta correcta: **{letra_correcta.upper()}) {respuesta_correcta}**) Perdiste {penalty}💰"
 
 GAME_FUNCTIONS = {"dados": play_dados, "pregunta": play_pregunta}
 
