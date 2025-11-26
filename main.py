@@ -80,7 +80,7 @@ async def on_message(message):
         
         embed.add_field(
             name="📖 PASO 1: Crea tu Perfil",
-            value="Usa `/perfil` o `!perfil` para ver tu perfil. Se crea automáticamente al usar cualquier comando.",
+            value="Usa `/profile` para ver tu perfil. Se crea automáticamente al usar cualquier comando.",
             inline=False
         )
         
@@ -98,7 +98,7 @@ async def on_message(message):
         
         embed.add_field(
             name="🛍️ PASO 4: Compra en la Tienda",
-            value="• `/shop` — Ver la farmacia clínica\n• `/buy <item>` — Compra medicinas, armas, huevos de mascotas\n• `/inventario` — Ver tu inventario",
+            value="• `/shop` — Ver la farmacia clínica\n• `/buy <item>` — Compra medicinas, armas, huevos de mascotas\n• `/inventory` — Ver tu inventario",
             inline=False
         )
         
@@ -110,13 +110,13 @@ async def on_message(message):
         
         embed.add_field(
             name="🎮 PASO 6: Minijuegos y Más",
-            value="• `/blackjack` — Juega blackjack\n• `/moneda` — Apuesta en moneda al aire\n• `/ruleta` — Juega ruleta\n• `/tragamonedas` — Máquinas tragamonedas",
+            value="• `/blackjack` — Juega blackjack\n• `/coinflip` — Apuesta en moneda al aire\n• `/ruleta` — Juega ruleta\n• `/slots` — Máquinas tragamonedas",
             inline=False
         )
         
         embed.add_field(
             name="👥 PASO 7: Características Sociales",
-            value="• `/leaderboard [dinero|experiencia]` — Ranking\n• `/desafiar @user <dinero>` — Duelo PvP\n• `/vender-item <id> <precio>` — Mercado\n• `/club <acción>` — Crear/unirse a clubs",
+            value="• `/leaderboard [dinero|experiencia]` — Ranking\n• `/duel @user <dinero>` — Duelo PvP\n• `/sell-item <id> <precio>` — Mercado\n• `/club <acción>` — Crear/unirse a clubs",
             inline=False
         )
         
@@ -128,7 +128,7 @@ async def on_message(message):
         
         embed.add_field(
             name="📚 COMANDOS ÚTILES",
-            value="• `/ayuda` — Ayuda detallada (7 secciones)\n• `/perfil` — Tu perfil\n• `/mi-mascota` — Tu mascota activa\n• `/misiones` — Misiones diarias\n• `/equip <arma>` — Equipar arma",
+            value="• `/help` — Ayuda detallada (7 secciones)\n• `/profile` — Tu perfil\n• `/pet` — Tu mascota activa\n• `/missions` — Misiones diarias\n• `/equip <weapon>` — Equipar arma\n• `/pet-interaction` — Interactúa con mascota para recompensas",
             inline=False
         )
         
