@@ -96,6 +96,7 @@ async def shop_items_autocomplete(interaction: discord.Interaction, current: str
 # ----------------- Default shop items to insert -----------------
 DEFAULT_ITEMS = [
     # (name, price, type, effect, rarity)
+    ("Papitas", 15, "consumible", "Cura 20 HP mental - un snack terapéutico", "comun"),
     ("Paquete de Peluches Terapéutico", 8000, "consumible", "Recupera 50 HP mental en sesión o vende por 4000💰", "epico"),
     ("Doblador de Recuperación Económica", 900, "consumible_buff", "Dobla ganancias de terapia ocupacional 1 hora", "epico"),
     ("Danza Emocional de Paz", 3500, "consumible_buff", "Aumenta potencia psicológica +50% próximo ataque", "raro"),
