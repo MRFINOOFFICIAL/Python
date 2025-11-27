@@ -8,16 +8,8 @@ from db import get_money, add_money, get_user, add_experiencia
 
 DB = "economy.db"
 
-# EMOJIS TEMÁTICA PSIQUIÁTRICA
-EMOJIS_GUERRA = {
-    "batalla": "⚔️",
-    "victoria": "🏆",
-    "derrota": "💔",
-    "vs": "⚡",
-    "daño": "💥",
-    "critico": "⭐",
-    "defensa": "🛡️",
-}
+# Estado global de batallas activas: {war_id: {"club1_id": int, "club2_id": int, "club1_hp": int, "club2_hp": int}}
+active_wars = {}
 
 class ClanWarsCog(commands.Cog):
     def __init__(self, bot):
@@ -38,15 +30,24 @@ class ClanWarsCog(commands.Cog):
                 }
             return None
 
-    async def get_pending_wars(self, club_id):
-        """Obtener guerras pendientes de un club"""
+    async def get_user_war(self, user_id):
+        """Obtener guerra activa del usuario"""
         async with aiosqlite.connect(DB) as db:
             cur = await db.execute(
-                "SELECT id, club1_id, club2_id FROM clan_wars WHERE (club1_id = ? OR club2_id = ?) AND estado = 'pendiente'",
+                "SELECT c.id FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
+                (str(user_id),)
+            )
+            club = await cur.fetchone()
+            if not club:
+                return None
+            club_id = club[0]
+            
+            cur = await db.execute(
+                "SELECT id FROM clan_wars WHERE (club1_id = ? OR club2_id = ?) AND estado = 'activo'",
                 (club_id, club_id)
             )
-            rows = await cur.fetchall()
-            return [{"id": r[0], "club1_id": r[1], "club2_id": r[2]} for r in rows]
+            war = await cur.fetchone()
+            return war[0] if war else None
 
     @app_commands.command(name="desafiar-clan", description="⚔️ Desafiar a otro Grupo de Apoyo a una batalla de clanes")
     @app_commands.describe(clan_enemigo="Nombre del Grupo de Apoyo a desafiar")
@@ -56,7 +57,6 @@ class ClanWarsCog(commands.Cog):
         
         try:
             async with aiosqlite.connect(DB) as db:
-                # Verificar que el usuario está en un clan
                 cur = await db.execute(
                     "SELECT c.id, c.nombre FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
                     (user_id,)
@@ -67,13 +67,11 @@ class ClanWarsCog(commands.Cog):
                 
                 mi_club_id, mi_club_nombre = mi_clan
                 
-                # Verificar que es líder del clan
                 cur = await db.execute("SELECT lider FROM clubs WHERE id = ?", (mi_club_id,))
                 club_data = await cur.fetchone()
                 if club_data and club_data[0] != user_id:
                     return await interaction.followup.send("❌ Solo el líder del Grupo de Apoyo puede desafiar a otro.", ephemeral=True)
                 
-                # Obtener clan enemigo
                 cur = await db.execute("SELECT id, nombre FROM clubs WHERE nombre = ?", (clan_enemigo,))
                 enemy_club = await cur.fetchone()
                 if not enemy_club:
@@ -84,7 +82,6 @@ class ClanWarsCog(commands.Cog):
                 if mi_club_id == enemy_club_id:
                     return await interaction.followup.send("❌ No puedes retarte a ti mismo.", ephemeral=True)
                 
-                # Crear desafío de guerra
                 await db.execute(
                     "INSERT INTO clan_wars (club1_id, club2_id, estado, fecha_inicio) VALUES (?, ?, 'pendiente', ?)",
                     (mi_club_id, enemy_club_id, datetime.now().isoformat())
@@ -112,7 +109,6 @@ class ClanWarsCog(commands.Cog):
         
         try:
             async with aiosqlite.connect(DB) as db:
-                # Verificar que el usuario está en un clan
                 cur = await db.execute(
                     "SELECT c.id FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
                     (user_id,)
@@ -123,13 +119,11 @@ class ClanWarsCog(commands.Cog):
                 
                 mi_club_id = mi_clan[0]
                 
-                # Verificar que es líder del clan
                 cur = await db.execute("SELECT lider FROM clubs WHERE id = ?", (mi_club_id,))
                 club_data = await cur.fetchone()
                 if club_data and club_data[0] != user_id:
                     return await interaction.followup.send("❌ Solo el líder puede aceptar batallas.", ephemeral=True)
                 
-                # Obtener desafío pendiente
                 cur = await db.execute(
                     "SELECT id, club1_id FROM clan_wars WHERE club2_id = ? AND estado = 'pendiente'",
                     (mi_club_id,)
@@ -140,31 +134,43 @@ class ClanWarsCog(commands.Cog):
                 
                 war_id, club1_id = war
                 
-                # Actualizar estado a activo
                 await db.execute("UPDATE clan_wars SET estado = 'activo' WHERE id = ?", (war_id,))
                 await db.commit()
                 
-                # Ejecutar batalla
-                await self.execute_clan_war(interaction, war_id, club1_id, mi_club_id)
+                # Iniciar batalla
+                await self.start_clan_war(interaction, war_id, club1_id, mi_club_id)
                 
         except Exception as e:
             print(f"Error en aceptar-batalla-clan: {e}")
             await interaction.followup.send(f"❌ Error: {str(e)}", ephemeral=True)
 
-    async def execute_clan_war(self, interaction, war_id, club1_id, club2_id):
-        """Ejecutar batalla de clan"""
+    async def start_clan_war(self, interaction, war_id, club1_id, club2_id):
+        """Iniciar batalla de clan interactiva"""
         try:
             async with aiosqlite.connect(DB) as db:
-                # Obtener miembros de ambos clanes
-                cur = await db.execute("SELECT user_id FROM club_members WHERE club_id = ?", (club1_id,))
-                rows = await cur.fetchall()
-                club1_members = [str(row[0]) for row in rows] if rows else []
+                # Obtener HP base de cada clan (por defensa)
+                cur = await db.execute("SELECT COUNT(*) FROM club_members WHERE club_id = ?", (club1_id,))
+                club1_row = await cur.fetchone()
+                club1_members_count = club1_row[0] if club1_row else 0
                 
-                cur = await db.execute("SELECT user_id FROM club_members WHERE club_id = ?", (club2_id,))
-                rows = await cur.fetchall()
-                club2_members = [str(row[0]) for row in rows] if rows else []
+                cur = await db.execute("SELECT COUNT(*) FROM club_members WHERE club_id = ?", (club2_id,))
+                club2_row = await cur.fetchone()
+                club2_members_count = club2_row[0] if club2_row else 0
                 
-                # Obtener datos de clanes
+                # HP base: 100 por miembro
+                club1_hp = club1_members_count * 100
+                club2_hp = club2_members_count * 100
+                
+                # Agregar HP por defensa de clan
+                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ? AND upgrade = 'Defensa de Clan'", (club1_id,))
+                if await cur.fetchone():
+                    club1_hp = int(club1_hp * 1.5)  # +50% defensa
+                
+                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ? AND upgrade = 'Defensa de Clan'", (club2_id,))
+                if await cur.fetchone():
+                    club2_hp = int(club2_hp * 1.5)  # +50% defensa
+                
+                # Obtener nombres
                 cur = await db.execute("SELECT nombre FROM clubs WHERE id = ?", (club1_id,))
                 club1_row = await cur.fetchone()
                 club1_name = club1_row[0] if club1_row else f"Club {club1_id}"
@@ -173,88 +179,145 @@ class ClanWarsCog(commands.Cog):
                 club2_row = await cur.fetchone()
                 club2_name = club2_row[0] if club2_row else f"Club {club2_id}"
                 
-                # Batalla: cada miembro ataca
-                clan1_dmg = 0
-                clan2_dmg = 0
+                # Guardar estado de batalla
+                active_wars[war_id] = {
+                    "club1_id": club1_id,
+                    "club2_id": club2_id,
+                    "club1_hp": club1_hp,
+                    "club2_hp": club2_hp,
+                    "club1_name": club1_name,
+                    "club2_name": club2_name,
+                    "log": []
+                }
                 
-                for member in club1_members:
-                    hit = random.random() < 0.7
-                    if hit:
-                        dmg = random.randint(25, 75)
-                        clan1_dmg += dmg
-                
-                for member in club2_members:
-                    hit = random.random() < 0.7
-                    if hit:
-                        dmg = random.randint(25, 75)
-                        clan2_dmg += dmg
-                
-                # Determinar ganador
-                if clan1_dmg > clan2_dmg:
-                    ganador = club1_id
-                    ganador_nombre = club1_name
-                    winner_members = club1_members
-                    loser_members = club2_members
-                elif clan2_dmg > clan1_dmg:
-                    ganador = club2_id
-                    ganador_nombre = club2_name
-                    winner_members = club2_members
-                    loser_members = club1_members
-                else:
-                    ganador = None
-                    ganador_nombre = "EMPATE"
-                    winner_members = []
-                    loser_members = []
-                
-                # Actualizar guerra
-                await db.execute(
-                    "UPDATE clan_wars SET estado = 'completado', ganador = ? WHERE id = ?",
-                    (ganador, war_id)
-                )
-                
-                # Recompensas
-                if ganador:
-                    # Ganadores reciben dinero y XP
-                    for member_id in winner_members:
-                        dinero_reward = random.randint(500, 1000)
-                        xp_reward = random.randint(100, 200)
-                        await db.execute(
-                            "UPDATE users SET dinero = dinero + ?, experiencia = experiencia + ? WHERE user_id = ?",
-                            (dinero_reward, xp_reward, member_id)
-                        )
-                    
-                    # Perdedores reciben menos
-                    for member_id in loser_members:
-                        dinero_reward = random.randint(50, 200)
-                        xp_reward = random.randint(20, 50)
-                        await db.execute(
-                            "UPDATE users SET dinero = dinero + ?, experiencia = experiencia + ? WHERE user_id = ?",
-                            (dinero_reward, xp_reward, member_id)
-                        )
-                
-                await db.commit()
-                
-                # Mostrar resultado
                 embed = discord.Embed(
-                    title="⚔️ BATALLA DE CLANES - RESULTADO",
-                    color=discord.Color.gold() if ganador else discord.Color.greyple()
+                    title=f"⚔️ BATALLA DE CLANES #{war_id}",
+                    description=f"**{club1_name}** vs **{club2_name}**",
+                    color=discord.Color.red()
                 )
-                embed.add_field(name=f"{club1_name} 💥", value=f"{clan1_dmg} daño", inline=True)
-                embed.add_field(name=f"{club2_name} 💥", value=f"{clan2_dmg} daño", inline=True)
-                embed.add_field(name="🏆 GANADOR", value=ganador_nombre, inline=False)
-                
-                if ganador:
-                    embed.add_field(
-                        name="Recompensas",
-                        value=f"Ganadores: 500-1000💰 + 100-200 XP\nPerdedores: 50-200💰 + 20-50 XP",
-                        inline=False
-                    )
+                embed.add_field(name=f"{club1_name} 🩹", value=f"{club1_hp} HP", inline=True)
+                embed.add_field(name=f"{club2_name} 🩹", value=f"{club2_hp} HP", inline=True)
+                embed.add_field(name="📋 Instrucciones", value="Usa `!atacar` para atacar en batalla. ¡Cada ataque hace 20-50 daño!", inline=False)
+                embed.set_footer(text=f"Batalla iniciada a las {datetime.now().strftime('%H:%M:%S')}")
                 
                 await interaction.followup.send(embed=embed)
                 
         except Exception as e:
-            print(f"Error en execute_clan_war: {e}")
-            await interaction.followup.send(f"❌ Error en batalla: {str(e)}", ephemeral=True)
+            print(f"Error en start_clan_war: {e}")
+            await interaction.followup.send(f"❌ Error: {str(e)}", ephemeral=True)
+
+    @commands.command(name="atacar")
+    async def attack_in_war(self, ctx):
+        """Atacar en batalla de clan activa"""
+        user_id = str(ctx.author.id)
+        
+        try:
+            # Obtener guerra activa del usuario
+            war_id = await self.get_user_war(user_id)
+            if not war_id or war_id not in active_wars:
+                return await ctx.send("❌ No estás en una batalla de clan activa.", delete_after=5)
+            
+            war = active_wars[war_id]
+            
+            async with aiosqlite.connect(DB) as db:
+                # Verificar a qué clan pertenece
+                cur = await db.execute(
+                    "SELECT c.id FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
+                    (user_id,)
+                )
+                club = await cur.fetchone()
+                club_id = club[0]
+                
+                if club_id == war["club1_id"]:
+                    # Club 1 ataca
+                    dmg = random.randint(20, 50)
+                    war["club2_hp"] -= dmg
+                    attacker = war["club1_name"]
+                    defender = war["club2_name"]
+                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP\n{defender}: {max(0, war['club2_hp'])} HP"
+                    
+                    # Verificar si club 2 fue derrotado
+                    if war["club2_hp"] <= 0:
+                        await self.finish_clan_war(ctx, war_id, war["club1_id"], war["club2_id"], war["club1_name"], war["club2_name"])
+                        
+                elif club_id == war["club2_id"]:
+                    # Club 2 ataca
+                    dmg = random.randint(20, 50)
+                    war["club1_hp"] -= dmg
+                    attacker = war["club2_name"]
+                    defender = war["club1_name"]
+                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP\n{defender}: {max(0, war['club1_hp'])} HP"
+                    
+                    # Verificar si club 1 fue derrotado
+                    if war["club1_hp"] <= 0:
+                        await self.finish_clan_war(ctx, war_id, war["club2_id"], war["club1_id"], war["club2_name"], war["club1_name"])
+                else:
+                    return await ctx.send("❌ No eres miembro de ningún clan en esta batalla.", delete_after=5)
+                
+                # Mostrar estado
+                embed = discord.Embed(title="⚔️ GOLPE CONECTADO", description=msg, color=discord.Color.orange())
+                embed.add_field(name=f"{war['club1_name']} 🩹", value=f"{max(0, war['club1_hp'])} HP", inline=True)
+                embed.add_field(name=f"{war['club2_name']} 🩹", value=f"{max(0, war['club2_hp'])} HP", inline=True)
+                await ctx.send(embed=embed, delete_after=10)
+                
+        except Exception as e:
+            print(f"Error en atacar: {e}")
+            await ctx.send(f"❌ Error: {str(e)}", delete_after=5)
+
+    async def finish_clan_war(self, ctx, war_id, winner_id, loser_id, winner_name, loser_name):
+        """Finalizar batalla de clan"""
+        try:
+            async with aiosqlite.connect(DB) as db:
+                # Actualizar BD
+                await db.execute(
+                    "UPDATE clan_wars SET estado = 'completado', ganador = ? WHERE id = ?",
+                    (winner_id, war_id)
+                )
+                
+                # Recompensas
+                cur = await db.execute("SELECT user_id FROM club_members WHERE club_id = ?", (winner_id,))
+                winner_members = [str(row[0]) for row in await cur.fetchall()]
+                
+                cur = await db.execute("SELECT user_id FROM club_members WHERE club_id = ?", (loser_id,))
+                loser_members = [str(row[0]) for row in await cur.fetchall()]
+                
+                for member_id in winner_members:
+                    dinero_reward = random.randint(500, 1000)
+                    xp_reward = random.randint(100, 200)
+                    await db.execute(
+                        "UPDATE users SET dinero = dinero + ?, experiencia = experiencia + ? WHERE user_id = ?",
+                        (dinero_reward, xp_reward, member_id)
+                    )
+                
+                for member_id in loser_members:
+                    dinero_reward = random.randint(50, 200)
+                    xp_reward = random.randint(20, 50)
+                    await db.execute(
+                        "UPDATE users SET dinero = dinero + ?, experiencia = experiencia + ? WHERE user_id = ?",
+                        (dinero_reward, xp_reward, member_id)
+                    )
+                
+                await db.commit()
+            
+            # Mostrar resultado
+            embed = discord.Embed(
+                title="🏆 BATALLA DE CLANES FINALIZADA",
+                description=f"**{winner_name}** ha derrotado a **{loser_name}**",
+                color=discord.Color.gold()
+            )
+            embed.add_field(name="🏆 Ganador", value=winner_name, inline=False)
+            embed.add_field(name="Recompensas", 
+                value=f"Ganadores: 500-1000💰 + 100-200 XP c/u\nPerdedores: 50-200💰 + 20-50 XP c/u", inline=False)
+            
+            await ctx.send(embed=embed)
+            
+            # Limpiar estado
+            if war_id in active_wars:
+                del active_wars[war_id]
+                
+        except Exception as e:
+            print(f"Error en finish_clan_war: {e}")
+            await ctx.send(f"❌ Error finalizando batalla: {str(e)}", delete_after=5)
 
     @app_commands.command(name="guerras-clan", description="📋 Ver guerras de clan activas y pendientes")
     async def view_clan_wars(self, interaction: discord.Interaction):
@@ -263,7 +326,6 @@ class ClanWarsCog(commands.Cog):
         
         try:
             async with aiosqlite.connect(DB) as db:
-                # Obtener club del usuario
                 cur = await db.execute(
                     "SELECT c.id FROM clubs c JOIN club_members cm ON c.id = cm.club_id WHERE cm.user_id = ?",
                     (user_id,)
@@ -274,7 +336,6 @@ class ClanWarsCog(commands.Cog):
                 
                 club_id = club[0]
                 
-                # Obtener guerras del club
                 cur = await db.execute(
                     "SELECT id, club1_id, club2_id, estado, ganador FROM clan_wars WHERE club1_id = ? OR club2_id = ? ORDER BY fecha_inicio DESC",
                     (club_id, club_id)

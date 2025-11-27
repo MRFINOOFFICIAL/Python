@@ -168,24 +168,30 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
 
 ## Recent Changes (Session Nov 27, 2025)
 
-### Sistema de Batalla de Clanes ⚔️
+### Sistema de Batalla de Clanes Interactivo ⚔️
 1. **Nueva tabla `clan_wars`** en BD:
    - Tracks guerras entre clanes (id, club1_id, club2_id, estado, ganador, fecha_inicio)
    - Estados: "pendiente" → "activo" → "completado"
 
-2. **Comandos nuevos** (`commands/clan_wars.py`):
+2. **Comandos de batalla**:
    - `/desafiar-clan <nombre>` — Solo líder puede desafiar a otro clan
    - `/aceptar-batalla-clan` — Líder del clan defendedor acepta batalla
+   - `!atacar` — Miembros atacan en batalla activa (20-50 daño cada ataque)
    - `/guerras-clan` — Ver histórico de guerras del clan actual
 
-3. **Sistema de batalla**:
-   - Todos los miembros de ambos clanes atacan
-   - Cada miembro tiene 70% chance de golpear (25-75 daño)
-   - Clan con más daño total gana
-   - **Recompensas**: Ganadores reciben 500-1000💰 + 100-200 XP cada uno
-   - Perdedores reciben 50-200💰 + 20-50 XP cada uno
+3. **Sistema de batalla interactivo**:
+   - HP base: 100 por miembro del clan
+   - Cada miembro usa `!atacar` para hacer daño (20-50 aleatorio)
+   - Primer clan en reducir HP del enemigo a 0 gana
+   - **Recompensas**: Ganadores reciben 500-1000💰 + 100-200 XP c/u
+   - Perdedores reciben 50-200💰 + 20-50 XP c/u
 
-4. **Temática psiquiátrica**: Mensajes de batalla con emojis temáticos (⚔️💥🏆)
+4. **Upgrade "Defensa de Clan"** (12000💰):
+   - Se compra con `/comprar-upgrade-clan "Defensa de Clan"`
+   - +50% HP durante batallas de clanes
+   - Aplica a todos los miembros del clan
+
+5. **Temática psiquiátrica**: Mensajes de batalla con emojis temáticos (⚔️💥🏆🛡️)
 
 ## Previous Session (Session Nov 22, 2025)
 

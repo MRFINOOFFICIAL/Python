@@ -23,6 +23,7 @@ async def upgrades_autocomplete(interaction: discord.Interaction, current: str):
             "Sala de Meditación": {"costo": 8000, "desc": "+30% XP"},
             "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate"},
             "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos"},
+            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas de clanes"},
         }
         filtered = [name for name in UPGRADES.keys() if current.lower() in name.lower()] if current else list(UPGRADES.keys())
         return [app_commands.Choice(name=f"{name} ({UPGRADES[name]['costo']}💰)", value=name) for name in filtered[:25]]
@@ -459,6 +460,7 @@ class ClubsCog(commands.Cog):
             "Sala de Meditación": {"costo": 8000, "desc": "+30% XP para todos en actividades", "tipo": "xp"},
             "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate contra bosses", "tipo": "combate"},
             "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos", "tipo": "minigames"},
+            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas de clanes", "tipo": "batalla"},
         }
         
         owned = []
@@ -498,6 +500,7 @@ class ClubsCog(commands.Cog):
             "Sala de Meditación": {"costo": 8000, "desc": "+30% XP"},
             "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate"},
             "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos"},
+            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas de clanes"},
         }
         
         if upgrade not in UPGRADES:
