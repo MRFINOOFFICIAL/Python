@@ -186,12 +186,21 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
    - **Recompensas**: Ganadores reciben 500-1000💰 + 100-200 XP c/u
    - Perdedores reciben 50-200💰 + 20-50 XP c/u
 
-4. **Upgrade "Defensa de Clan"** (12000💰):
-   - Se compra con `/comprar-upgrade-clan "Defensa de Clan"`
-   - +50% HP durante batallas de clanes
-   - Aplica a todos los miembros del clan
+4. **5 Upgrades de Defensa de Clan**:
+   - **Defensa de Clan** (12000💰): +50% HP
+   - **Bunker Seguro** (12000💰): Reduce daño recibido -25%
+   - **Escudo Mental** (15000💰): 40% chance bloquear ataque
+   - **Fortaleza Emocional** (18000💰): Regenera +10 HP por turno
+   - **Muralla de Resistencia** (14000💰): +75% HP
+   - **Refugio Psicológico** (16000💰): Refleja 15% del daño
 
-5. **Temática psiquiátrica**: Mensajes de batalla con emojis temáticos (⚔️💥🏆🛡️)
+5. **Sistema de efectos en batalla**:
+   - Bloqueos: Escudo Mental previene daño completamente
+   - Reflejo: Refugio Psicológico devuelve parte del daño
+   - Regeneración: Fortaleza Emocional recupera HP cada turno
+   - Mitigación: Bunker Seguro reduce daño recibido
+
+6. **Temática psiquiátrica**: Todos los efectos con nombres y emojis temáticos (🛡️🌱💫⚔️)
 
 ## Previous Session (Session Nov 22, 2025)
 

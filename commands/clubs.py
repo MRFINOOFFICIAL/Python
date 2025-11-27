@@ -460,7 +460,12 @@ class ClubsCog(commands.Cog):
             "Sala de Meditación": {"costo": 8000, "desc": "+30% XP para todos en actividades", "tipo": "xp"},
             "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate contra bosses", "tipo": "combate"},
             "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos", "tipo": "minigames"},
-            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas de clanes", "tipo": "batalla"},
+            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas", "tipo": "batalla"},
+            "Bunker Seguro": {"costo": 12000, "desc": "-25% daño recibido en batallas", "tipo": "batalla"},
+            "Escudo Mental": {"costo": 15000, "desc": "40% probabilidad bloquear ataque", "tipo": "batalla"},
+            "Fortaleza Emocional": {"costo": 18000, "desc": "Regenera 10 HP por turno", "tipo": "batalla"},
+            "Muralla de Resistencia": {"costo": 14000, "desc": "+75% HP en batallas", "tipo": "batalla"},
+            "Refugio Psicológico": {"costo": 16000, "desc": "Refleja 15% del daño", "tipo": "batalla"},
         }
         
         owned = []
@@ -500,7 +505,12 @@ class ClubsCog(commands.Cog):
             "Sala de Meditación": {"costo": 8000, "desc": "+30% XP"},
             "Armería Mejorada": {"costo": 10000, "desc": "+15% daño en combate"},
             "Biblioteca Antigua": {"costo": 6000, "desc": "+20% éxito en minijuegos"},
-            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas de clanes"},
+            "Defensa de Clan": {"costo": 12000, "desc": "+50% HP en batallas"},
+            "Bunker Seguro": {"costo": 12000, "desc": "-25% daño recibido"},
+            "Escudo Mental": {"costo": 15000, "desc": "40% probabilidad bloquear"},
+            "Fortaleza Emocional": {"costo": 18000, "desc": "Regenera 10 HP por turno"},
+            "Muralla de Resistencia": {"costo": 14000, "desc": "+75% HP"},
+            "Refugio Psicológico": {"costo": 16000, "desc": "Refleja 15% daño"},
         }
         
         if upgrade not in UPGRADES:

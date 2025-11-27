@@ -161,14 +161,23 @@ class ClanWarsCog(commands.Cog):
                 club1_hp = club1_members_count * 100
                 club2_hp = club2_members_count * 100
                 
-                # Agregar HP por defensa de clan
-                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ? AND upgrade = 'Defensa de Clan'", (club1_id,))
-                if await cur.fetchone():
-                    club1_hp = int(club1_hp * 1.5)  # +50% defensa
+                # Obtener upgrades de defensa de clan
+                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ?", (club1_id,))
+                club1_upgrades = [row[0] for row in await cur.fetchall()]
                 
-                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ? AND upgrade = 'Defensa de Clan'", (club2_id,))
-                if await cur.fetchone():
-                    club2_hp = int(club2_hp * 1.5)  # +50% defensa
+                cur = await db.execute("SELECT upgrade FROM club_upgrades WHERE club_id = ?", (club2_id,))
+                club2_upgrades = [row[0] for row in await cur.fetchall()]
+                
+                # Aplicar efectos de defensa
+                if "Defensa de Clan" in club1_upgrades:
+                    club1_hp = int(club1_hp * 1.5)  # +50%
+                if "Muralla de Resistencia" in club1_upgrades:
+                    club1_hp = int(club1_hp * 1.75)  # +75%
+                
+                if "Defensa de Clan" in club2_upgrades:
+                    club2_hp = int(club2_hp * 1.5)  # +50%
+                if "Muralla de Resistencia" in club2_upgrades:
+                    club2_hp = int(club2_hp * 1.75)  # +75%
                 
                 # Obtener nombres
                 cur = await db.execute("SELECT nombre FROM clubs WHERE id = ?", (club1_id,))
@@ -187,6 +196,8 @@ class ClanWarsCog(commands.Cog):
                     "club2_hp": club2_hp,
                     "club1_name": club1_name,
                     "club2_name": club2_name,
+                    "club1_upgrades": club1_upgrades,
+                    "club2_upgrades": club2_upgrades,
                     "log": []
                 }
                 
@@ -229,24 +240,84 @@ class ClanWarsCog(commands.Cog):
                 club_id = club[0]
                 
                 if club_id == war["club1_id"]:
-                    # Club 1 ataca
+                    # Club 1 ataca a Club 2
                     dmg = random.randint(20, 50)
+                    
+                    # Aplicar reducciones de defensa de Club 2
+                    if "Bunker Seguro" in war["club2_upgrades"]:
+                        dmg = int(dmg * 0.75)  # -25% daño
+                    
+                    # Bloqueo de Escudo Mental
+                    blocked = False
+                    if "Escudo Mental" in war["club2_upgrades"]:
+                        if random.random() < 0.4:  # 40% chance
+                            dmg = 0
+                            blocked = True
+                    
+                    # Aplicar daño
                     war["club2_hp"] -= dmg
+                    
+                    # Reflejo de Refugio Psicológico
+                    reflect_dmg = 0
+                    if "Refugio Psicológico" in war["club2_upgrades"] and dmg > 0:
+                        reflect_dmg = int(dmg * 0.15)  # 15% reflejo
+                        war["club1_hp"] -= reflect_dmg
+                    
                     attacker = war["club1_name"]
                     defender = war["club2_name"]
-                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP\n{defender}: {max(0, war['club2_hp'])} HP"
+                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP"
+                    if blocked:
+                        msg += " *(bloqueado por Escudo Mental)*"
+                    if reflect_dmg > 0:
+                        msg += f"\n💫 **Reflejo**: -{reflect_dmg} HP a {attacker}"
+                    msg += f"\n{defender}: {max(0, war['club2_hp'])} HP"
+                    
+                    # Regeneración de Fortaleza Emocional
+                    if "Fortaleza Emocional" in war["club2_upgrades"]:
+                        war["club2_hp"] += 10
+                        msg += f"\n🌱 **Fortaleza Emocional**: +10 HP a {defender}"
                     
                     # Verificar si club 2 fue derrotado
                     if war["club2_hp"] <= 0:
                         await self.finish_clan_war(ctx, war_id, war["club1_id"], war["club2_id"], war["club1_name"], war["club2_name"])
                         
                 elif club_id == war["club2_id"]:
-                    # Club 2 ataca
+                    # Club 2 ataca a Club 1
                     dmg = random.randint(20, 50)
+                    
+                    # Aplicar reducciones de defensa de Club 1
+                    if "Bunker Seguro" in war["club1_upgrades"]:
+                        dmg = int(dmg * 0.75)  # -25% daño
+                    
+                    # Bloqueo de Escudo Mental
+                    blocked = False
+                    if "Escudo Mental" in war["club1_upgrades"]:
+                        if random.random() < 0.4:  # 40% chance
+                            dmg = 0
+                            blocked = True
+                    
+                    # Aplicar daño
                     war["club1_hp"] -= dmg
+                    
+                    # Reflejo de Refugio Psicológico
+                    reflect_dmg = 0
+                    if "Refugio Psicológico" in war["club1_upgrades"] and dmg > 0:
+                        reflect_dmg = int(dmg * 0.15)  # 15% reflejo
+                        war["club2_hp"] -= reflect_dmg
+                    
                     attacker = war["club2_name"]
                     defender = war["club1_name"]
-                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP\n{defender}: {max(0, war['club1_hp'])} HP"
+                    msg = f"⚔️ **{attacker}** atacó! -{dmg} HP"
+                    if blocked:
+                        msg += " *(bloqueado por Escudo Mental)*"
+                    if reflect_dmg > 0:
+                        msg += f"\n💫 **Reflejo**: -{reflect_dmg} HP a {attacker}"
+                    msg += f"\n{defender}: {max(0, war['club1_hp'])} HP"
+                    
+                    # Regeneración de Fortaleza Emocional
+                    if "Fortaleza Emocional" in war["club1_upgrades"]:
+                        war["club1_hp"] += 10
+                        msg += f"\n🌱 **Fortaleza Emocional**: +10 HP a {defender}"
                     
                     # Verificar si club 1 fue derrotado
                     if war["club1_hp"] <= 0:
