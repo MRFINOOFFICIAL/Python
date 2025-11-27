@@ -166,7 +166,28 @@ Core game state (money, items, XP, jobs) stored in SQLite for durability.
 
 **Dual Command Support**: Maintains backward compatibility with prefix commands while supporting modern slash commands.
 
-## Recent Changes (Session Nov 22, 2025)
+## Recent Changes (Session Nov 27, 2025)
+
+### Sistema de Batalla de Clanes ⚔️
+1. **Nueva tabla `clan_wars`** en BD:
+   - Tracks guerras entre clanes (id, club1_id, club2_id, estado, ganador, fecha_inicio)
+   - Estados: "pendiente" → "activo" → "completado"
+
+2. **Comandos nuevos** (`commands/clan_wars.py`):
+   - `/desafiar-clan <nombre>` — Solo líder puede desafiar a otro clan
+   - `/aceptar-batalla-clan` — Líder del clan defendedor acepta batalla
+   - `/guerras-clan` — Ver histórico de guerras del clan actual
+
+3. **Sistema de batalla**:
+   - Todos los miembros de ambos clanes atacan
+   - Cada miembro tiene 70% chance de golpear (25-75 daño)
+   - Clan con más daño total gana
+   - **Recompensas**: Ganadores reciben 500-1000💰 + 100-200 XP cada uno
+   - Perdedores reciben 50-200💰 + 20-50 XP cada uno
+
+4. **Temática psiquiátrica**: Mensajes de batalla con emojis temáticos (⚔️💥🏆)
+
+## Previous Session (Session Nov 22, 2025)
 
 ### Session Summary
 **Completed Advanced Features Implementation + Game Balance Pass:**

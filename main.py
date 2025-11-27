@@ -190,6 +190,7 @@ async def main():
         await bot.load_extension("commands.market")
         await bot.load_extension("commands.duels")
         await bot.load_extension("commands.clubs")
+        await bot.load_extension("commands.clan_wars")
         await bot.load_extension("commands.pets")
         await bot.load_extension("commands.mining")
         await bot.load_extension("commands.fishing")

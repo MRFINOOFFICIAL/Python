@@ -237,6 +237,19 @@ async def init_db():
             last_fish TIMESTAMP
         )
         """)
+        
+        await db.execute("""
+        CREATE TABLE IF NOT EXISTS clan_wars (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            club1_id INTEGER NOT NULL,
+            club2_id INTEGER NOT NULL,
+            estado TEXT DEFAULT 'pendiente',
+            ganador INTEGER,
+            fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (club1_id) REFERENCES clubs(id),
+            FOREIGN KEY (club2_id) REFERENCES clubs(id)
+        )
+        """)
 
         await db.commit()
 
