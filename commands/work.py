@@ -54,38 +54,28 @@ for rank_jobs in JOBS_BY_RANK.values():
 QUESTION_BANK = {
     "matematicas": {
         "easy": [
-            {"p":"¿Cuánto es 2 + 2?","r":["4","cuatro"]},
-            {"p":"¿Cuánto es 5 - 3?","r":["2","dos"]},
-            {"p":"¿Cuánto es 3 × 3?","r":["9","nueve"]},
-            {"p":"¿Cuánto es 10 - 6?","r":["4","cuatro"]},
-            {"p":"¿Cuánto es 2 × 5?","r":["10","diez"]},
-            {"p":"¿Cuánto es 8 ÷ 2?","r":["4","cuatro"]},
-            {"p":"¿Cuánto es 1 + 1?","r":["2","dos"]}
+            {"p":"¿Cuánto es (12 + 8) × 2?","r":["40"]},
+            {"p":"¿Cuánto es 150 - 65?","r":["85"]},
+            {"p":"¿Cuánto es 12 × 4?","r":["48"]},
+            {"p":"¿Cuánto es 81 ÷ 9?","r":["9"]}
         ],
         "normal": [
-            {"p":"¿Cuánto es 12 ÷ 3?","r":["4","cuatro"]},
-            {"p":"Si x=5, ¿qué es x+7?","r":["12","doce"]},
-            {"p":"Resuelve: 7+8","r":["15","quince"]},
-            {"p":"¿Cuánto es 25 ÷ 5?","r":["5","cinco"]},
-            {"p":"Si y=3, ¿qué es y×4?","r":["12","doce"]},
-            {"p":"Resuelve: 20 - 9","r":["11","once"]},
-            {"p":"¿Cuánto es 6 × 3?","r":["18","dieciocho"]}
+            {"p":"¿Cuál es el valor de x en: 2x + 5 = 17?","r":["6"]},
+            {"p":"¿Cuánto es 15 × 15?","r":["225"]},
+            {"p":"¿Cuál es el 15% de 200?","r":["30"]},
+            {"p":"Resuelve: (4^2) + (3^2)","r":["25"]}
         ],
         "hard": [
-            {"p":"¿Cuánto es 13 × 7?","r":["91","noventa y uno"]},
-            {"p":"¿Cuál es la raíz cuadrada de 144?","r":["12","doce"]},
-            {"p":"¿Cuánto es 156 ÷ 12?","r":["13","trece"]},
-            {"p":"Si a=8, ¿qué es a×9?","r":["72","setenta y dos"]},
-            {"p":"¿Cuál es la raíz cuadrada de 169?","r":["13","trece"]},
-            {"p":"Resuelve: 45 + 27","r":["72","setenta y dos"]}
+            {"p":"¿Cuánto es 17 × 14?","r":["238"]},
+            {"p":"¿Cuál es el área de un círculo con radio 5? (Usa π=3.14)","r":["78.5"]},
+            {"p":"¿Cuánto es 1024 ÷ 32?","r":["32"]},
+            {"p":"Si x^2 = 225, ¿cuál es el valor positivo de x?","r":["15"]}
         ],
         "expert": [
-            {"p":"Resuelve: 17 × 13","r":["221","doscientos veintiuno"]},
-            {"p":"¿Cuánto es 2^6?","r":["64","sesenta y cuatro"]},
-            {"p":"¿Cuánto es 15^2?","r":["225","doscientos veinticinco"]},
-            {"p":"¿Cuánto es 3^5?","r":["243","doscientos cuarenta y tres"]},
-            {"p":"¿Cuál es el resultado de 99 × 11?","r":["1089","mil ochenta y nueve"]},
-            {"p":"¿Cuánto es 144 ÷ 12?","r":["12","doce"]}
+            {"p":"¿Cuál es el logaritmo en base 10 de 1000?","r":["3"]},
+            {"p":"¿Cuánto es 2^10?","r":["1024"]},
+            {"p":"Resuelve: 13^2 + 14^2","r":["365"]},
+            {"p":"¿Cuál es la raíz cúbica de 729?","r":["9"]}
         ]
     },
     "cultura": {
@@ -245,16 +235,23 @@ def generate_false_options(correct_answer: str, num_options: int = 3) -> list:
     
     # Lista de opciones falsas genéricas por categoría
     generic_false = [
-        "No sé", "Depende", "Ninguna", "Todas", "5", "0", "Incorrecto",
-        "Falso", "Desconocido", "No existe", "Error", "N/A", "Indefinido",
-        "Imposible", "Infinito", "Negativo", "Positivo", "Cero", "Uno"
+        "Inexistente", "Variable dependiente", "Hipótesis nula", "Efecto placebo", 
+        "Desviación estándar", "Error sistemático", "Análisis de regresión",
+        "Correlación espuria", "Paradoja de Simpson", "Entropía negativa", 
+        "Sinergia disruptiva", "Homeostasis", "Sesgo cognitivo", "Disonancia"
     ]
     
     # Adicionar opciones basadas en el tipo de respuesta
     try:
         if correct_answer.isdigit():
             num = int(correct_answer)
-            false_options.extend([str(num + 1), str(num - 1), str(num * 2)])
+            # Generar números cercanos pero creíbles
+            if num > 1000:
+                false_options.extend([str(num + random.randint(1, 50)), str(num - random.randint(1, 50))])
+            elif num > 100:
+                false_options.extend([str(num + random.randint(1, 10)), str(num - random.randint(1, 10))])
+            else:
+                false_options.extend([str(num + 2), str(num - 2), str(num + 5)])
     except:
         pass
     
