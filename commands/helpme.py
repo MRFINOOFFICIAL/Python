@@ -179,7 +179,7 @@ class HelpAlmanacView(discord.ui.View):
         """Ayuda general de comandos"""
         embed = discord.Embed(
             title="📜 Menú de Ayuda — Los Ezquisos",
-            description="Guía completa del bot (RPG de economía hospitalaria).",
+            description="Guía completa del bot (RPG de economía hospitalaria).\n\n🌐 **Wiki Oficial:** [Manual del Sanatorio](https://6e292a9c-4eee-4a73-b579-cf64e470e1e9-00-1bzpubtv5jgfe.kirk.replit.dev/wiki)",
             color=discord.Color.dark_teal()
         )
         embed.add_field(
